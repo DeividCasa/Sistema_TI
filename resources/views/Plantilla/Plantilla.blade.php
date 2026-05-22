@@ -179,7 +179,7 @@
       min-height: calc(100vh - var(--nav-h));
       display: flex; flex-direction: column;
     }
-    .main-content { flex: 1; padding: 28px 32px; }
+    .main-content { flex: 1; padding: 28px 32px; display: block; width: 100%; }
 
     /* ══ FOOTER ══ */
     .main-footer {
@@ -191,13 +191,7 @@
       transition: background var(--tr), border-color var(--tr);
     }
 
-    /* ══ CLASES GLOBALES REUTILIZABLES ══ */
-    .card {
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow-sm);
-      transition: background var(--tr), border-color var(--tr);
-    }
-    .card-pad { padding: 24px; }
+    
 
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
@@ -318,26 +312,24 @@
     </div>
   </header>
 
-  {{-- ══ SIDEBAR ══ --}}
-  <aside class="sidebar">
+<aside class="sidebar" style="@yield('sidebar-display', 'display:none')">
     @stack('sidebar-menu')
     <div class="sidebar-foot">
-      @stack('sidebar-foot')
+        @stack('sidebar-foot')
     </div>
-  </aside>
+</aside>
 
-  {{-- ══ CONTENIDO ══ --}}
-  <div class="main-wrap">
+<div class="main-wrap" style="margin-left: @yield('sidebar-margin', '0px')">
     <main class="main-content">
-      @yield('contenido')
+        @yield('contenido')
     </main>
     <footer class="main-footer">
-      <span>© 2026 Creaciones Leo José de Salcedo</span>
-      <span>Laravel 11 · Three.js · IA</span>
+        <span>© 2026 Creaciones Leo José de Salcedo</span>
+        <span>Laravel 11 · Three.js · IA</span>
     </footer>
-  </div>
+</div>
 
-  @stack('scripts')
+@stack('scripts')
 
   <script>
     // modo nocturno
