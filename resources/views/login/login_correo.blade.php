@@ -307,7 +307,7 @@
     <h2>Ingresa tu correo</h2>
     <p>Paso 1 de 2 — Verificamos que tengas una cuenta registrada.</p>
 
-    <form action="{{ route('guardar.correo') }}" method="POST">
+    <form action="{{ route('login.verificar-correo') }}" method="POST">
       @csrf
       <div class="field">
         <label for="email">Correo electrónico</label>
@@ -337,7 +337,7 @@
     <div class="divider">o</div>
 
     <div class="register">
-      ¿No tienes cuenta? <a href="/register">Regístrate gratis</a>
+      ¿No tienes cuenta? <a href="/registro">Regístrate gratis</a>
     </div>
 
     <a href="/" class="back">← Volver al inicio</a>

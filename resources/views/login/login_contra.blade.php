@@ -314,7 +314,7 @@
     <h2>Tu contraseña</h2>
     <p>Paso 2 de 2 — Ingresa tu contraseña para acceder a tu cuenta.</p>
 
-    <form action="{{ route('validar.login') }}" method="POST">
+    <form action="{{ route('login.verificar-contrasena') }}" method="POST">
       @csrf
       <div class="field">
         <label for="password">Contraseña</label>

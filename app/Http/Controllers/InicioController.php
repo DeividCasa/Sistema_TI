@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Plantilla;
+
 
 class InicioController extends Controller
 {
@@ -11,8 +13,9 @@ class InicioController extends Controller
      */
     public function index()
     {
-        return view('inicio');
+        $plantillas = Plantilla::all();
 
+        return view('Pagina_central.inicio_principal', compact('plantillas'));
     }
 
     /**
