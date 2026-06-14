@@ -19,7 +19,18 @@
   <div class="sec-title">Pedido {{ $pedido->codigo }}</div>
   <a href="{{ route('admin.pedidos.index') }}" class="btn-secondary">← Volver</a>
 </div>
-
+{{-- IMAGEN --}}
+        <div style="width:64px;height:64px;border-radius:10px;background:var(--bg-3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+          @if(optional($pedido->disenio->plantilla ?? null)->imagen_preview)
+            <img src="{{ asset('storage/'.$pedido->disenio->plantilla->imagen_preview) }}"
+                 alt="{{ $pedido->disenio->nombre }}"
+                 style="width:100%;height:100%;object-fit:cover;">
+          @else
+            <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--text-3);fill:none;stroke-width:1.5;">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg>
+          @endif
+        </div>
 <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;">
 
   {{-- COLUMNA IZQUIERDA --}}
@@ -68,39 +79,60 @@
       @endif
     </div>
 
-    {{-- Comprobantes --}}
-    <div class="card card-pad reveal">
-      <div class="sec-title" style="margin-bottom:16px;">Comprobantes de pago</div>
-      @if($pedido->comprobantes->isEmpty())
-        <p class="t-muted">No hay comprobantes subidos aún.</p>
-      @else
-        @foreach($pedido->comprobantes as $comp)
-          <div style="display:flex;align-items:center;justify-content:space-between;
-            padding:12px;background:var(--bg-3);border-radius:10px;margin-bottom:10px;
-            border:1px solid var(--border);">
-            <div>
-              <div class="t-text" style="text-transform:capitalize;">{{ $comp->tipo }}</div>
-              <div class="t-muted">Ref: {{ $comp->referencia ?? '—' }} · ${{ number_format($comp->monto, 2) }}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              @if($comp->estado == 'verificado')
-                <span class="est est-listo">Verificado</span>
-              @elseif($comp->estado == 'rechazado')
-                <span class="est est-pendiente">Rechazado</span>
-              @else
-                <span class="est est-recibido">Pendiente</span>
-              @endif
-              <a href="{{ asset('storage/'.$comp->archivo) }}" target="_blank"
-                style="padding:5px 12px;border-radius:8px;background:var(--blue-soft);
-                color:var(--blue);font-size:0.75rem;font-weight:600;text-decoration:none;
-                border:1px solid var(--blue-border);">
-                Ver archivo
-              </a>
-            </div>
+  @foreach($pedido->comprobantes as $comp)
+    <div style="background:var(--bg-3);border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid var(--border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <div class="t-text" style="text-transform:capitalize;">{{ $comp->tipo }}</div>
+          <div class="t-muted">Ref: {{ $comp->referencia ?? '—' }} · ${{ number_format($comp->monto, 2) }}</div>
+        </div>
+        @if($comp->estado == 'verificado')
+          <span class="est est-listo">Verificado</span>
+        @elseif($comp->estado == 'rechazado')
+          <span class="est est-pendiente">Rechazado</span>
+        @else
+          <span class="est est-recibido">Pendiente</span>
+        @endif
+      </div>
+  
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="{{ asset('storage/'.$comp->archivo) }}" target="_blank"
+          style="padding:6px 14px;border-radius:8px;background:var(--blue-soft);
+          color:var(--blue);font-size:0.78rem;font-weight:600;text-decoration:none;
+          border:1px solid var(--blue-border);">
+          Ver archivo
+        </a>
+  
+        @if($comp->estado == 'pendiente')
+          <form action="{{ route('admin.comprobantes.verificar', $comp->id) }}" method="POST">
+            @csrf
+            <button type="submit"
+              style="padding:6px 14px;border-radius:8px;background:#DCFCE7;
+              color:#15803D;font-size:0.78rem;font-weight:600;border:1px solid #BBF7D0;cursor:pointer;">
+              ✓ Verificar
+            </button>
+          </form>
+  
+          <form action="{{ route('admin.comprobantes.rechazar', $comp->id) }}" method="POST"
+                onsubmit="return confirm('¿Rechazar este comprobante?')">
+            @csrf
+            <input type="hidden" name="nota" value="Comprobante no válido.">
+            <button type="submit"
+              style="padding:6px 14px;border-radius:8px;background:#FEE2E2;
+              color:#991B1B;font-size:0.78rem;font-weight:600;border:1px solid #FECACA;cursor:pointer;">
+              ✗ Rechazar
+            </button>
+          </form>
+        @endif
+  
+        @if($comp->nota_admin)
+          <div style="width:100%;font-size:0.78rem;color:var(--text-3);margin-top:6px;">
+            Nota: {{ $comp->nota_admin }}
           </div>
-        @endforeach
-      @endif
+        @endif
+      </div>
     </div>
+  @endforeach
 
     {{-- Historial --}}
     <div class="card card-pad reveal">

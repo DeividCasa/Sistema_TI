@@ -7,93 +7,279 @@
 @section('sidebar-display', 'display:flex')
 @section('sidebar-margin', 'var(--sidebar-w)')
 
-
-
 @section('contenido')
+
+<style>
+    /* Estilos específicos para esta vista (mejoras visuales) */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.8rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .admin-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .admin-badge {
+        background: var(--bg-3);
+        color: var(--text-2);
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid var(--border);
+    }
+    .btn-new {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--blue);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: opacity 0.15s;
+        text-decoration: none;
+    }
+    .btn-new:hover {
+        opacity: 0.9;
+    }
+    /* Grid de plantillas */
+    .plantillas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+    }
+    .plantilla-card {
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+    .plantilla-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--blue-border);
+    }
+    /* Contenedor de imagen cuadrado y centrado */
+    .plantilla-image {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        background: var(--bg-3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .plantilla-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.2s;
+    }
+    .plantilla-card:hover .plantilla-image img {
+        transform: scale(1.02);
+    }
+    .plantilla-image .no-img {
+        font-size: 48px;
+        color: var(--text-3);
+    }
+    .badge-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+    }
+    .estado-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.7rem;
+        display: inline-block;
+        border: 1px solid transparent;
+    }
+    .est-activa {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+    .est-inactiva {
+        background: #ffe4e2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+    [data-theme="dark"] .est-activa {
+        background: #14532d;
+        color: #86efac;
+        border-color: #166534;
+    }
+    [data-theme="dark"] .est-inactiva {
+        background: #7f1d1d;
+        color: #fecaca;
+        border-color: #991b1b;
+    }
+    .plantilla-info {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .plantilla-nombre {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text-1);
+        line-height: 1.3;
+    }
+    .plantilla-tipo {
+        font-size: 0.75rem;
+        color: var(--text-3);
+        text-transform: capitalize;
+    }
+    .acciones {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .btn-edit {
+        flex: 1;
+        background: var(--blue);
+        color: white;
+        border: none;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+    }
+    .btn-edit:hover {
+        opacity: 0.9;
+    }
+    .btn-delete {
+        background: transparent;
+        border: 1px solid var(--border);
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--text-2);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .btn-delete:hover {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+    /* Empty state */
+    .empty-card {
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        padding: 3rem;
+        text-align: center;
+    }
+    .empty-svg {
+        width: 64px;
+        height: 64px;
+        stroke: var(--text-3);
+        margin-bottom: 1rem;
+    }
+    @media (max-width: 640px) {
+        .plantillas-grid {
+            grid-template-columns: 1fr;
+        }
+        .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
 
 {{-- Mensaje de éxito --}}
 @if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
+  <div style="background:#DCFCE7; border-left:4px solid #15803D; color:#15803D; padding:0.75rem 1rem; margin-bottom:1.5rem; font-size:0.85rem;">
     ✓ {{ session('success') }}
   </div>
 @endif
 
 {{-- Header --}}
-<div class="sec-header reveal">
-  <div class="sec-title">
-    Plantillas
-    <span class="sec-badge">{{ $plantillas->count() }} registradas</span>
-  </div>
-  <a href="{{ route('admin.plantillas.create') }}" class="btn-primary">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Nueva plantilla
-  </a>
+<div class="admin-header">
+    <div class="admin-title">
+        Plantillas
+        <span class="admin-badge">{{ $plantillas->count() }} registradas</span>
+    </div>
+    <a href="{{ route('admin.plantillas.create') }}" class="btn-new">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva plantilla
+    </a>
 </div>
 
 {{-- Grid de plantillas --}}
 @if($plantillas->isEmpty())
-  <div class="card">
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      <p>No hay plantillas registradas. ¡Crea la primera!</p>
+    <div class="empty-card">
+        <div class="empty-svg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+        </div>
+        <p style="color: var(--text-2);">No hay plantillas registradas. ¡Crea la primera!</p>
     </div>
-  </div>
 @else
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
-    @foreach($plantillas as $plantilla)
-      <div class="card reveal" style="overflow:hidden;">
-        {{-- Imagen --}}
-        <div style="height:180px;background:var(--bg-3);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-          @if($plantilla->imagen_preview)
-            <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}"
-                 alt="{{ $plantilla->nombre }}"
-                 style="width:100%;height:100%;object-fit:cover;">
-          @else
-            <svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:var(--text-3);fill:none;stroke-width:1.5;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          @endif
-          {{-- Badge activa/inactiva --}}
-          <div style="position:absolute;top:8px;right:8px;">
-            @if($plantilla->activa)
-              <span class="est est-listo">Activa</span>
-            @else
-              <span class="est est-entregado">Inactiva</span>
-            @endif
-          </div>
-        </div>
-
-        {{-- Info --}}
-        <div style="padding:14px 16px;">
-          <div style="font-family:var(--font-d);font-weight:700;font-size:0.92rem;color:var(--text-1);margin-bottom:4px;">
-            {{ $plantilla->nombre }}
-          </div>
-          <div style="font-size:0.78rem;color:var(--text-3);text-transform:capitalize;margin-bottom:14px;">
-            {{ $plantilla->tipo_prenda }}
-          </div>
-
-          {{-- Acciones --}}
-          <div style="display:flex;gap:8px;">
-            <a href="{{ route('admin.plantillas.edit', $plantilla->id) }}"
-               class="btn-primary" style="padding:7px 14px;font-size:0.78rem;flex:1;justify-content:center;">
-              Editar
-            </a>
-            <form action="{{ route('admin.plantillas.destroy', $plantilla->id) }}" method="POST"
-                  onsubmit="return confirm('¿Eliminar esta plantilla?')">
-              @csrf
-              @method('DELETE')
-              <button type="submit"
-                style="padding:7px 14px;border-radius:9px;border:1px solid var(--border);
-                background:var(--bg-3);color:var(--text-2);font-size:0.78rem;cursor:pointer;
-                transition:all var(--tr);"
-                onmouseover="this.style.background='#FEF2F2';this.style.color='#DC2626';this.style.borderColor='#FCA5A5'"
-                onmouseout="this.style.background='var(--bg-3)';this.style.color='var(--text-2)';this.style.borderColor='var(--border)'">
-                Eliminar
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    @endforeach
-  </div>
+    <div class="plantillas-grid">
+        @foreach($plantillas as $plantilla)
+            <div class="plantilla-card">
+                <div class="plantilla-image">
+                    @if($plantilla->imagen_preview)
+                        <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}"
+                             alt="{{ $plantilla->nombre }}"
+                             loading="lazy">
+                    @else
+                        <div class="no-img">
+                            <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" fill="none" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                    @endif
+                    <div class="badge-status">
+                        @if($plantilla->activa)
+                            <span class="estado-badge est-activa">Activa</span>
+                        @else
+                            <span class="estado-badge est-inactiva">Inactiva</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="plantilla-info">
+                    <div class="plantilla-nombre">{{ $plantilla->nombre }}</div>
+                    <div class="plantilla-tipo">{{ $plantilla->tipo_prenda }}</div>
+                    <div class="acciones">
+                        <a href="{{ route('admin.plantillas.edit', $plantilla->id) }}" class="btn-edit">Editar</a>
+                        <form action="{{ route('admin.plantillas.destroy', $plantilla->id) }}" method="POST"
+                              onsubmit="return confirm('¿Eliminar esta plantilla?')" style="display: inline-block;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-delete">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
 @endif
 
+@endsection
 @endsection

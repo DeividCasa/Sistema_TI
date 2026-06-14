@@ -21,8 +21,8 @@
       --border-2:     #CBD5E1;
       --text-1:       #0F172A;
       --text-2:       #475569;
-      --text-3:       #94A3B8;
-      --blue:         #2563EB;
+      --text-3:       #240677;
+      --blue:         #240677;
       --blue-h:       #1D4ED8;
       --blue-soft:    #EFF6FF;
       --blue-border:  #BFDBFE;
@@ -47,14 +47,14 @@
        VARIABLES MODO OSCURO
     ══════════════════════ */
     [data-theme="dark"] {
-      --bg:           #0B1120;
-      --bg-2:         #111827;
+      --bg:           #171e2c;
+      --bg-2:         #000000;
       --bg-3:         #1A2235;
       --border:       #1E2D45;
       --border-2:     #2A3F5F;
       --text-1:       #F1F5F9;
-      --text-2:       #94A3B8;
-      --text-3:       #475569;
+      --text-2:       #ebebeb;
+      --text-3:       #677b97;
       --sidebar-bg:   #080E1A;
       --sidebar-actbg:rgba(37,99,235,0.2);
       --blue-soft:    rgba(37,99,235,0.12);
@@ -306,8 +306,9 @@
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         <svg class="icon-sun"  viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <div class="nav-avatar">U</div>
-    <a class="nav-link" href="/"> salir </a>
+      <div class="nav-avatar">{{ strtoupper(substr(session('usuario_nombre', 'U'), 0, 1)) }}</div>
+      <span style="font-size:0.82rem;font-weight:600;color:var(--text-2);">{{ session('usuario_nombre', '') }}</span>
+    <a href="{{ route('logout') }}" class="btn-logout">Salir</a>
       @stack('topbar-acciones')
     </div>
   </header>

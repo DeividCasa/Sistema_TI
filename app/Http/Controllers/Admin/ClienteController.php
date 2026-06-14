@@ -14,6 +14,8 @@ class ClienteController extends Controller
                            ->orderBy('created_at', 'desc')
                            ->get();
         return view('admin.clientes.index', compact('clientes'));
+
+        
     }
 
     // ── VER DETALLE

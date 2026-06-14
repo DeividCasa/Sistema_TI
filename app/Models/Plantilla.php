@@ -11,9 +11,18 @@ class Plantilla extends Model
     protected $fillable = [
         'nombre',
         'tipo_prenda',
+        'descripcion',
+        'precio',
+        'colores',
+        'tallas',
         'archivo_3d',
         'imagen_preview',
         'activa',
+    ];
+
+    protected $casts = [
+        'colores' => 'array',
+        'tallas'  => 'array',
     ];
 
     public function disenios()

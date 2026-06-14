@@ -20,7 +20,7 @@
       --text-1:       #0F172A;
       --text-2:       #475569;
       --text-3:       #94A3B8;
-      --blue:         #2563EB;
+      --blue:         #240677;
       --blue-h:       #1D4ED8;
       --blue-soft:    #EFF6FF;
       --blue-border:  #BFDBFE;
@@ -44,14 +44,14 @@
 
     /* ========== MODO OSCURO ========== */
     [data-theme="dark"] {
-      --bg:           #0B1120;
-      --bg-2:         #111827;
+      --bg:           #171e2c;
+      --bg-2:         #000000;
       --bg-3:         #1A2235;
       --border:       #1E2D45;
       --border-2:     #2A3F5F;
       --text-1:       #F1F5F9;
-      --text-2:       #94A3B8;
-      --text-3:       #475569;
+      --text-2:       #ebebeb;
+      --text-3:       #677b97;
       --sidebar-bg:   #080E1A;
       --sidebar-actbg:rgba(37,99,235,0.2);
       --blue-soft:    rgba(37,99,235,0.12);
@@ -61,10 +61,16 @@
       --shadow-lg:    0 12px 40px rgba(0,0,0,0.5);
     }
 
+    /* Fondo con textura sutil profesional */
+    body {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" opacity="0.08"><path d="M0 0h40v40H0z" fill="none"/><path d="M20 0v40M0 20h40" stroke="%23475569" stroke-width="0.5"/></svg>');
+      background-color: var(--bg);
+      background-attachment: fixed;
+    }
+
     html, body { height: 100%; scroll-behavior: smooth; }
     body {
       font-family: var(--font-b);
-      background: var(--bg);
       color: var(--text-1);
       transition: background var(--tr), color var(--tr);
     }
@@ -79,7 +85,6 @@
       padding: 0 24px;
       gap: 20px;
       box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(0px);
     }
     .topbar-brand {
       display: flex; align-items: center; gap: 10px;
@@ -111,6 +116,25 @@
     .topbar-right {
       display: flex; align-items: center; gap: 12px;
     }
+    /* Enlaces de texto simples (sin iconos ni estilo de botón) */
+    .topbar-link {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+      transition: color 0.2s;
+      margin-left: 4px;
+    }
+    .topbar-link:hover {
+      color: var(--blue);
+    }
+    /* Separador visual */
+    .topbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+    }
     .btn-theme {
       width: 36px; height: 36px; border-radius: 40px;
       background: var(--bg-3); border: 1px solid var(--border);
@@ -129,14 +153,78 @@
       background: linear-gradient(135deg, var(--blue), var(--blue-light));
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; color: white; cursor: pointer;
+      border: none;
+      font-family: var(--font-d);
     }
-    .btn-logout {
-      background: var(--bg-3); border: 1px solid var(--border);
-      padding: 7px 14px; border-radius: 30px;
-      font-size: 0.75rem; font-weight: 600; color: var(--text-2);
-      text-decoration: none; transition: all var(--tr);
+    .account-menu-wrap {
+      position: relative;
     }
-    .btn-logout:hover { border-color: #FCA5A5; background: #FEF2F2; color: #DC2626; }
+    .account-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 220px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      padding: 8px;
+      display: none;
+      z-index: 260;
+    }
+    .account-menu-wrap:hover .account-menu,
+    .account-menu-wrap.open .account-menu {
+      display: block;
+    }
+    .account-menu::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 14px;
+      width: 12px;
+      height: 12px;
+      background: var(--bg-2);
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+    .account-head {
+      padding: 8px 10px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 6px;
+    }
+    .account-name {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.2;
+    }
+    .account-role {
+      font-size: 0.75rem;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+    .account-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      color: var(--text-2);
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: background var(--tr), color var(--tr);
+    }
+    .account-link:hover {
+      background: var(--bg-3);
+      color: var(--blue);
+    }
+    .account-link.danger:hover {
+      color: #DC2626;
+      background: #FEF2F2;
+    }
 
     /* ========== SIDEBAR (FILTROS) ========== */
     .sidebar {
@@ -189,58 +277,57 @@
       margin-top: var(--nav-h);
       margin-left: var(--sidebar-w);
       min-height: calc(100vh - var(--nav-h));
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
     }
     .main-content {
       flex: 1;
       padding: 28px 32px;
     }
 
-    /* Tarjetas destacadas (Uniformes + Crea diseño) */
-    .featured-row {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-    .feature-card {
-      flex: 1;
+    /* Tarjeta "Crear diseño" mejorada */
+    .create-card {
       background: var(--bg-2);
-      border-radius: 20px;
-      padding: 24px 28px;
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      transition: all 0.25s ease;
+      padding: 24px 28px;
+      margin-bottom: 32px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      cursor: pointer;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      transition: all 0.2s;
     }
-    .feature-card:hover {
-      transform: translateY(-4px);
+    .create-card:hover {
       border-color: var(--blue-border);
       box-shadow: var(--shadow-md);
     }
-    .feature-info h3 {
-      font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;
+    .create-info h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
       color: var(--text-1);
+      margin-bottom: 4px;
     }
-    .feature-info p {
-      font-size: 0.85rem; color: var(--text-2); max-width: 280px;
+    .create-info p {
+      font-size: 0.85rem;
+      color: var(--text-2);
     }
-    .feature-link {
-      margin-top: 14px; font-weight: 600; color: var(--blue);
-      font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px;
-    }
-    .feature-icon {
-      width: 70px; height: 70px; background: var(--blue-soft);
-      border-radius: 40px; display: flex; align-items: center; justify-content: center;
-      font-size: 32px; color: var(--blue);
-      transition: 0.2s;
-    }
-    .feature-card:hover .feature-icon {
+    .create-btn {
       background: var(--blue);
       color: white;
+      border: none;
+      padding: 10px 24px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-radius: 40px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+    .create-btn:hover {
+      opacity: 0.9;
     }
 
     /* Encabezado catálogo */
@@ -256,16 +343,13 @@
       font-size: 1.6rem; font-weight: 700; color: var(--text-1);
       letter-spacing: -0.3px;
     }
-    .catalog-header p {
-      color: var(--text-2); font-size: 0.85rem;
-    }
     .product-count {
       background: var(--blue-soft);
       padding: 5px 14px; border-radius: 40px;
       font-weight: 600; font-size: 0.8rem; color: var(--blue);
     }
 
-    /* Grid de productos */
+    /* Grid de productos - Imágenes corregidas (completas y sin deformación) */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -273,33 +357,44 @@
     }
     .product-card {
       background: var(--bg-2);
-      border-radius: 18px;
       overflow: hidden;
       border: 1px solid var(--border);
       transition: all 0.25s ease;
       display: flex;
       flex-direction: column;
       height: 100%;
+      text-decoration: none;
+      color: inherit;
     }
     .product-card:hover {
       transform: translateY(-5px);
       box-shadow: var(--shadow-md);
       border-color: var(--blue-border);
     }
+    /* Contenedor cuadrado con relación de aspecto 1:1 para que la imagen se vea completa */
     .product-image {
       position: relative;
       background: var(--bg-3);
-      height: 260px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
+    /* La imagen se ajusta sin recortes, mostrando todo el contenido */
     .product-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       transition: transform 0.3s;
+      background: var(--bg-3);
     }
     .product-card:hover .product-image img {
       transform: scale(1.02);
+    }
+    .product-image .no-img {
+      font-size: 48px;
+      color: var(--text-3);
     }
     .badge-new {
       position: absolute;
@@ -311,6 +406,7 @@
       padding: 4px 12px;
       border-radius: 40px;
       z-index: 2;
+      text-transform: capitalize;
     }
     .product-body {
       padding: 16px;
@@ -323,7 +419,6 @@
       font-size: 0.95rem;
       color: var(--text-1);
       margin-bottom: 8px;
-      min-height: 44px;
       line-height: 1.3;
     }
     .product-price {
@@ -337,11 +432,26 @@
       display: flex;
       gap: 8px;
       margin-top: 6px;
+      margin-bottom: 12px;
     }
     .color-dot {
       width: 18px; height: 18px;
       border-radius: 50%;
       border: 1px solid var(--border-2);
+    }
+    .buy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 6px;
+      background: var(--blue);
+      color: white;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background var(--tr);
+      margin-top: auto;
     }
 
     /* Footer */
@@ -394,21 +504,55 @@
     @media (max-width: 900px) {
       .sidebar { display: none; }
       .main-wrap { margin-left: 0; }
-      .featured-row { flex-direction: column; }
       .products-grid { gap: 16px; }
       .main-content { padding: 20px 16px; }
       .search-box { max-width: 200px; }
+      .topbar-link { font-size: 0.75rem; }
     }
     @media (max-width: 550px) {
       .topbar { padding: 0 12px; gap: 10px; }
       .brand-name { font-size: 1rem; }
       .search-box { display: none; }
+      .topbar-link { display: none; } /* en móvil muy pequeño se ocultan para no saturar */
+    }
+    .filter-group li.filtro-activo {
+      color: var(--blue);
+      font-weight: 600;
+    }
+    .filter-group li.filtro-activo i { color: var(--blue); }
+    .color-filter-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--border-2);
+      display: inline-block;
+      flex-shrink: 0;
     }
   </style>
 </head>
 <body>
+@php
+  $usuarioLogueado = session('usuario_id') && session('usuario_rol') === 'cliente';
+  $nombreUsuario = session('usuario_nombre', 'Mi cuenta');
+  $iniciales = collect(explode(' ', trim($nombreUsuario)))
+    ->filter()
+    ->take(2)
+    ->map(fn($parte) => mb_substr($parte, 0, 1))
+    ->implode('');
+  $iniciales = $iniciales ?: 'LJ';
+  $nombreColores = [
+    '#2563EB' => 'Azul',
+    '#DC2626' => 'Rojo',
+    '#16A34A' => 'Verde',
+    '#0F172A' => 'Negro',
+    '#FFFFFF' => 'Blanco',
+    '#D97706' => 'Dorado',
+  ];
+  $tallasDisponibles = $plantillas->flatMap(fn($p) => $p->tallas ?? [])->unique()->values();
+  $coloresDisponibles = $plantillas->flatMap(fn($p) => $p->colores ?? [])->unique()->values();
+@endphp
 
-<!-- TOPBAR -->
+<!-- TOPBAR MODIFICADA: enlaces de texto sin iconos -->
 <header class="topbar">
   <div class="topbar-brand">
     <div class="brand-icon"><i class="fas fa-crown"></i></div>
@@ -416,15 +560,39 @@
   </div>
   <div class="search-box">
     <i class="fas fa-search"></i>
-    <input type="text" placeholder="Buscar productos...">
+    <input type="text" id="buscador" placeholder="Buscar productos..." oninput="filtrarProductos()">
   </div>
   <div class="topbar-right">
+    <!-- Enlaces simples de texto, sin iconos ni estilo de botón -->
+    <a href="#" class="topbar-link">Uniformes escolares</a>
+    @if($usuarioLogueado)
+      <a href="{{ route('cliente.pedidos.index') }}" class="topbar-link">Mis pedidos</a>
+    @endif
+    <div class="topbar-divider"></div>
     <button class="btn-theme" onclick="toggleTheme()">
       <i class="fas fa-moon icon-moon"></i>
       <i class="fas fa-sun icon-sun"></i>
     </button>
-    <div class="nav-avatar">LJ</div>
-    <a href="/login" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
+    <div class="account-menu-wrap" id="account-menu-wrap">
+      <button type="button" class="nav-avatar" onclick="toggleAccountMenu()" aria-label="Cuenta">
+        {{ strtoupper($iniciales) }}
+      </button>
+      <div class="account-menu" id="account-menu">
+        @if($usuarioLogueado)
+          <div class="account-head">
+            <div class="account-name">{{ $nombreUsuario }}</div>
+            <div class="account-role">Mi cuenta</div>
+          </div>
+          <a href="{{ route('logout') }}" class="account-link danger">
+            <i class="fas fa-sign-out-alt"></i> Salir
+          </a>
+        @else
+          <a href="{{ route('login.paso1') }}" class="account-link">
+            <i class="fas fa-right-to-bracket"></i> Iniciar sesión
+          </a>
+        @endif
+      </div>
+    </div>
   </div>
 </header>
 
@@ -433,152 +601,175 @@
   <h5><i class="fas fa-sliders-h" style="margin-right: 6px;"></i> Filtros</h5>
   <div class="filter-group">
     <h6><i class="fas fa-layer-group"></i> Categorías</h6>
-    <ul>
-      <li><i class="fas fa-futbol"></i> Fútbol</li>
-      <li><i class="fas fa-basketball-ball"></i> Basketball</li>
-      <li><i class="fas fa-running"></i> Running</li>
-      <li><i class="fas fa-dumbbell"></i> Fitness</li>
-      <li><i class="fas fa-heartbeat"></i> Training</li>
+    <ul id="filtros-categoria">
+      <li data-tipo="todos" class="filtro-activo" onclick="filtrarCategoria('todos', this)">
+        <i class="fas fa-th"></i> Todos
+      </li>
+      <li data-tipo="camiseta" onclick="filtrarCategoria('camiseta', this)">
+        <i class="fas fa-tshirt"></i> Camisetas
+      </li>
+      <li data-tipo="short" onclick="filtrarCategoria('short', this)">
+        <i class="fas fa-socks"></i> Shorts
+      </li>
+      <li data-tipo="conjunto" onclick="filtrarCategoria('conjunto', this)">
+        <i class="fas fa-vest"></i> Conjuntos
+      </li>
+      <li data-tipo="otro" onclick="filtrarCategoria('otro', this)">
+        <i class="fas fa-ellipsis-h"></i> Otros
+      </li>
     </ul>
   </div>
   <div class="filter-group">
     <h6><i class="fas fa-chart-simple"></i> Tallas</h6>
-    <ul><li>S</li><li>M</li><li>L</li><li>XL</li><li>XXL</li></ul>
+    <ul id="filtros-talla">
+      <li data-talla="todos" class="filtro-activo" onclick="filtrarTalla('todos', this)">
+        <i class="fas fa-ruler"></i> Todas
+      </li>
+      @foreach($tallasDisponibles as $talla)
+        <li data-talla="{{ strtolower($talla) }}" onclick="filtrarTalla('{{ strtolower($talla) }}', this)">
+          <i class="fas fa-tag"></i> {{ $talla }}
+        </li>
+      @endforeach
+    </ul>
   </div>
   <div class="filter-group">
     <h6><i class="fas fa-palette"></i> Colores</h6>
-    <ul><li>Negro</li><li>Blanco</li><li>Azul</li><li>Rojo</li></ul>
+    <ul id="filtros-color">
+      <li data-color="todos" class="filtro-activo" onclick="filtrarColor('todos', this)">
+        <i class="fas fa-circle-half-stroke"></i> Todos
+      </li>
+      @foreach($coloresDisponibles as $color)
+        @php $nombreColor = $nombreColores[strtoupper($color)] ?? $nombreColores[$color] ?? $color; @endphp
+        <li data-color="{{ strtolower($color) }}" onclick="filtrarColor('{{ strtolower($color) }}', this)">
+          <span class="color-filter-dot" style="background:{{ $color }};"></span> {{ $nombreColor }}
+        </li>
+      @endforeach
+    </ul>
   </div>
 </aside>
 
 <div class="main-wrap">
   <main class="main-content">
 
-    <!-- TARJETAS DESTACADAS (Uniformes escolares + Crea diseño) -->
-    <div class="featured-row">
-      <div class="feature-card">
-        <div class="feature-info">
-          <h3><i class="fas fa-graduation-cap" style="color: var(--blue); margin-right: 8px;"></i> Uniformes Escolares</h3>
-          <p>Colección premium para instituciones. Calidad y personalización garantizadas.</p>
-          <div class="feature-link">Solicitar cotización <i class="fas fa-arrow-right"></i></div>
-        </div>
-        <div class="feature-icon"><i class="fas fa-school"></i></div>
+    <!-- Tarjeta "Crear diseño" -->
+    <div class="create-card">
+      <div class="create-info">
+        <h3><i class="fas fa-palette" style="color: var(--blue); margin-right: 8px;"></i> Crea tu propio diseño</h3>
+        <p>Personaliza camisetas, shorts y conjuntos únicos. Totalmente a tu gusto.</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-info">
-          <h3><i class="fas fa-palette"></i> Crea tu propio diseño</h3>
-          <p>Diseña tu indumentaria única: colores, logos, nombres. Todo hecho a medida.</p>
-          <div class="feature-link">Empezar ahora <i class="fas fa-arrow-right"></i></div>
-        </div>
-        <div class="feature-icon"><i class="fas fa-pencil-ruler"></i></div>
-      </div>
+      <a href="#" class="create-btn">
+        Empezar ahora <i class="fas fa-arrow-right"></i>
+      </a>
     </div>
 
     <!-- ENCABEZADO CATÁLOGO -->
     <div class="catalog-header">
       <div>
-        <h2>Colección Performance</h2>
-        <p>Jerseys y prendas técnicas de última generación</p>
+        <h2>Ropas disponibles</h2>
+        <p style="color:var(--text-2);" id="contador-resultados">{{ $plantillas->count() }} modelos disponibles</p>
       </div>
-      <div class="product-count"><i class="fas fa-tshirt"></i> 24 productos</div>
     </div>
 
-{{-- ── PLANTILLAS ── --}}
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-  <div>
-    <h2 style="font-size:1.4rem;font-weight:700;color:var(--text-1);">Plantillas disponibles</h2>
-    <p style="color:var(--text-2);font-size:0.85rem;">{{ $plantillas->count() }} modelos disponibles</p>
-  </div>
-</div>
-
-<div class="products-grid">
-  @forelse($plantillas as $plantilla)
-    <div class="product-card">
-      <div class="product-image">
-        @if($plantilla->imagen_preview)
-          <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}"
-               alt="{{ $plantilla->nombre }}">
-        @else
-          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-tshirt" style="font-size:48px;color:var(--text-3);"></i>
+    <!-- GRID DE PRODUCTOS (imágenes corregidas) -->
+    <div class="products-grid" id="grid-productos">
+      @forelse($plantillas as $plantilla)
+        <a href="{{ route('producto.ver', $plantilla->id) }}"
+           class="product-card producto-item"
+           data-tipo="{{ $plantilla->tipo_prenda }}"
+           data-nombre="{{ strtolower($plantilla->nombre) }}"
+           data-tallas="{{ implode(',', array_map('strtolower', $plantilla->tallas ?? [])) }}"
+           data-colores="{{ implode(',', array_map('strtolower', $plantilla->colores ?? [])) }}">
+          <div class="product-image">
+            @if($plantilla->imagen_preview)
+              <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}"
+                   alt="{{ $plantilla->nombre }}"
+                   loading="lazy">
+            @else
+              <div class="no-img">
+                <i class="fas fa-tshirt"></i>
+              </div>
+            @endif
+            <span class="badge-new">{{ $plantilla->tipo_prenda }}</span>
           </div>
-        @endif
-        <span class="badge-new" style="text-transform:capitalize;">{{ $plantilla->tipo_prenda }}</span>
-      </div>
-      <div class="product-body">
-        <div class="product-name">{{ $plantilla->nombre }}</div>
-        <div style="font-size:0.78rem;color:var(--text-3);margin-bottom:10px;text-transform:capitalize;">
-          {{ $plantilla->tipo_prenda }}
-        </div>
-        <a href="#" style="display:flex;align-items:center;justify-content:center;gap:6px;
-          padding:10px;border-radius:10px;background:var(--blue);color:white;
-          font-size:0.82rem;font-weight:600;text-decoration:none;margin-top:auto;
-          transition:background var(--tr);"
-          onmouseover="this.style.background='var(--blue-h)'"
-          onmouseout="this.style.background='var(--blue)'">
-          <i class="fas fa-shopping-cart"></i> Personalizar
+          <div class="product-body">
+            <div class="product-name">{{ $plantilla->nombre }}</div>
+            <div class="product-price">${{ number_format($plantilla->precio, 2) }}</div>
+            @if(!empty($plantilla->colores))
+              <div class="product-colors">
+                @foreach(array_slice($plantilla->colores, 0, 5) as $color)
+                  <span class="color-dot" style="background:{{ $color }};"></span>
+                @endforeach
+              </div>
+            @endif
+            <div class="buy-btn">
+              <i class="fas fa-shopping-cart"></i> Comprar
+            </div>
+          </div>
         </a>
-      </div>
+      @empty
+        <div id="sin-resultados" style="grid-column:1/-1;text-align:center;padding:48px;background:var(--bg-2);
+          border:1px solid var(--border);">
+          <i class="fas fa-tshirt" style="font-size:40px;color:var(--text-3);display:block;margin-bottom:12px;"></i>
+          <p style="color:var(--text-3);font-size:0.88rem;">No hay plantillas disponibles aún.</p>
+        </div>
+      @endforelse
     </div>
-  @empty
-    <div style="grid-column:1/-1;text-align:center;padding:48px;background:var(--bg-2);
-      border-radius:var(--radius);border:1px solid var(--border);">
-      <i class="fas fa-tshirt" style="font-size:40px;color:var(--text-3);display:block;margin-bottom:12px;"></i>
-      <p style="color:var(--text-3);font-size:0.88rem;">No hay plantillas disponibles aún.</p>
-    </div>
-  @endforelse
-</div> 
-  </main>
 
-  <!-- FOOTER COMPLETO -->
-  <footer class="main-footer">
-    <div class="footer-grid">
-      <div class="footer-col">
-        <h4>COMPANY</h4>
-        <ul>
-          <li><a href="#">Sobre Leo José</a></li>
-          <li><a href="#">Carreras</a></li>
-          <li><a href="#">Prensa</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>SOCIAL RESPONSIBILITY</h4>
-        <ul>
-          <li><a href="#">Sostenibilidad</a></li>
-          <li><a href="#">Comunidad</a></li>
-          <li><a href="#">Ética</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>HELP CENTER</h4>
-        <ul>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Cómo comprar</a></li>
-          <li><a href="#">Términos y condiciones</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>CONTACTO</h4>
-        <ul>
-          <li><i class="fas fa-phone"></i> (800) 225-0550</li>
-          <li><i class="fas fa-envelope"></i> hola@leojose.com</li>
-          <li>Lun-Vie 8:30AM - 5:15PM</li>
-        </ul>
-      </div>
+    <div id="sin-resultados-filtro" style="display:none; grid-column:1/-1; text-align:center; padding:48px; background:var(--bg-2); border:1px solid var(--border); margin-top:16px;">
+      <i class="fas fa-search" style="font-size:40px;color:var(--text-3);display:block;margin-bottom:12px;"></i>
+      <p style="color:var(--text-3);font-size:0.88rem;">No se encontraron productos con esos filtros.</p>
     </div>
-    <div class="footer-bottom">
-      <span>© 2026 Leo José Apparel. Todos los derechos reservados.</span>
-      <div class="social-icons">
-        <i class="fab fa-instagram"></i>
-        <i class="fab fa-facebook"></i>
-        <i class="fab fa-x-twitter"></i>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>COMPANY</h4>
+          <ul>
+            <li><a href="#">Sobre Leo José</a></li>
+            <li><a href="#">Carreras</a></li>
+            <li><a href="#">Prensa</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>SOCIAL RESPONSIBILITY</h4>
+          <ul>
+            <li><a href="#">Sostenibilidad</a></li>
+            <li><a href="#">Comunidad</a></li>
+            <li><a href="#">Ética</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>HELP CENTER</h4>
+          <ul>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Cómo comprar</a></li>
+            <li><a href="#">Términos y condiciones</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>CONTACTO</h4>
+          <ul>
+            <li><i class="fas fa-phone"></i> (800) 225-0550</li>
+            <li><i class="fas fa-envelope"></i> hola@leojose.com</li>
+            <li>Lun-Vie 8:30AM - 5:15PM</li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </footer>
+      <div class="footer-bottom">
+        <span>© 2026 Leo José Apparel. Todos los derechos reservados.</span>
+        <div class="social-icons">
+          <i class="fab fa-instagram"></i>
+          <i class="fab fa-facebook"></i>
+          <i class="fab fa-x-twitter"></i>
+        </div>
+      </div>
+    </footer>
+  </main>
 </div>
 
 <script>
-  // Toggle dark/light mode
+  // Tema
   const html = document.documentElement;
   const savedTheme = localStorage.getItem('lj-theme');
   if (savedTheme) html.setAttribute('data-theme', savedTheme);
@@ -590,6 +781,79 @@
     html.setAttribute('data-theme', next);
     localStorage.setItem('lj-theme', next);
   }
+
+  // Filtros
+  let categoriaActual = 'todos';
+  let tallaActual = 'todos';
+  let colorActual = 'todos';
+
+  function filtrarCategoria(tipo, el) {
+    categoriaActual = tipo;
+    document.querySelectorAll('#filtros-categoria li').forEach(li => li.classList.remove('filtro-activo'));
+    el.classList.add('filtro-activo');
+    aplicarFiltros();
+  }
+
+  function filtrarTalla(talla, el) {
+    tallaActual = talla;
+    document.querySelectorAll('#filtros-talla li').forEach(li => li.classList.remove('filtro-activo'));
+    el.classList.add('filtro-activo');
+    aplicarFiltros();
+  }
+
+  function filtrarColor(color, el) {
+    colorActual = color;
+    document.querySelectorAll('#filtros-color li').forEach(li => li.classList.remove('filtro-activo'));
+    el.classList.add('filtro-activo');
+    aplicarFiltros();
+  }
+
+  function filtrarProductos() {
+    aplicarFiltros();
+  }
+
+  function aplicarFiltros() {
+    const texto = document.getElementById('buscador').value.toLowerCase();
+    const items = document.querySelectorAll('.producto-item');
+    let visibles = 0;
+
+    items.forEach(item => {
+      const tipo = item.dataset.tipo;
+      const nombre = item.dataset.nombre;
+      const tallas = (item.dataset.tallas || '').split(',').filter(Boolean);
+      const colores = (item.dataset.colores || '').split(',').filter(Boolean);
+
+      const coincideTexto = nombre.includes(texto);
+      const coincideCategoria = (categoriaActual === 'todos' || tipo === categoriaActual);
+      const coincideTalla = (tallaActual === 'todos' || tallas.includes(tallaActual));
+      const coincideColor = (colorActual === 'todos' || colores.includes(colorActual));
+
+      if (coincideTexto && coincideCategoria && coincideTalla && coincideColor) {
+        item.style.display = '';
+        visibles++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    document.getElementById('contador-resultados').textContent = visibles + ' modelos disponibles';
+
+    const sinResultados = document.getElementById('sin-resultados-filtro');
+    if (sinResultados) {
+      sinResultados.style.display = visibles === 0 ? 'block' : 'none';
+    }
+  }
+
+  function toggleAccountMenu() {
+    document.getElementById('account-menu-wrap').classList.toggle('open');
+  }
+
+  document.addEventListener('click', function (event) {
+    const wrap = document.getElementById('account-menu-wrap');
+    if (wrap && !wrap.contains(event.target)) {
+      wrap.classList.remove('open');
+    }
+  });
 </script>
 </body>
 </html>
