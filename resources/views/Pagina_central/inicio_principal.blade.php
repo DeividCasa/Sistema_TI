@@ -555,8 +555,9 @@
 <!-- TOPBAR MODIFICADA: enlaces de texto sin iconos -->
 <header class="topbar">
   <div class="topbar-brand">
-    <div class="brand-icon"><i class="fas fa-crown"></i></div>
-    <span class="brand-name">Leo José</span>
+    <a href="{{ route('cliente.inicio') }}">
+      <img src="{{ asset('images/logo.png') }}" width="110" height="99" alt="" >
+    </a>
   </div>
   <div class="search-box">
     <i class="fas fa-search"></i>
@@ -657,7 +658,7 @@
         <h3><i class="fas fa-palette" style="color: var(--blue); margin-right: 8px;"></i> Crea tu propio diseño</h3>
         <p>Personaliza camisetas, shorts y conjuntos únicos. Totalmente a tu gusto.</p>
       </div>
-      <a href="#" class="create-btn">
+      <a href="{{ route('disenios.create') }}" class="create-btn">
         Empezar ahora <i class="fas fa-arrow-right"></i>
       </a>
     </div>

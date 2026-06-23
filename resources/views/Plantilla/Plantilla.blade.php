@@ -293,10 +293,7 @@
   {{-- ══ TOPBAR ══ --}}
   <header class="topbar">
     <div class="topbar-brand">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
-      <span class="brand-name">Leo José</span>
+      <img src="{{ asset('images/logo.png') }}" width="110" height="99" alt="" >    
     </div>
 
     <span class="topbar-title">@yield('page-title', 'Inicio')</span>

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PedidoController;
 use App\Http\Controllers\Admin\ClienteController;
 use App\Http\Controllers\Admin\ComprobanteController;
 use App\Http\Controllers\Cliente\PedidoController as ClientePedidoController;
+use App\Http\Controllers\Cliente\DisenioController;
 use App\Models\Pedido;
 use App\Models\Cliente;
 use App\Models\Plantilla;
@@ -49,6 +50,11 @@ Route::middleware('sesion:cliente')->group(function () {
     Route::get('/pedidos/{id}/comprobante', [ClientePedidoController::class, 'comprobante'])->name('cliente.pedidos.comprobante');
     Route::post('/pedidos/{id}/comprobante', [ClientePedidoController::class, 'guardarComprobante'])->name('cliente.pedidos.comprobante.store');
     Route::get('/mis-pedidos', [ClientePedidoController::class, 'index'])->name('cliente.pedidos.index');
+
+    // ── CREA TU DISEÑO CON IA / PERSONALIZAR
+    Route::get('/personalizar/{plantilla?}', [DisenioController::class, 'create'])->name('disenios.create');
+    Route::post('/disenios', [DisenioController::class, 'store'])->name('disenios.store');
+    Route::post('/disenios/generar-ia', [DisenioController::class, 'generarIA'])->name('disenios.generar-ia');
 });
 
 // ── ZONA ADMIN (requiere login admin)
