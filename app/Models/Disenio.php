@@ -14,6 +14,7 @@ class Disenio extends Model
         'nombre',
         'configuracion',
         'imagen_generada',
+        'imagen_atras',
         'origen',
     ];
 
@@ -34,5 +35,10 @@ class Disenio extends Model
     public function pedidos()
     {
         return $this->hasMany(Pedido::class, 'disenio_id');
+    }
+
+    public function solicitudes()
+    {
+        return $this->hasMany(SolicitudDiseno::class, 'disenio_id');
     }
 }

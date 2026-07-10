@@ -1,0 +1,172 @@
+@extends('Plantilla/Plantilla')
+
+@section('titulo', 'Pago del pedido')
+@section('page-title', 'Pago del pedido ' . $pedido->codigo)
+
+@section('contenido')
+
+@if(session('success'))
+  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
+    ✓ {{ session('success') }}
+  </div>
+@endif
+
+@if($errors->any())
+  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
+    @foreach($errors->all() as $error)
+      <div>⚠ {{ $error }}</div>
+    @endforeach
+  </div>
+@endif
+
+<div class="sec-header reveal">
+  <div class="sec-title">Pago del pedido {{ $pedido->codigo }}</div>
+  <a href="{{ route('cliente.chompas.mis-pedidos') }}" class="btn-secondary">← Mis pedidos</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:start;">
+
+  {{-- RESUMEN --}}
+  <div class="card card-pad reveal">
+    <div style="font-size:1rem;font-weight:800;color:var(--text-1);margin-bottom:14px;">Resumen</div>
+
+    @foreach($pedido->items as $item)
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-2);padding:6px 0;border-bottom:1px dashed var(--border);">
+        <span>{{ $item->chompa->nombre }} — Talla {{ $item->talla }} × {{ $item->cantidad }}</span>
+        <strong style="color:var(--text-1);">${{ number_format($item->subtotal, 2) }}</strong>
+      </div>
+    @endforeach
+
+    <div style="font-size:0.92rem;color:var(--text-2);line-height:2.2;margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span>Total:</span>
+        <strong style="color:var(--text-1);font-size:1.1rem;">${{ number_format($pedido->precio_total, 2) }}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>Adelanto (50%):</span>
+        <strong style="color:var(--blue);">${{ number_format($pedido->precio_adelanto, 2) }}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>Saldo restante:</span>
+        <strong style="color:var(--text-1);">${{ number_format($pedido->precio_saldo, 2) }}</strong>
+      </div>
+    </div>
+  </div>
+
+  {{-- FORMULARIO DE PAGO --}}
+  <div class="card card-pad reveal">
+    @php
+      $adelantoVerificado = $pedido->comprobantes->where('tipo','adelanto')->where('estado','verificado')->count() > 0;
+      $pagadoCompleto     = $pedido->estado_pago === 'pagado_completo';
+      $pagoEnRevision     = $pedido->comprobantes->where('estado','pendiente')->count() > 0;
+    @endphp
+
+    @if($pagadoCompleto)
+      <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:16px;border-radius:10px;font-size:0.9rem;font-weight:600;text-align:center;">
+        ✓ Este pedido ya está pagado en su totalidad. ¡Gracias!
+      </div>
+    @elseif($pagoEnRevision)
+      <div style="background:#DBEAFE;border:1px solid #BFDBFE;color:#1D4ED8;padding:16px;border-radius:10px;font-size:0.9rem;font-weight:600;text-align:center;">
+        ⏳ Tu comprobante fue enviado y está pendiente de verificación por el administrador.
+      </div>
+    @else
+
+      <div style="font-size:1rem;font-weight:800;color:var(--text-1);margin-bottom:6px;">Sube tu voucher de pago</div>
+      <div style="font-size:0.82rem;color:var(--text-2);margin-bottom:16px;line-height:1.6;">
+        Realiza la transferencia o depósito y sube la <strong>foto del voucher</strong>.
+        Puedes pagar el <strong>50% para iniciar</strong> el pedido, o cancelar el <strong>pago completo</strong> de una vez.
+      </div>
+
+      <form action="{{ route('cliente.chompas.comprobante', $pedido->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:10px;">
+          ¿Qué pago vas a realizar?
+        </label>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+
+          @if(!$adelantoVerificado)
+            <label style="cursor:pointer;">
+              <input type="radio" name="tipo" value="adelanto" checked style="display:none;" onchange="marcarOpcion(this)">
+              <div class="opcion-pago" style="border:2px solid var(--blue);background:var(--blue-soft);border-radius:10px;padding:14px 16px;">
+                <div style="font-weight:700;color:var(--text-1);font-size:0.9rem;">Pagar el 50% (adelanto)</div>
+                <div style="font-size:0.82rem;color:var(--text-2);">Monto: <strong style="color:var(--blue);">${{ number_format($pedido->precio_adelanto, 2) }}</strong> — el saldo lo pagas al recibir.</div>
+              </div>
+            </label>
+
+            <label style="cursor:pointer;">
+              <input type="radio" name="tipo" value="pago_completo" style="display:none;" onchange="marcarOpcion(this)">
+              <div class="opcion-pago" style="border:2px solid var(--border);border-radius:10px;padding:14px 16px;">
+                <div style="font-weight:700;color:var(--text-1);font-size:0.9rem;">Cancelar el pago completo</div>
+                <div style="font-size:0.82rem;color:var(--text-2);">Monto: <strong style="color:var(--blue);">${{ number_format($pedido->precio_total, 2) }}</strong> — pagas todo de una vez.</div>
+              </div>
+            </label>
+          @else
+            <label style="cursor:pointer;">
+              <input type="radio" name="tipo" value="saldo_final" checked style="display:none;" onchange="marcarOpcion(this)">
+              <div class="opcion-pago" style="border:2px solid var(--blue);background:var(--blue-soft);border-radius:10px;padding:14px 16px;">
+                <div style="font-weight:700;color:var(--text-1);font-size:0.9rem;">Pagar el saldo final (50% restante)</div>
+                <div style="font-size:0.82rem;color:var(--text-2);">Tu adelanto ya fue verificado ✓. Monto restante: <strong style="color:var(--blue);">${{ number_format($pedido->precio_saldo, 2) }}</strong></div>
+              </div>
+            </label>
+          @endif
+        </div>
+
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:7px;">
+          Foto del voucher (imagen o PDF)
+        </label>
+        <input type="file" name="comprobante" accept="image/*,.pdf"
+          style="width:100%;padding:12px;border:1.5px dashed var(--border-2);border-radius:10px;font-size:0.87rem;
+          color:var(--text-2);background:var(--bg-3);margin-bottom:16px;">
+
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:7px;">
+          Número de referencia / transacción (opcional)
+        </label>
+        <input type="text" name="referencia" value="{{ old('referencia') }}" placeholder="Ej: 001234567"
+          style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.9rem;
+          background:var(--bg-2);color:var(--text-1);outline:none;margin-bottom:20px;">
+
+        <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:0.97rem;">
+          Enviar comprobante
+        </button>
+      </form>
+    @endif
+
+    {{-- HISTORIAL DE COMPROBANTES --}}
+    @if($pedido->comprobantes->count() > 0)
+      <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--text-1);margin-bottom:10px;">Comprobantes enviados</div>
+      @foreach($pedido->comprobantes as $c)
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;color:var(--text-2);padding:7px 0;border-bottom:1px dashed var(--border);">
+          <span>
+            @if($c->tipo === 'adelanto') Adelanto 50%
+            @elseif($c->tipo === 'pago_completo') Pago completo
+            @else Saldo final @endif
+            — ${{ number_format($c->monto, 2) }}
+          </span>
+          @if($c->estado === 'verificado')
+            <span style="color:#15803D;font-weight:700;">✓ Verificado</span>
+          @elseif($c->estado === 'rechazado')
+            <span style="color:#B91C1C;font-weight:700;" title="{{ $c->nota_admin }}">✕ Rechazado</span>
+          @else
+            <span style="color:#A16207;font-weight:700;">⏳ Pendiente</span>
+          @endif
+        </div>
+      @endforeach
+    @endif
+  </div>
+</div>
+
+<script>
+function marcarOpcion(radio) {
+  document.querySelectorAll('.opcion-pago').forEach(el => {
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'transparent';
+  });
+  const caja = radio.nextElementSibling;
+  caja.style.borderColor = 'var(--blue)';
+  caja.style.background = 'var(--blue-soft)';
+}
+</script>
+
+@endsection

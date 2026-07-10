@@ -1,7 +1,7 @@
 @extends('Admin.panel_admin')
 
-@section('titulo', 'Nueva Plantilla')
-@section('page-title', 'Nueva Plantilla')
+@section('titulo', 'Nueva Camiseta')
+@section('page-title', 'Nueva Camiseta')
 @section('admin-content')
 @section('sidebar-display', 'display:flex')
 @section('sidebar-margin', 'var(--sidebar-w)')
@@ -11,7 +11,7 @@
 @section('contenido')
 
 <div class="sec-header reveal">
-  <div class="sec-title">Nueva Plantilla</div>
+  <div class="sec-title">Nueva Camiseta</div>
   <a href="{{ route('admin.plantillas.index') }}" class="btn-secondary">← Volver</a>
 </div>
 
@@ -23,7 +23,7 @@
     {{-- Nombre --}}
     <div style="margin-bottom:18px;">
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-        Nombre de la plantilla
+        Nombre de la camiseta
       </label>
       <input type="text" name="nombre" value="{{ old('nombre') }}"
         placeholder="Ej: Clásica Azul"
@@ -114,7 +114,7 @@
     {{-- Imagen --}}
     <div style="margin-bottom:18px;">
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-        Imagen de la plantilla
+        Imagen de la camiseta
       </label>
       <input type="file" name="imagen_preview" accept="image/*" onchange="previewImagen(event)"
         style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
@@ -132,13 +132,13 @@
       <input type="checkbox" name="activa" id="activa" value="1" checked
         style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;">
       <label for="activa" style="font-size:0.88rem;color:var(--text-2);cursor:pointer;">
-        Plantilla activa (visible para los clientes)
+        Camiseta activa (visible para los clientes)
       </label>
     </div>
 
     {{-- Botones --}}
     <div style="display:flex;gap:10px;">
-      <button type="submit" class="btn-primary">Guardar plantilla</button>
+      <button type="submit" class="btn-primary">Guardar camiseta</button>
       <a href="{{ route('admin.plantillas.index') }}" class="btn-secondary">Cancelar</a>
     </div>
 

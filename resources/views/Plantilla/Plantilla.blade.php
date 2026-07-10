@@ -135,6 +135,38 @@
     .btn-logout svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .btn-logout:hover { border-color: #FCA5A5; background: #FEF2F2; color: #DC2626; }
 
+    /* ══ TOPBAR CLIENTE (enlaces + menú de cuenta, como en la página de inicio) ══ */
+    .topbar-link {
+      font-size: 0.85rem; font-weight: 500; color: var(--text-2);
+      text-decoration: none; transition: color var(--tr); margin-left: 4px;
+    }
+    .topbar-link:hover { color: var(--blue); }
+    .topbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+    .account-menu-wrap { position: relative; }
+    .account-menu {
+      position: absolute; top: calc(100% + 10px); right: 0; width: 220px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: var(--shadow-lg); padding: 8px;
+      display: none; z-index: 260;
+    }
+    .account-menu-wrap.open .account-menu { display: block; }
+    .account-menu::before {
+      content: ''; position: absolute; top: -6px; right: 14px; width: 12px; height: 12px;
+      background: var(--bg-2); border-left: 1px solid var(--border); border-top: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+    .account-head { padding: 8px 10px 10px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+    .account-name { font-size: 0.86rem; font-weight: 700; color: var(--text-1); line-height: 1.2; }
+    .account-role { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
+    .account-link {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 10px; border-radius: 8px; color: var(--text-2); text-decoration: none;
+      font-size: 0.84rem; font-weight: 600; transition: background var(--tr), color var(--tr);
+    }
+    .account-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .account-link:hover { background: var(--bg-3); color: var(--blue); }
+    .account-link.danger:hover { color: #DC2626; background: #FEF2F2; }
+
     /* ══ SIDEBAR ══ */
     .sidebar {
       position: fixed; top: var(--nav-h); left: 0; bottom: 0;
@@ -290,10 +322,13 @@
 </head>
 <body>
 
-  {{-- ══ TOPBAR ══ --}}
+  {{-- ══ TOPBAR ══ (las vistas de cliente pueden sobrescribir esta sección
+       con @section('topbar') ... @endsection para usar el topbar con
+       enlaces + menú de cuenta, igual al de la página de inicio) --}}
+  @section('topbar')
   <header class="topbar">
     <div class="topbar-brand">
-      <img src="{{ asset('images/logo.png') }}" width="110" height="99" alt="" >    
+      <img src="{{ asset('images/logo.png') }}" width="110" height="99" alt="" >
     </div>
 
     <span class="topbar-title">@yield('page-title', 'Inicio')</span>
@@ -309,6 +344,7 @@
       @stack('topbar-acciones')
     </div>
   </header>
+  @show
 
 <aside class="sidebar" style="@yield('sidebar-display', 'display:none')">
     @stack('sidebar-menu')
@@ -342,6 +378,17 @@
       html.setAttribute('data-theme', next);
       localStorage.setItem('lj-theme', next);
     }
+
+    // menú de cuenta (topbar de cliente)
+    function toggleAccountMenu() {
+      document.getElementById('account-menu-wrap')?.classList.toggle('open');
+    }
+    document.addEventListener('click', function (event) {
+      const wrap = document.getElementById('account-menu-wrap');
+      if (wrap && !wrap.contains(event.target)) {
+        wrap.classList.remove('open');
+      }
+    });
 
     // reveal scroll
     const obs = new IntersectionObserver(entries => {

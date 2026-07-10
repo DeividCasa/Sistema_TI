@@ -3,6 +3,10 @@
 @section('titulo', $plantilla->nombre)
 @section('page-title', 'Personalizar producto')
 
+@section('topbar')
+    @include('cliente.componentes.topbar-cliente')
+@endsection
+
 @section('contenido')
 
 @if(session('success'))

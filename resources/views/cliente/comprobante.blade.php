@@ -3,6 +3,10 @@
 @section('titulo', 'Subir comprobante')
 @section('page-title', 'Comprobante de pago')
 
+@section('topbar')
+    @include('cliente.componentes.topbar-cliente')
+@endsection
+
 @section('contenido')
 
 @if(session('success'))

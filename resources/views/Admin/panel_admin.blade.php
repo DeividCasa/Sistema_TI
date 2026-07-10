@@ -59,13 +59,47 @@
 
     <a href="{{ route('admin.plantillas.index') }}" class="nav-item">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Plantillas
+        Camisetas
     </a>
 
     <a href="{{ route('admin.clientes.index') }}" class="nav-item">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
         Clientes
     </a>
+    <a href="{{ route('admin.disenios3d.index') }}" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M12 2l9 4.9v10.2L12 22l-9-4.9V6.9L12 2z"/><path d="M12 22V12M21 6.9L12 12 3 6.9"/></svg>
+        Diseños 3D
+    </a>
+    <a href="{{ route('admin.uniformes.index') }}" class="nav-item">
+    <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7"/>
+    </svg>
+    Uniformes escolares
+    </a>
+    <a href="{{ route('admin.pedidos-uniformes.index') }}" class="nav-item">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 7h18M5 7v11a2 2 0 002 2h10a2 2 0 002-2V7M9 11h6M9 15h6"/>
+        </svg>
+        Pedidos de Uniformes
+    </a>
+    <a href="{{ route('admin.chompas.index') }}" class="nav-item">
+    <svg viewBox="0 0 24 24">
+        {{-- Icono: chompa / ropa --}}
+        <path d="M3 9l3-5h12l3 5M3 9v10a1 1 0 001 1h16a1 1 0 001-1V9M3 9h18M9 9v6m6-6v6"/>
+    </svg>
+    Chompas
+    </a>
+    <a href="{{ route('admin.pedidos-chompas.index') }}" class="nav-item">
+    <svg viewBox="0 0 24 24">
+        <path d="M3 7h18M5 7v11a2 2 0 002 2h10a2 2 0 002-2V7M9 11h6M9 15h6"/>
+    </svg>
+    Pedidos de Chompas
+    </a>
+
+
+</a>
+</a>
+
 </div>
 
 @endpush

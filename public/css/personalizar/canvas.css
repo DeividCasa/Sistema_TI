@@ -1,0 +1,196 @@
+/* ── ÁREA CENTRAL ── */
+    .work-area{flex:1;display:flex;overflow:hidden;background:var(--bg);}
+
+    /* ── EDITOR 2D: fila → tabs verticales + canvas ── */
+    .editor-2d{
+      flex:1;display:flex;flex-direction:row;overflow:hidden;min-width:0;
+    }
+
+    /* TABS DE VISTAS — columna vertical */
+    .vista-tabs{
+      display:flex;flex-direction:column;align-items:stretch;
+      background:var(--bg-2);border-right:1px solid var(--border);
+      padding:8px 0;flex-shrink:0;width:112px;overflow-y:auto;overflow-x:hidden;
+      scrollbar-width:none;
+    }
+    .vista-tabs::-webkit-scrollbar{display:none;}
+    .vista-tab{
+      padding:10px 14px;font-size:.74rem;font-weight:600;color:var(--text-3);
+      border:none;background:transparent;cursor:pointer;
+      border-left:3px solid transparent;
+      transition:all var(--tr);white-space:nowrap;
+      display:flex;align-items:center;gap:7px;text-align:left;
+    }
+    .vista-tab:hover{color:var(--text-1);background:var(--bg-3);}
+    .vista-tab.active{
+      color:var(--blue);background:var(--blue-soft);
+      border-left-color:var(--blue);
+    }
+    .vista-tab .vista-color-dot{
+      width:9px;height:9px;border-radius:50%;
+      border:1.5px solid rgba(0,0,0,.15);flex-shrink:0;
+    }
+
+    /* CANVAS AREA (ocupa el resto del espacio) */
+    .canvas-area{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:20px 24px 14px;position:relative;overflow:hidden;gap:10px;
+    }
+    .canvas-wrap{position:relative;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.1);flex-shrink:0;}
+    #fabric-canvas{border-radius:12px;}
+    .canvas-label-bottom{
+      font-size:.7rem;color:var(--text-3);font-weight:600;
+      white-space:nowrap;text-align:center;flex-shrink:0;
+    }
+
+    /* BARRA OBJETOS SELECCIONADOS */
+    .obj-toolbar{
+      position:absolute;top:8px;left:50%;transform:translateX(-50%);
+      background:var(--bg-2);border:1px solid var(--border);border-radius:10px;
+      padding:6px 10px;display:none;align-items:center;gap:8px;
+      box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:20;
+    }
+    .obj-toolbar.visible{display:flex;}
+    .obj-btn{
+      width:28px;height:28px;border-radius:7px;border:1px solid var(--border);
+      background:var(--bg-3);color:var(--text-2);display:flex;align-items:center;
+      justify-content:center;cursor:pointer;font-size:.8rem;transition:all var(--tr);
+    }
+    .obj-btn:hover{background:var(--blue-soft);border-color:var(--blue-border);color:var(--blue);}
+    .obj-btn.danger:hover{background:#FEF2F2;border-color:#FCA5A5;color:#DC2626;}
+    .obj-sep{width:1px;height:20px;background:var(--border);}
+
+/* ══════════════════════════════════════════
+   LAYOUT FILA PRINCIPAL (camiseta + accesorios)
+══════════════════════════════════════════ */
+.canvas-fila-principal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+}
+
+/* COLUMNA DERECHA de accesorios 2D */
+.acc-columna {
+  display: none;   /* se muestra con JS cuando hay alguno activo */
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Card individual de accesorio */
+.acc-canvas-card {
+  display: none;    /* se muestra con JS al activar el accesorio */
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  width: 200px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.07);
+  transition: border-color var(--tr);
+}
+.acc-canvas-card:hover {
+  border-color: var(--blue-border);
+}
+
+/* Título dentro de la card */
+.acc-canvas-titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  width: 100%;
+}
+.acc-canvas-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,.12);
+  flex-shrink: 0;
+}
+
+/* Contenedor del SVG */
+.acc-canvas-svgwrap {
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.acc-canvas-svgwrap svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Canvas Fabric editable para accesorios ── */
+.acc-canvas-card-fabric {
+  width: 200px !important;
+}
+.acc-fabric-wrap {
+  width: 188px;
+  height: 188px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: var(--bg-3);
+  position: relative;
+  cursor: crosshair;
+}
+.acc-fabric-wrap canvas {
+  border-radius: 10px;
+}
+.acc-canvas-hint {
+  font-size: .58rem;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-left: auto;
+  font-style: italic;
+}
+
+/* ── Selector de destino (camiseta / pantaloneta) ── */
+.selector-destino {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--blue-soft);
+  border: 1px solid var(--blue-border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.destino-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text-2);
+  font-family: var(--font-b);
+  font-size: .74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--tr);
+}
+.destino-btn:hover { border-color: var(--blue-border); color: var(--blue); }
+.destino-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}

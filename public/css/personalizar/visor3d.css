@@ -1,0 +1,83 @@
+.visor-3d {
+  width: 300px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: linear-gradient(135deg, #1e2d45 0%, #0f172a 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.visor-label {
+  padding: 9px 14px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.5);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+.visor-fila-canvas {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+.visor-fila-canvas canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+  display: block;
+}
+.visor-fila-canvas canvas:active { cursor: grabbing; }
+.visor-hint-3d {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.38);
+  backdrop-filter: blur(6px);
+  color: rgba(255,255,255,.55);
+  font-size: .62rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+.visor-flechas {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.visor-flechas-fila {
+  display: flex;
+  gap: 22px;
+}
+.visor-flecha {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,.38);
+  backdrop-filter: blur(6px);
+  color: rgba(255,255,255,.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .7rem;
+  transition: background .15s, color .15s;
+}
+.visor-flecha:hover  { background: rgba(255,255,255,.22); color: #fff; }
+.visor-flecha:active { background: rgba(255,255,255,.34); }
+
+@media(max-width:900px){ .visor-3d{ display:none; } }

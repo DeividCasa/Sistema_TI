@@ -293,7 +293,7 @@
             <div class="stat-footer">Registrados</div>
         </div>
         <div class="stat-item">
-            <div class="stat-title">Plantillas</div>
+            <div class="stat-title">Camisetas</div>
             <div class="stat-number" style="color: #D97706;">{{ $total_plantillas }}</div>
             <div class="stat-footer">Activas</div>
         </div>

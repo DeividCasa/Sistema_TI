@@ -3,6 +3,10 @@
 @section('titulo', 'Mis Pedidos')
 @section('page-title', 'Mis pedidos')
 
+@section('topbar')
+    @include('cliente.componentes.topbar-cliente')
+@endsection
+
 @section('contenido')
 
 <style>
@@ -265,7 +269,10 @@
                 <div class="pedido-inner">
                     {{-- IMAGEN --}}
                     <div class="pedido-imagen">
-                        @if(optional($pedido->disenio->plantilla ?? null)->imagen_preview)
+                        @if(optional($pedido->disenio)->imagen_generada)
+                            <img src="{{ asset('storage/'.$pedido->disenio->imagen_generada) }}"
+                                 alt="{{ $pedido->disenio->nombre }}">
+                        @elseif(optional($pedido->disenio->plantilla ?? null)->imagen_preview)
                             <img src="{{ asset('storage/'.$pedido->disenio->plantilla->imagen_preview) }}"
                                  alt="{{ $pedido->disenio->nombre }}">
                         @else

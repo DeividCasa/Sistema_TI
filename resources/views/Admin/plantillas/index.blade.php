@@ -1,7 +1,7 @@
 @extends('Admin.panel_admin')
 
-@section('titulo', 'Plantillas')
-@section('page-title', 'Gestión de Plantillas')
+@section('titulo', 'Camisetas')
+@section('page-title', 'Gestión de Camisetas')
 
 @section('admin-content')
 @section('sidebar-display', 'display:flex')
@@ -215,12 +215,12 @@
 {{-- Header --}}
 <div class="admin-header">
     <div class="admin-title">
-        Plantillas
+        Camisetas
         <span class="admin-badge">{{ $plantillas->count() }} registradas</span>
     </div>
     <a href="{{ route('admin.plantillas.create') }}" class="btn-new">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nueva plantilla
+        Nueva camiseta
     </a>
 </div>
 
@@ -235,7 +235,7 @@
                 <rect x="3" y="14" width="7" height="7"/>
             </svg>
         </div>
-        <p style="color: var(--text-2);">No hay plantillas registradas. ¡Crea la primera!</p>
+        <p style="color: var(--text-2);">No hay camisetas registradas. ¡Crea la primera!</p>
     </div>
 @else
     <div class="plantillas-grid">
@@ -269,7 +269,7 @@
                     <div class="acciones">
                         <a href="{{ route('admin.plantillas.edit', $plantilla->id) }}" class="btn-edit">Editar</a>
                         <form action="{{ route('admin.plantillas.destroy', $plantilla->id) }}" method="POST"
-                              onsubmit="return confirm('¿Eliminar esta plantilla?')" style="display: inline-block;">
+                              onsubmit="return confirm('¿Eliminar esta camiseta?')" style="display: inline-block;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-delete">Eliminar</button>

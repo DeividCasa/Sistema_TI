@@ -1,8 +1,8 @@
 @extends('Admin.panel_admin')
 
 
-@section('titulo', 'Editar Plantilla')
-@section('page-title', 'Editar Plantilla')
+@section('titulo', 'Editar Camiseta')
+@section('page-title', 'Editar Camiseta')
 @section('admin-content')
 @section('sidebar-display', 'display:flex')
 @section('sidebar-margin', 'var(--sidebar-w)')
@@ -11,7 +11,7 @@
   <div class="sidebar-label">Principal</div>
   <a href="{{ route('admin.inicio') }}" class="nav-item">Dashboard</a>
   <a href="{{ route('admin.pedidos.index') }}" class="nav-item">Pedidos</a>
-  <a href="{{ route('admin.plantillas.index') }}" class="nav-item active">Plantillas</a>
+  <a href="{{ route('admin.plantillas.index') }}" class="nav-item active">Camisetas</a>
   <a href="{{ route('admin.clientes.index') }}" class="nav-item">Clientes</a>
 @endpush
 
@@ -31,7 +31,7 @@
     {{-- Nombre --}}
     <div style="margin-bottom:18px;">
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-        Nombre de la plantilla
+        Nombre de la camiseta
       </label>
       <input type="text" name="nombre" value="{{ old('nombre', $plantilla->nombre) }}"
         style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
@@ -148,12 +148,12 @@
         {{ $plantilla->activa ? 'checked' : '' }}
         style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;">
       <label for="activa" style="font-size:0.88rem;color:var(--text-2);cursor:pointer;">
-        Plantilla activa (visible para los clientes)
+        Camiseta activa (visible para los clientes)
       </label>
     </div>
 
     <div style="display:flex;gap:10px;">
-      <button type="submit" class="btn-primary">Actualizar plantilla</button>
+      <button type="submit" class="btn-primary">Actualizar camiseta</button>
       <a href="{{ route('admin.plantillas.index') }}" class="btn-secondary">Cancelar</a>
     </div>
 
