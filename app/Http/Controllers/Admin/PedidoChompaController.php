@@ -43,6 +43,16 @@ class PedidoChompaController extends Controller
         return back()->with('success', 'Estado del pedido actualizado.');
     }
 
+    // ── MARCAR PAGO COMO COMPLETADO (override manual del admin)
+    public function marcarPagoCompleto($id)
+    {
+        $pedido = PedidoChompa::findOrFail($id);
+        $pedido->estado_pago = 'pagado_completo';
+        $pedido->save();
+
+        return back()->with('success', 'Pago marcado como completado.');
+    }
+
     // ── VERIFICAR COMPROBANTE
     public function verificarComprobante($id)
     {

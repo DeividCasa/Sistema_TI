@@ -1,13 +1,12 @@
-@extends('Plantilla/Plantilla')
+@extends('layouts.catalogo')
 
 @section('titulo', 'Mi carrito de chompas')
-@section('page-title', 'Mi carrito de chompas')
 
 @section('contenido')
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 
@@ -18,7 +17,7 @@
 
 @if(empty($carrito))
   <div class="card card-pad reveal" style="text-align:center;padding:48px;color:var(--text-3);">
-    <div style="font-size:2.5rem;margin-bottom:10px;">🛒</div>
+    <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--border-2);margin:0 auto 12px;display:block;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
     Tu carrito está vacío. Ve al catálogo de chompas y elige la tuya.
   </div>
 @else
@@ -94,7 +93,7 @@
     <form action="{{ route('cliente.chompas.confirmar') }}" method="POST">
       @csrf
       <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:0.98rem;">
-        ✓ Confirmar pedido
+        Confirmar pedido
       </button>
     </form>
 

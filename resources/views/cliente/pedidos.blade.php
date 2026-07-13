@@ -1,11 +1,6 @@
-@extends('Plantilla/Plantilla')
+@extends('layouts.catalogo')
 
 @section('titulo', 'Mis Pedidos')
-@section('page-title', 'Mis pedidos')
-
-@section('topbar')
-    @include('cliente.componentes.topbar-cliente')
-@endsection
 
 @section('contenido')
 
@@ -240,7 +235,7 @@
 <div class="pedidos-container">
     @if(session('success'))
         <div style="background:var(--success-bg, #ecfdf5); border-left:4px solid var(--success, #10b981); color:var(--success-text, #065f46); padding:0.75rem 1rem; margin-bottom:1.5rem; font-size:0.85rem;">
-            ✓ {{ session('success') }}
+            {{ session('success') }}
         </div>
     @endif
 
@@ -357,7 +352,7 @@
                             </a>
                         @elseif($pedido->estado_pago == 'adelanto_enviado')
                             <div class="info-pendiente">
-                                ⏳ Verificando...
+                                Verificando...
                             </div>
                         @endif
                     </div>

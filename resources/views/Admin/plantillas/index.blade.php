@@ -207,8 +207,8 @@
 
 {{-- Mensaje de éxito --}}
 @if(session('success'))
-  <div style="background:#DCFCE7; border-left:4px solid #15803D; color:#15803D; padding:0.75rem 1rem; margin-bottom:1.5rem; font-size:0.85rem;">
-    ✓ {{ session('success') }}
+  <div class="badge-success" style="display:block;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;border-radius:8px;">
+    {{ session('success') }}
   </div>
 @endif
 

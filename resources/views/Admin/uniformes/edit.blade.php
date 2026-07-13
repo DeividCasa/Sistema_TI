@@ -10,7 +10,7 @@
 @if($errors->any())
   <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
     @foreach($errors->all() as $error)
-      <div>⚠ {{ $error }}</div>
+      <div>{{ $error }}</div>
     @endforeach
   </div>
 @endif

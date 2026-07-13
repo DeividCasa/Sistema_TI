@@ -84,14 +84,22 @@ class CarritoChompaController extends Controller
     }
 
     // ── QUITAR ITEM
-    public function quitar($key)
+    public function quitar(Request $request, $key)
     {
         $carrito = session('carrito_chompas', []);
         unset($carrito[$key]);
         session(['carrito_chompas' => $carrito]);
 
-        return redirect()->route('cliente.chompas.carrito')
-                         ->with('success', 'Producto quitado del carrito.');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'html'    => view('cliente.componentes.carrito-dropdown')->render(),
+                'count'   => collect(session('carrito_uniformes', []))->sum('cantidad')
+                    + collect(session('carrito_chompas', []))->sum('cantidad'),
+            ]);
+        }
+
+        return back()->with('success', 'Producto quitado del carrito.');
     }
 
     // ── VACIAR CARRITO

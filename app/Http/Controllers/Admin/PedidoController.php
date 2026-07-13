@@ -49,4 +49,14 @@ class PedidoController extends Controller
         return redirect()->route('admin.pedidos.show', $pedido->id)
                          ->with('success', 'Estado actualizado correctamente.');
     }
+
+    // ── MARCAR PAGO COMO COMPLETADO (override manual del admin)
+    public function marcarPagoCompleto($id)
+    {
+        $pedido = Pedido::findOrFail($id);
+        $pedido->estado_pago = 'pagado_completo';
+        $pedido->save();
+
+        return back()->with('success', 'Pago marcado como completado.');
+    }
 }

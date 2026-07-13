@@ -11,7 +11,7 @@
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 
@@ -109,7 +109,7 @@
             <button type="submit"
               style="padding:6px 14px;border-radius:8px;background:#DCFCE7;
               color:#15803D;font-size:0.78rem;font-weight:600;border:1px solid #BBF7D0;cursor:pointer;">
-              ✓ Verificar
+              Verificar
             </button>
           </form>
   
@@ -120,7 +120,7 @@
             <button type="submit"
               style="padding:6px 14px;border-radius:8px;background:#FEE2E2;
               color:#991B1B;font-size:0.78rem;font-weight:600;border:1px solid #FECACA;cursor:pointer;">
-              ✗ Rechazar
+              Rechazar
             </button>
           </form>
         @endif

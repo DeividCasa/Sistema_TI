@@ -1,11 +1,6 @@
-@extends('Plantilla/Plantilla')
+@extends('layouts.catalogo')
 
 @section('titulo', 'Pedir cotización')
-@section('page-title', 'Pedir cotización')
-
-@section('topbar')
-    @include('cliente.componentes.topbar-cliente')
-@endsection
 
 @section('contenido')
 

@@ -218,7 +218,7 @@
     <p>Completa el formulario para registrarte.</p>
 
     @if(session('success'))
-      <div class="alert-success">✓ {{ session('success') }}</div>
+      <div class="alert-success">{{ session('success') }}</div>
     @endif
 
     <form action="{{ route('registro.store') }}" method="POST">

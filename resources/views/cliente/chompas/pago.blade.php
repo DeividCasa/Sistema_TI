@@ -1,20 +1,19 @@
-@extends('Plantilla/Plantilla')
+@extends('layouts.catalogo')
 
 @section('titulo', 'Pago del pedido')
-@section('page-title', 'Pago del pedido ' . $pedido->codigo)
 
 @section('contenido')
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 
 @if($errors->any())
   <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
     @foreach($errors->all() as $error)
-      <div>⚠ {{ $error }}</div>
+      <div>{{ $error }}</div>
     @endforeach
   </div>
 @endif
@@ -63,11 +62,11 @@
 
     @if($pagadoCompleto)
       <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:16px;border-radius:10px;font-size:0.9rem;font-weight:600;text-align:center;">
-        ✓ Este pedido ya está pagado en su totalidad. ¡Gracias!
+        Este pedido ya está pagado en su totalidad. ¡Gracias!
       </div>
     @elseif($pagoEnRevision)
       <div style="background:#DBEAFE;border:1px solid #BFDBFE;color:#1D4ED8;padding:16px;border-radius:10px;font-size:0.9rem;font-weight:600;text-align:center;">
-        ⏳ Tu comprobante fue enviado y está pendiente de verificación por el administrador.
+        Tu comprobante fue enviado y está pendiente de verificación por el administrador.
       </div>
     @else
 
@@ -106,7 +105,7 @@
               <input type="radio" name="tipo" value="saldo_final" checked style="display:none;" onchange="marcarOpcion(this)">
               <div class="opcion-pago" style="border:2px solid var(--blue);background:var(--blue-soft);border-radius:10px;padding:14px 16px;">
                 <div style="font-weight:700;color:var(--text-1);font-size:0.9rem;">Pagar el saldo final (50% restante)</div>
-                <div style="font-size:0.82rem;color:var(--text-2);">Tu adelanto ya fue verificado ✓. Monto restante: <strong style="color:var(--blue);">${{ number_format($pedido->precio_saldo, 2) }}</strong></div>
+                <div style="font-size:0.82rem;color:var(--text-2);">Tu adelanto ya fue verificado. Monto restante: <strong style="color:var(--blue);">${{ number_format($pedido->precio_saldo, 2) }}</strong></div>
               </div>
             </label>
           @endif
@@ -145,11 +144,11 @@
             — ${{ number_format($c->monto, 2) }}
           </span>
           @if($c->estado === 'verificado')
-            <span style="color:#15803D;font-weight:700;">✓ Verificado</span>
+            <span class="badge badge-success">Verificado</span>
           @elseif($c->estado === 'rechazado')
-            <span style="color:#B91C1C;font-weight:700;" title="{{ $c->nota_admin }}">✕ Rechazado</span>
+            <span class="badge badge-danger" title="{{ $c->nota_admin }}">Rechazado</span>
           @else
-            <span style="color:#A16207;font-weight:700;">⏳ Pendiente</span>
+            <span class="badge badge-warning">Pendiente</span>
           @endif
         </div>
       @endforeach

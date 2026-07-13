@@ -84,7 +84,7 @@ class CarritoUniformeController extends Controller
         return redirect()->route('cliente.carrito.index');
     }
 
-    public function quitar($key)
+    public function quitar(Request $request, $key)
     {
         $carrito = session('carrito_uniformes', []);
 
@@ -92,8 +92,16 @@ class CarritoUniformeController extends Controller
 
         session(['carrito_uniformes' => $carrito]);
 
-        return redirect()->route('cliente.carrito.index')
-            ->with('success', 'Producto quitado del carrito.');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'html'    => view('cliente.componentes.carrito-dropdown')->render(),
+                'count'   => collect(session('carrito_uniformes', []))->sum('cantidad')
+                    + collect(session('carrito_chompas', []))->sum('cantidad'),
+            ]);
+        }
+
+        return back()->with('success', 'Producto quitado del carrito.');
     }
 
     public function vaciar()

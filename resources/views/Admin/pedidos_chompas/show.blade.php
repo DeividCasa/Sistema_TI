@@ -9,7 +9,7 @@
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 
@@ -140,7 +140,7 @@
         <div style="display:flex;flex-direction:column;gap:8px;">
           <form action="{{ route('admin.comprobantes-chompas.verificar', $comprobante->id) }}" method="POST">
             @csrf
-            <button type="submit" class="btn-primary" style="padding:9px 20px;width:100%;">✓ Verificar</button>
+            <button type="submit" class="btn-primary" style="padding:9px 20px;width:100%;">Verificar</button>
           </form>
           <form action="{{ route('admin.comprobantes-chompas.rechazar', $comprobante->id) }}" method="POST"
                 onsubmit="return confirm('¿Rechazar este comprobante?');">
@@ -148,7 +148,7 @@
             <input type="hidden" name="nota_admin" value="Comprobante no válido.">
             <button type="submit"
               style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:9px 20px;border-radius:8px;font-weight:600;font-size:0.85rem;cursor:pointer;width:100%;">
-              ✕ Rechazar
+              Rechazar
             </button>
           </form>
         </div>

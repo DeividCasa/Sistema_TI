@@ -387,7 +387,7 @@
                             $pagoTexto = match($pedido->estado_pago) {
                                 'pendiente' => 'Pendiente',
                                 'adelanto_enviado' => 'Comprobante enviado',
-                                'adelanto_verificado' => 'Adelanto ✓',
+                                'adelanto_verificado' => 'Adelanto verificado',
                                 'pagado_completo' => 'Pagado',
                                 default => $pedido->estado_pago
                             };

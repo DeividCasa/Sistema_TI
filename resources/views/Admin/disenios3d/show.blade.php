@@ -10,7 +10,7 @@
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 

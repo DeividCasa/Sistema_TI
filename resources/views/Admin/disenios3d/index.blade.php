@@ -9,8 +9,8 @@
 @section('contenido')
 
 @if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+  <div class="badge-success" style="display:block;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
+    {{ session('success') }}
   </div>
 @endif
 
@@ -19,20 +19,20 @@
 </div>
 
 @if($solicitudes->isEmpty())
-  <div class="card card-pad" style="text-align:center;padding:3rem;">
-    <p class="t-muted">Aún no hay solicitudes de diseños 3D.</p>
+  <div class="card empty-state reveal">
+    <p>Aún no hay solicitudes de diseños 3D.</p>
   </div>
 @else
-  <div class="card" style="overflow-x:auto;">
-    <table style="width:100%;border-collapse:collapse;">
+  <div class="card reveal" style="overflow-x:auto;">
+    <table class="admin-table">
       <thead>
-        <tr style="background:var(--bg-3);">
-          <th style="padding:1rem 1.2rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-2);">Diseño</th>
-          <th style="padding:1rem 1.2rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-2);">Cliente</th>
-          <th style="padding:1rem 1.2rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-2);">Tela</th>
-          <th style="padding:1rem 1.2rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-2);">Estado</th>
-          <th style="padding:1rem 1.2rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-2);">Fecha</th>
-          <th style="padding:1rem 1.2rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-2);">Acción</th>
+        <tr>
+          <th>Diseño</th>
+          <th>Cliente</th>
+          <th>Tela</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody>
@@ -53,17 +53,14 @@
                 default => $solicitud->estado,
             };
           @endphp
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:1rem 1.2rem;font-size:0.85rem;color:var(--text-1);">{{ $solicitud->disenio->nombre }}</td>
-            <td style="padding:1rem 1.2rem;font-size:0.85rem;color:var(--text-1);">{{ $solicitud->cliente->nombre }} {{ $solicitud->cliente->apellido }}</td>
-            <td style="padding:1rem 1.2rem;font-size:0.85rem;color:var(--text-2);">{{ $solicitud->tela }}</td>
-            <td style="padding:1rem 1.2rem;"><span class="est {{ $estClase }}">{{ $estTexto }}</span></td>
-            <td style="padding:1rem 1.2rem;font-size:0.8rem;color:var(--text-3);">{{ $solicitud->created_at->format('d M Y') }}</td>
-            <td style="padding:1rem 1.2rem;">
-              <a href="{{ route('admin.disenios3d.show', $solicitud->id) }}"
-                 style="padding:0.3rem 0.9rem;background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-border);border-radius:6px;font-size:0.75rem;font-weight:600;text-decoration:none;">
-                Ver
-              </a>
+          <tr>
+            <td class="cell-strong">{{ $solicitud->disenio->nombre }}</td>
+            <td>{{ $solicitud->cliente->nombre }} {{ $solicitud->cliente->apellido }}</td>
+            <td>{{ $solicitud->tela }}</td>
+            <td><span class="est {{ $estClase }}">{{ $estTexto }}</span></td>
+            <td class="cell-muted">{{ $solicitud->created_at->format('d M Y') }}</td>
+            <td class="cell-actions">
+              <a href="{{ route('admin.disenios3d.show', $solicitud->id) }}">Ver</a>
             </td>
           </tr>
         @endforeach

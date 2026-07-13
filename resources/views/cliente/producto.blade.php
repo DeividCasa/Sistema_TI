@@ -1,17 +1,12 @@
-@extends('Plantilla/Plantilla')
+@extends('layouts.catalogo')
 
 @section('titulo', $plantilla->nombre)
-@section('page-title', 'Personalizar producto')
-
-@section('topbar')
-    @include('cliente.componentes.topbar-cliente')
-@endsection
 
 @section('contenido')
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 
@@ -156,12 +151,12 @@
         <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Hacer pedido
       </button>
-
-      <a href="#" class="btn-secondary" style="width:100%;justify-content:center;margin-top:10px;">
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        Personalizar diseño
-      </a>
     </form>
+
+    <a href="{{ route('disenios.create', $plantilla->id) }}" class="btn-secondary" style="width:100%;justify-content:center;margin-top:10px;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Personalizar diseño
+    </a>
 
   </div>
 </div>

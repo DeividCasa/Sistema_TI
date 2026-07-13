@@ -21,6 +21,10 @@ class SolicitudDisenoController extends Controller
                 $q->latest();
             }])
             ->where('cliente_id', session('usuario_id'))
+            // Excluye los diseños creados como paso interno de una compra
+            // directa (PedidoController::store), que no tienen captura
+            // porque el cliente nunca pasó por el editor ni pulsó "Guardar".
+            ->whereNotNull('imagen_generada')
             ->orderBy('created_at', 'desc')
             ->get();
 

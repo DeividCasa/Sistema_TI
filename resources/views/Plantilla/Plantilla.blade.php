@@ -135,38 +135,6 @@
     .btn-logout svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .btn-logout:hover { border-color: #FCA5A5; background: #FEF2F2; color: #DC2626; }
 
-    /* ══ TOPBAR CLIENTE (enlaces + menú de cuenta, como en la página de inicio) ══ */
-    .topbar-link {
-      font-size: 0.85rem; font-weight: 500; color: var(--text-2);
-      text-decoration: none; transition: color var(--tr); margin-left: 4px;
-    }
-    .topbar-link:hover { color: var(--blue); }
-    .topbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
-    .account-menu-wrap { position: relative; }
-    .account-menu {
-      position: absolute; top: calc(100% + 10px); right: 0; width: 220px;
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: 12px; box-shadow: var(--shadow-lg); padding: 8px;
-      display: none; z-index: 260;
-    }
-    .account-menu-wrap.open .account-menu { display: block; }
-    .account-menu::before {
-      content: ''; position: absolute; top: -6px; right: 14px; width: 12px; height: 12px;
-      background: var(--bg-2); border-left: 1px solid var(--border); border-top: 1px solid var(--border);
-      transform: rotate(45deg);
-    }
-    .account-head { padding: 8px 10px 10px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
-    .account-name { font-size: 0.86rem; font-weight: 700; color: var(--text-1); line-height: 1.2; }
-    .account-role { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
-    .account-link {
-      display: flex; align-items: center; gap: 10px; width: 100%;
-      padding: 10px; border-radius: 8px; color: var(--text-2); text-decoration: none;
-      font-size: 0.84rem; font-weight: 600; transition: background var(--tr), color var(--tr);
-    }
-    .account-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .account-link:hover { background: var(--bg-3); color: var(--blue); }
-    .account-link.danger:hover { color: #DC2626; background: #FEF2F2; }
-
     /* ══ SIDEBAR ══ */
     .sidebar {
       position: fixed; top: var(--nav-h); left: 0; bottom: 0;
@@ -247,10 +215,10 @@
     }
     .btn-secondary:hover { border-color: var(--blue-border); color: var(--blue); }
 
-    .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
     .sec-title {
-      font-family: var(--font-d); font-size: 1rem; font-weight: 800;
-      color: var(--text-1); letter-spacing: -0.015em;
+      font-family: var(--font-d); font-size: 1.6rem; font-weight: 800;
+      color: var(--text-1); letter-spacing: -0.02em;
       display: flex; align-items: center; gap: 8px;
       transition: color var(--tr);
     }
@@ -262,7 +230,57 @@
     .sec-link { font-size: 0.8rem; font-weight: 600; color: var(--blue); text-decoration: none; }
     .sec-link:hover { opacity: 0.75; }
 
-    /* tablas */
+    /* tarjeta genérica de contenido */
+    .card {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      transition: background var(--tr), border-color var(--tr);
+    }
+    .card-pad { padding: 24px 28px; }
+
+    /* tabla de listados admin, un solo diseño para todas las vistas */
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    .admin-table th {
+      background: var(--bg-3); text-align: left; padding: 12px 16px;
+      color: var(--text-2); font-weight: 600; font-size: 0.7rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-table td {
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      color: var(--text-2); vertical-align: middle;
+    }
+    .admin-table tbody tr:hover td { background: var(--bg-3); }
+    .admin-table .cell-strong { font-weight: 600; color: var(--text-1); }
+    .admin-table .cell-muted { font-size: 0.75rem; color: var(--text-3); }
+    .admin-table .cell-empty { padding: 32px; text-align: center; color: var(--text-3); }
+    .admin-table .cell-actions a, .admin-table .cell-actions button {
+      color: var(--blue); text-decoration: none; font-weight: 600; font-size: 0.82rem;
+      background: none; border: none; cursor: pointer; padding: 0; margin-right: 12px;
+    }
+    .admin-table .cell-actions .link-danger { color: #EF4444; }
+    .admin-table img.cell-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+
+    /* badges de estado semánticos, reutilizables en cualquier tabla/tarjeta */
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.73rem; font-weight: 600; white-space: nowrap; }
+    .badge-success { background: #DCFCE7; color: #15803D; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+    .badge-info    { background: #DBEAFE; color: #1E40AF; }
+    .badge-danger  { background: #FFE4E2; color: #B91C1C; }
+    .badge-neutral { background: var(--bg-3); color: var(--text-2); border: 1px solid var(--border); }
+    [data-theme="dark"] .badge-success { background: #14532d; color: #bbf7d0; }
+    [data-theme="dark"] .badge-warning { background: #78350f; color: #fde68a; }
+    [data-theme="dark"] .badge-info    { background: #1e3a8a; color: #bfdbfe; }
+    [data-theme="dark"] .badge-danger  { background: #7f1d1d; color: #fecaca; }
+
+    .btn-marcar-pagado {
+      display: inline-block; padding: 3px 9px; border-radius: 6px;
+      background: transparent; color: #15803D; border: 1px solid #bbf7d0;
+      font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-marcar-pagado:hover { background: #15803D; color: white; border-color: #15803D; }
+
+    /* tablas (grid, componente antiguo, se mantiene por compatibilidad) */
     .tabla-box {
       background: var(--bg-2); border: 1px solid var(--border);
       border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
@@ -327,9 +345,9 @@
        enlaces + menú de cuenta, igual al de la página de inicio) --}}
   @section('topbar')
   <header class="topbar">
-    <div class="topbar-brand">
+    <a class="topbar-brand" href="{{ route('admin.inicio') }}">
       <img src="{{ asset('images/logo.png') }}" width="110" height="99" alt="" >
-    </div>
+    </a>
 
     <span class="topbar-title">@yield('page-title', 'Inicio')</span>
 

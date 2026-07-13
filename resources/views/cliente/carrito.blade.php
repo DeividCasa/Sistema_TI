@@ -1,13 +1,12 @@
-@extends('Plantilla/Plantilla')
+@extends('layouts.catalogo')
 
 @section('titulo', 'Mi carrito')
-@section('page-title', 'Mi carrito de uniformes')
 
 @section('contenido')
 
 @if(session('success'))
   <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    ✓ {{ session('success') }}
+    {{ session('success') }}
   </div>
 @endif
 
@@ -18,7 +17,7 @@
 
 @if(empty($carrito))
   <div class="card card-pad reveal" style="text-align:center;padding:48px;color:var(--text-3);">
-    <div style="font-size:2.5rem;margin-bottom:10px;">🛒</div>
+    <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--border-2);margin:0 auto 12px;display:block;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
     Tu carrito está vacío. Ve al catálogo de uniformes escolares y elige el tuyo.
   </div>
 @else
@@ -96,7 +95,7 @@
     </div>
 
     <div style="background:#FEF9C3;border:1px solid #FDE68A;color:#A16207;padding:11px 14px;border-radius:9px;font-size:0.78rem;margin:16px 0;line-height:1.5;">
-      ⚠ <strong>Política del local:</strong> para que tu pedido entre en producción debes cancelar
+      <strong>Política del local:</strong> para que tu pedido entre en producción debes cancelar
       al menos el <strong>50% del valor total</strong> (${{ number_format($adelanto, 2) }}) y subir la foto del voucher.
       También puedes cancelar el pago completo si lo prefieres.
     </div>
@@ -104,7 +103,7 @@
     <form action="{{ route('cliente.carrito.confirmar') }}" method="POST">
       @csrf
       <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:0.97rem;">
-        Confirmar pedido y pagar →
+        Confirmar pedido y pagar
       </button>
     </form>
   </div>

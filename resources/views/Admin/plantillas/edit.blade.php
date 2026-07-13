@@ -7,14 +7,6 @@
 @section('sidebar-display', 'display:flex')
 @section('sidebar-margin', 'var(--sidebar-w)')
 
-@push('sidebar-menu')
-  <div class="sidebar-label">Principal</div>
-  <a href="{{ route('admin.inicio') }}" class="nav-item">Dashboard</a>
-  <a href="{{ route('admin.pedidos.index') }}" class="nav-item">Pedidos</a>
-  <a href="{{ route('admin.plantillas.index') }}" class="nav-item active">Camisetas</a>
-  <a href="{{ route('admin.clientes.index') }}" class="nav-item">Clientes</a>
-@endpush
-
 @section('contenido')
 
 <div class="sec-header reveal">

@@ -190,6 +190,9 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     Route::resource('pedidos', PedidoController::class)
         ->only(['index', 'show', 'update']);
 
+    Route::post('/pedidos/{id}/pago-completo', [PedidoController::class, 'marcarPagoCompleto'])
+        ->name('pedidos.pago-completo');
+
     Route::resource('clientes', ClienteController::class)
         ->only(['index', 'show']);
 
@@ -213,6 +216,9 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
             'pedidos-uniformes' => 'id'
         ]);
 
+    Route::post('/pedidos-uniformes/{id}/pago-completo', [PedidoUniformeController::class, 'marcarPagoCompleto'])
+        ->name('pedidos-uniformes.pago-completo');
+
     Route::post('/comprobantes-uniformes/{id}/verificar',
         [PedidoUniformeController::class, 'verificarComprobante'])
         ->name('comprobantes-uniformes.verificar');
@@ -230,6 +236,9 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
         ->parameters([
             'pedidos-chompas' => 'id'
         ]);
+
+    Route::post('/pedidos-chompas/{id}/pago-completo', [PedidoChompaController::class, 'marcarPagoCompleto'])
+        ->name('pedidos-chompas.pago-completo');
 
     Route::post('/comprobantes-chompas/{id}/verificar',
         [PedidoChompaController::class, 'verificarComprobante'])
