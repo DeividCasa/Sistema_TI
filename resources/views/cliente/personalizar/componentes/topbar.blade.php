@@ -1,7 +1,6 @@
 <header class="topbar">
   <a class="tb-logo" href="{{ route('cliente.inicio') }}">
     <img src="{{ asset('images/logo.png') }}" alt="Leo José" onerror="this.style.display='none'">
-    <span>Leo José</span>
   </a>
   <span class="tb-sep">/</span>
   <input id="nombre-diseno" type="text" value="{{ $plantilla->nombre ?? 'Mi diseño' }}" maxlength="60">

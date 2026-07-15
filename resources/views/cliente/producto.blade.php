@@ -29,7 +29,7 @@
 </style>
 <div class="sec-header reveal">
   <div class="sec-title">{{ $plantilla->nombre }}</div>
-  <a href="{{ route('cliente.inicio') }}" class="btn-secondary">← Volver al catálogo</a>
+  <a href="{{ session('catalogo_url', route('cliente.catalogo.index')) }}" class="btn-secondary">← Volver al catálogo</a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
@@ -68,7 +68,7 @@
       </p>
     @endif
 
-    <form action="{{ route('pedidos.store') }}" method="POST">
+    <form action="{{ route('cliente.plantillas.agregar') }}" method="POST">
       @csrf
       <input type="hidden" name="plantilla_id" value="{{ $plantilla->id }}">
 
@@ -134,29 +134,20 @@
         </div>
       </div>
 
-      {{-- Total estimado --}}
+      {{-- Subtotal estimado --}}
       <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:10px;
         padding:14px 16px;margin-bottom:24px;">
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-2);margin-bottom:6px;">
-          <span>Total estimado</span>
-          <span id="total-precio" style="font-weight:700;color:var(--text-1);">${{ number_format($plantilla->precio, 2) }}</span>
-        </div>
         <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-2);">
-          <span>Adelanto a pagar (50%)</span>
-          <span id="total-adelanto" style="font-weight:700;color:var(--blue);">${{ number_format($plantilla->precio / 2, 2) }}</span>
+          <span>Subtotal</span>
+          <span id="total-precio" style="font-weight:700;color:var(--text-1);">${{ number_format($plantilla->precio, 2) }}</span>
         </div>
       </div>
 
       <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Hacer pedido
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        Agregar al carrito
       </button>
     </form>
-
-    <a href="{{ route('disenios.create', $plantilla->id) }}" class="btn-secondary" style="width:100%;justify-content:center;margin-top:10px;">
-      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      Personalizar diseño
-    </a>
 
   </div>
 </div>
@@ -179,7 +170,6 @@
     const cantidad = parseInt(document.getElementById('cantidad').value);
     const total = precioUnitario * cantidad;
     document.getElementById('total-precio').textContent = '$' + total.toFixed(2);
-    document.getElementById('total-adelanto').textContent = '$' + (total / 2).toFixed(2);
   }
 
   function marcarColor(radio) {

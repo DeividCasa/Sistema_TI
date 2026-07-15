@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\PedidoPlantilla;
+use App\Models\ComprobantePlantilla;
+use Illuminate\Http\Request;
+
+class PedidoPlantillaController extends Controller
+{
+    // ── DETALLE DEL PEDIDO
+    public function show($id)
+    {
+        $pedido = PedidoPlantilla::with(['cliente', 'items.plantilla', 'comprobantes'])
+                                 ->findOrFail($id);
+        return view('Admin.pedidos_plantillas.show', compact('pedido'));
+    }
+
+    // ── CAMBIAR ESTADO DEL PEDIDO
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+        ]);
+
+        $pedido = PedidoPlantilla::findOrFail($id);
+        $pedido->estado = $request->estado;
+        if ($request->filled('observaciones')) {
+            $pedido->observaciones = $request->observaciones;
+        }
+        $pedido->save();
+
+        return back()->with('success', 'Estado del pedido actualizado.');
+    }
+
+    // ── MARCAR PAGO COMO COMPLETADO (override manual del admin)
+    public function marcarPagoCompleto($id)
+    {
+        $pedido = PedidoPlantilla::findOrFail($id);
+        $pedido->estado_pago = 'pagado_completo';
+        $pedido->save();
+
+        return back()->with('success', 'Pago marcado como completado.');
+    }
+
+    // ── VERIFICAR COMPROBANTE
+    public function verificarComprobante($id)
+    {
+        $comprobante = ComprobantePlantilla::with('pedido')->findOrFail($id);
+        $comprobante->estado = 'verificado';
+        $comprobante->save();
+
+        $pedido = $comprobante->pedido;
+
+        if ($comprobante->tipo === 'adelanto') {
+            $pedido->estado_pago = 'adelanto_verificado';
+            if ($pedido->estado === 'recibido') {
+                $pedido->estado = 'en_produccion';
+            }
+        } elseif ($comprobante->tipo === 'pago_completo') {
+            $pedido->estado_pago = 'pagado_completo';
+            if ($pedido->estado === 'recibido') {
+                $pedido->estado = 'en_produccion';
+            }
+        } elseif ($comprobante->tipo === 'saldo_final') {
+            $pedido->estado_pago = 'pagado_completo';
+        }
+        $pedido->save();
+
+        return back()->with('success', 'Comprobante verificado correctamente.');
+    }
+
+    // ── RECHAZAR COMPROBANTE
+    public function rechazarComprobante(Request $request, $id)
+    {
+        $comprobante = ComprobantePlantilla::with('pedido')->findOrFail($id);
+        $comprobante->estado = 'rechazado';
+        $comprobante->nota_admin = $request->nota_admin ?? 'Comprobante no válido.';
+        $comprobante->save();
+
+        $pedido = $comprobante->pedido;
+        if ($comprobante->tipo === 'adelanto') {
+            $pedido->estado_pago = 'pendiente';
+        } elseif ($comprobante->tipo === 'pago_completo') {
+            $pedido->estado_pago = 'pendiente';
+        } elseif ($comprobante->tipo === 'saldo_final') {
+            $pedido->estado_pago = 'adelanto_verificado';
+        }
+        $pedido->save();
+
+        return back()->with('success', 'Comprobante rechazado.');
+    }
+}

@@ -8,15 +8,6 @@ use Illuminate\Http\Request;
 
 class PedidoController extends Controller
 {
-    // ── LISTA DE PEDIDOS
-    public function index()
-    {
-        $pedidos = Pedido::with(['cliente', 'disenio'])
-                         ->orderBy('created_at', 'desc')
-                         ->get();
-        return view('admin.pedidos.index', compact('pedidos'));
-    }
-
     // ── VER DETALLE DEL PEDIDO
     public function show($id)
     {

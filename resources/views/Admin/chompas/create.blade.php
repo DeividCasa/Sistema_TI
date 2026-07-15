@@ -62,10 +62,18 @@
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
         Foto de la chompa
       </label>
-      <input type="file" name="imagen" accept="image/*"
-        style="width:100%;padding:11px 14px;border:1.5px dashed var(--border-2);border-radius:10px;
-        font-family:var(--font-b);font-size:0.88rem;color:var(--text-2);background:var(--bg-3);">
-      <div style="font-size:0.75rem;color:var(--text-3);margin-top:4px;">JPG, PNG o WEBP. Máximo 2MB.</div>
+      <label for="imagen-chompa" id="drop-area-chompa" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:8px;padding:22px 16px;border:1.5px dashed var(--border-2);border-radius:12px;
+        background:var(--bg-3);cursor:pointer;transition:all var(--tr);text-align:center;">
+        <svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--blue);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span style="font-weight:600;font-size:0.86rem;color:var(--text-1);">Haz clic para seleccionar una imagen</span>
+        <span style="font-size:0.74rem;color:var(--text-3);">JPG, PNG o WEBP — máximo 2MB</span>
+        <input type="file" id="imagen-chompa" name="imagen" accept="image/*"
+          onchange="previsualizarArchivo(this, 'preview-imagen-chompa', 'drop-area-chompa')" style="display:none;">
+      </label>
+      <div id="preview-imagen-chompa" style="display:none;margin-top:10px;"></div>
     </div>
 
     {{-- Tallas y precios (dinámico) --}}

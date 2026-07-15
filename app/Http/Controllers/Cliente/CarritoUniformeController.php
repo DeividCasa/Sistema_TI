@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Uniforme;
 use App\Models\UniformeTalla;
 use App\Models\PedidoUniforme;
-use App\Models\PedidoUniformeItem;
 use App\Models\ComprobanteUniforme;
+use App\Services\CheckoutService;
 use Illuminate\Http\Request;
 
 class CarritoUniformeController extends Controller
@@ -15,16 +15,43 @@ class CarritoUniformeController extends Controller
     public function index()
     {
         $carrito = session('carrito_uniformes', []);
+        $carritoChompas = session('carrito_chompas', []);
+        $carritoPlantillas = session('carrito_plantillas', []);
 
         $total = 0;
         foreach ($carrito as $item) {
             $total += $item['precio'] * $item['cantidad'];
         }
-
         $adelanto = round($total / 2, 2);
         $saldo = $total - $adelanto;
 
-        return view('cliente.carrito', compact('carrito', 'total', 'adelanto', 'saldo'));
+        $totalChompas = 0;
+        foreach ($carritoChompas as $item) {
+            $totalChompas += $item['precio'] * $item['cantidad'];
+        }
+
+        $totalPlantillas = 0;
+        foreach ($carritoPlantillas as $item) {
+            $totalPlantillas += $item['precio'] * $item['cantidad'];
+        }
+
+        $tiposConItems = collect([
+            !empty($carrito) ? 'uniforme' : null,
+            !empty($carritoChompas) ? 'chompa' : null,
+            !empty($carritoPlantillas) ? 'plantilla' : null,
+        ])->filter()->values();
+        $hayAmbos = $tiposConItems->count() > 1;
+
+        $totalCombinado = $total + $totalChompas + $totalPlantillas;
+        $adelantoCombinado = $adelanto + round($totalChompas / 2, 2) + round($totalPlantillas / 2, 2);
+        $saldoCombinado = $totalCombinado - $adelantoCombinado;
+
+        return view('cliente.carrito', compact(
+            'carrito', 'total', 'adelanto', 'saldo',
+            'carritoChompas', 'totalChompas',
+            'carritoPlantillas', 'totalPlantillas',
+            'hayAmbos', 'totalCombinado', 'adelantoCombinado', 'saldoCombinado'
+        ));
     }
 
     public function agregar(Request $request)
@@ -96,8 +123,9 @@ class CarritoUniformeController extends Controller
             return response()->json([
                 'success' => true,
                 'html'    => view('cliente.componentes.carrito-dropdown')->render(),
-                'count'   => collect(session('carrito_uniformes', []))->sum('cantidad')
-                    + collect(session('carrito_chompas', []))->sum('cantidad'),
+                'count'   => count(session('carrito_uniformes', []))
+                    + count(session('carrito_chompas', []))
+                    + count(session('carrito_plantillas', [])),
             ]);
         }
 
@@ -111,56 +139,31 @@ class CarritoUniformeController extends Controller
         return redirect()->route('cliente.carrito.index');
     }
 
-    public function confirmar()
+    public function confirmar(CheckoutService $checkout)
     {
-        $carrito = session('carrito_uniformes', []);
-
-        if (empty($carrito)) {
-            return redirect()->route('cliente.uniformes.index')
+        if (empty(session('carrito_uniformes', [])) && empty(session('carrito_chompas', [])) && empty(session('carrito_plantillas', []))) {
+            return redirect()->route('cliente.catalogo.index')
                 ->with('success', 'Tu carrito está vacío.');
         }
 
-        $clienteId = session('usuario_id');
+        $resultado = $checkout->confirmar(session('usuario_id'));
 
-        $total = 0;
-        $cantidadTotal = 0;
-
-        foreach ($carrito as $item) {
-            $total += $item['precio'] * $item['cantidad'];
-            $cantidadTotal += $item['cantidad'];
+        if ($resultado['maestro']) {
+            return redirect()->route('cliente.pedido-maestro.pago', $resultado['maestro']->id)
+                ->with('success', '¡Pedido creado! Ahora realiza el pago.');
         }
 
-        $adelanto = round($total / 2, 2);
-        $saldo = $total - $adelanto;
-
-        $codigo = 'UE-' . date('Y') . '-' . str_pad(PedidoUniforme::count() + 1, 3, '0', STR_PAD_LEFT);
-
-        $pedido = PedidoUniforme::create([
-            'cliente_id'      => $clienteId,
-            'codigo'          => $codigo,
-            'cantidad_total'  => $cantidadTotal,
-            'precio_total'    => $total,
-            'precio_adelanto' => $adelanto,
-            'precio_saldo'    => $saldo,
-            'estado'          => 'recibido',
-            'estado_pago'     => 'pendiente',
-        ]);
-
-        foreach ($carrito as $item) {
-            PedidoUniformeItem::create([
-                'pedido_uniforme_id' => $pedido->id,
-                'uniforme_id'        => $item['uniforme_id'],
-                'uniforme_talla_id'  => $item['talla_id'],
-                'talla'              => $item['talla'],
-                'precio_unitario'    => $item['precio'],
-                'cantidad'           => $item['cantidad'],
-                'subtotal'           => $item['precio'] * $item['cantidad'],
-            ]);
+        if ($resultado['pedidoUniforme']) {
+            return redirect()->route('cliente.uniformes.pago', $resultado['pedidoUniforme']->id)
+                ->with('success', '¡Pedido creado! Ahora realiza el pago.');
         }
 
-        session()->forget('carrito_uniformes');
+        if ($resultado['pedidoChompa']) {
+            return redirect()->route('cliente.chompas.pago', $resultado['pedidoChompa']->id)
+                ->with('success', '¡Pedido creado! Ahora realiza el pago.');
+        }
 
-        return redirect()->route('cliente.uniformes.pago', $pedido->id)
+        return redirect()->route('cliente.plantillas.pago', $resultado['pedidoPlantilla']->id)
             ->with('success', '¡Pedido creado! Ahora realiza el pago.');
     }
 
@@ -216,6 +219,7 @@ class CarritoUniformeController extends Controller
     {
         $pedidos = PedidoUniforme::with(['items.uniforme', 'comprobantes'])
             ->where('cliente_id', session('usuario_id'))
+            ->whereNull('pedido_maestro_id')
             ->orderBy('created_at', 'desc')
             ->get();
 

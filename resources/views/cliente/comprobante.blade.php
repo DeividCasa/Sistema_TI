@@ -20,7 +20,7 @@
 
 <div class="sec-header reveal">
   <div class="sec-title">Comprobante de pago — Pedido {{ $pedido->codigo }}</div>
-  <a href="{{ route('cliente.pedidos.index') }}" class="btn-secondary">← Mis pedidos</a>
+  <a href="{{ route('cliente.mis-pedidos') }}" class="btn-secondary">← Mis pedidos</a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
@@ -31,7 +31,11 @@
 
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
       <div style="width:64px;height:64px;border-radius:10px;background:var(--bg-3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
-        @if(optional($pedido->disenio->plantilla ?? null)->imagen_preview)
+        @if(optional($pedido->disenio)->imagen_generada)
+          <img src="{{ asset('storage/'.$pedido->disenio->imagen_generada) }}"
+               alt="{{ $pedido->disenio->nombre }}"
+               style="width:100%;height:100%;object-fit:cover;">
+        @elseif(optional($pedido->disenio->plantilla ?? null)->imagen_preview)
           <img src="{{ asset('storage/'.$pedido->disenio->plantilla->imagen_preview) }}"
                alt="{{ $pedido->disenio->nombre }}"
                style="width:100%;height:100%;object-fit:cover;">
@@ -119,8 +123,10 @@
           </svg>
           <span class="t-text" style="font-weight:600;font-size:0.9rem;" id="archivo-label">Haz clic para seleccionar tu archivo</span>
           <span class="t-muted" style="font-size:0.78rem;">JPG, PNG o PDF — máximo 4MB</span>
-          <input type="file" id="archivo" name="archivo" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="mostrarArchivo(this)" required>
+          <input type="file" id="archivo" name="archivo" accept=".jpg,.jpeg,.png,.pdf"
+            onchange="previsualizarArchivo(this, 'preview-archivo-camiseta', 'drop-area')" style="display:none;" required>
         </label>
+        <div id="preview-archivo-camiseta" style="display:none;margin-top:12px;"></div>
       </div>
 
       <div style="margin-bottom:24px;">
@@ -143,18 +149,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-<script>
-  function mostrarArchivo(input) {
-    const label = document.getElementById('archivo-label');
-    if (input.files && input.files.length > 0) {
-      label.textContent = input.files[0].name;
-      document.getElementById('drop-area').style.borderColor = 'var(--blue)';
-      document.getElementById('drop-area').style.background = 'var(--blue-soft)';
-    } else {
-      label.textContent = 'Haz clic para seleccionar tu archivo';
-    }
-  }
-</script>
-@endpush

@@ -259,6 +259,12 @@ function cargarAccesorioEnScene3D(id) {
 function cargarAccesorioIndependiente(id) {
   const acc = ACCESORIOS[id];
 
+  // Se pudo haber desactivado (p.ej. el usuario cambió de prenda) mientras
+  // esta carga esperaba en el setTimeout de abajo o en el fetch del GLB;
+  // sin este chequeo, esa carga "atrasada" termina igual y el accesorio
+  // aparece pegado a la prenda equivocada (ver toggleAccesorio/cambiarPrenda).
+  if (!acc.activo) return;
+
   if (acc.grupo) {
     acc.grupo.visible = true;
     posicionarAccesorioIndependiente(id);
@@ -279,6 +285,10 @@ function cargarAccesorioIndependiente(id) {
     acc.ruta,
     gltf => {
       acc.cargando = false;
+      // Igual que arriba: si se desactivó mientras se descargaba el GLB
+      // (la carga de red también toma tiempo), descartar el resultado en
+      // vez de agregarlo y mostrarlo pegado a la prenda equivocada.
+      if (!acc.activo) return;
       const grupo = gltf.scene;
 
       grupo.traverse(obj => {

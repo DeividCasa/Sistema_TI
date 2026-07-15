@@ -9,15 +9,6 @@ use Illuminate\Http\Request;
 
 class PedidoUniformeController extends Controller
 {
-    // ── LISTA DE PEDIDOS DE UNIFORMES
-    public function index()
-    {
-        $pedidos = PedidoUniforme::with(['cliente', 'items.uniforme', 'comprobantes'])
-                                 ->orderBy('created_at', 'desc')
-                                 ->get();
-        return view('Admin.pedidos_uniformes.index', compact('pedidos'));
-    }
-
     // ── DETALLE DEL PEDIDO (datos del cliente, items, comprobantes)
     public function show($id)
     {

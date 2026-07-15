@@ -20,8 +20,7 @@
       background:var(--bg-2);border-bottom:1px solid var(--border);position:relative;z-index:10;
     }
     .tb-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;}
-    .tb-logo img{width:28px;height:28px;border-radius:7px;object-fit:cover;}
-    .tb-logo span{font-family:var(--font-d);font-weight:800;font-size:.95rem;color:var(--text-1);}
+    .tb-logo img{height:36px;width:auto;object-fit:contain;}
     .tb-sep{color:var(--border);font-size:.9rem;}
     #nombre-diseno{
       border:none;background:transparent;font-family:var(--font-d);font-weight:700;font-size:.9rem;

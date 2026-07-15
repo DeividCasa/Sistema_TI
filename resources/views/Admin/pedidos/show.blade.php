@@ -17,16 +17,21 @@
 
 <div class="sec-header reveal">
   <div class="sec-title">Pedido {{ $pedido->codigo }}</div>
-  <a href="{{ route('admin.pedidos.index') }}" class="btn-secondary">← Volver</a>
+  <a href="{{ route('admin.pedidos-tienda.index') }}" class="btn-secondary">← Volver</a>
 </div>
 {{-- IMAGEN --}}
-        <div style="width:64px;height:64px;border-radius:10px;background:var(--bg-3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
-          @if(optional($pedido->disenio->plantilla ?? null)->imagen_preview)
-            <img src="{{ asset('storage/'.$pedido->disenio->plantilla->imagen_preview) }}"
+        <div style="width:140px;height:140px;border-radius:12px;background:var(--bg-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;margin-bottom:20px;">
+          @php
+            $imagenPedido = optional($pedido->disenio)->imagen_generada
+              ?: optional($pedido->disenio->plantilla ?? null)->imagen_preview;
+          @endphp
+          @if($imagenPedido)
+            <img src="{{ asset('storage/'.$imagenPedido) }}"
                  alt="{{ $pedido->disenio->nombre }}"
-                 style="width:100%;height:100%;object-fit:cover;">
+                 onclick="abrirLightbox(this.src)"
+                 style="width:100%;height:100%;object-fit:cover;cursor:zoom-in;">
           @else
-            <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--text-3);fill:none;stroke-width:1.5;">
+            <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--text-3);fill:none;stroke-width:1.5;">
               <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
             </svg>
           @endif
@@ -81,28 +86,34 @@
 
   @foreach($pedido->comprobantes as $comp)
     <div style="background:var(--bg-3);border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid var(--border);">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div>
-          <div class="t-text" style="text-transform:capitalize;">{{ $comp->tipo }}</div>
-          <div class="t-muted">Ref: {{ $comp->referencia ?? '—' }} · ${{ number_format($comp->monto, 2) }}</div>
-        </div>
-        @if($comp->estado == 'verificado')
-          <span class="est est-listo">Verificado</span>
-        @elseif($comp->estado == 'rechazado')
-          <span class="est est-pendiente">Rechazado</span>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+        @if(Str::endsWith(strtolower($comp->archivo), '.pdf'))
+          <a href="{{ asset('storage/'.$comp->archivo) }}" target="_blank" style="flex-shrink:0;">
+            <div style="width:100px;height:100px;border-radius:10px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+              <svg viewBox="0 0 24 24" style="width:34px;height:34px;stroke:#EF4444;fill:none;stroke-width:1.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+          </a>
         @else
-          <span class="est est-recibido">Pendiente</span>
+          <img src="{{ asset('storage/'.$comp->archivo) }}" alt="Voucher" onclick="abrirLightbox(this.src)"
+            style="width:100px;height:100px;object-fit:cover;border-radius:10px;border:1px solid var(--border);cursor:zoom-in;flex-shrink:0;">
         @endif
-      </div>
-  
+
+        <div style="flex:1;min-width:180px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
+            <div>
+              <div class="t-text" style="text-transform:capitalize;">{{ $comp->tipo }}</div>
+              <div class="t-muted">Ref: {{ $comp->referencia ?? '—' }} · ${{ number_format($comp->monto, 2) }}</div>
+            </div>
+            @if($comp->estado == 'verificado')
+              <span class="est est-listo">Verificado</span>
+            @elseif($comp->estado == 'rechazado')
+              <span class="est est-pendiente">Rechazado</span>
+            @else
+              <span class="est est-recibido">Pendiente</span>
+            @endif
+          </div>
+
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="{{ asset('storage/'.$comp->archivo) }}" target="_blank"
-          style="padding:6px 14px;border-radius:8px;background:var(--blue-soft);
-          color:var(--blue);font-size:0.78rem;font-weight:600;text-decoration:none;
-          border:1px solid var(--blue-border);">
-          Ver archivo
-        </a>
-  
         @if($comp->estado == 'pendiente')
           <form action="{{ route('admin.comprobantes.verificar', $comp->id) }}" method="POST">
             @csrf
@@ -130,6 +141,8 @@
             Nota: {{ $comp->nota_admin }}
           </div>
         @endif
+      </div>
+        </div>
       </div>
     </div>
   @endforeach

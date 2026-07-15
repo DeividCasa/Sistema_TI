@@ -10,6 +10,7 @@ class PedidoUniforme extends Model
 
     protected $fillable = [
         'cliente_id',
+        'pedido_maestro_id',
         'codigo',
         'cantidad_total',
         'precio_total',
@@ -23,6 +24,11 @@ class PedidoUniforme extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'cliente_id');
+    }
+
+    public function pedidoMaestro()
+    {
+        return $this->belongsTo(PedidoMaestro::class, 'pedido_maestro_id');
     }
 
     public function items()

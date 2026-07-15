@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
+  <script>
+    // Aplicar el tema guardado antes de pintar, para evitar el flash claro/oscuro al navegar.
+    (function () {
+      const saved = localStorage.getItem('lj-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('titulo', 'Leo José')</title>
@@ -27,6 +36,7 @@
       --blue-soft:    #EFF6FF;
       --blue-border:  #BFDBFE;
       --blue-light:   #60A5FA;
+      --blue-shadow:  rgba(36,6,119,0.22);
       --sidebar-bg:   #0F172A;
       --sidebar-txt:  rgba(255,255,255,0.55);
       --sidebar-act:  #FFFFFF;
@@ -47,21 +57,24 @@
        VARIABLES MODO OSCURO
     ══════════════════════ */
     [data-theme="dark"] {
-      --bg:           #171e2c;
-      --bg-2:         #000000;
-      --bg-3:         #1A2235;
-      --border:       #1E2D45;
-      --border-2:     #2A3F5F;
+      --bg:           #0B1220;
+      --bg-2:         #141B2E;
+      --bg-3:         #1C2540;
+      --border:       #263349;
+      --border-2:     #34405E;
       --text-1:       #F1F5F9;
-      --text-2:       #ebebeb;
-      --text-3:       #677b97;
-      --sidebar-bg:   #080E1A;
-      --sidebar-actbg:rgba(37,99,235,0.2);
-      --blue-soft:    rgba(37,99,235,0.12);
-      --blue-border:  rgba(37,99,235,0.3);
-      --shadow-sm:    0 1px 3px rgba(0,0,0,0.3);
-      --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
-      --shadow-lg:    0 12px 40px rgba(0,0,0,0.5);
+      --text-2:       #A9B4C7;
+      --text-3:       #71829C;
+      --blue:         #8B7CF6;
+      --blue-h:       #A296FF;
+      --blue-soft:    rgba(139,124,246,0.14);
+      --blue-border:  rgba(139,124,246,0.32);
+      --blue-shadow:  rgba(139,124,246,0.35);
+      --sidebar-bg:   #070B15;
+      --sidebar-actbg:rgba(139,124,246,0.2);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.35);
+      --shadow-md:    0 4px 18px rgba(0,0,0,0.45);
+      --shadow-lg:    0 14px 44px rgba(0,0,0,0.55);
     }
 
     html, body { height: 100%; }
@@ -199,7 +212,7 @@
       background: var(--blue); color: white; border: none;
       font-family: var(--font-b); font-size: 0.88rem; font-weight: 600;
       cursor: pointer; text-decoration: none;
-      box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+      box-shadow: 0 4px 14px var(--blue-shadow);
       transition: all var(--tr);
     }
     .btn-primary:hover { background: var(--blue-h); transform: translateY(-1px); }
@@ -346,7 +359,7 @@
   @section('topbar')
   <header class="topbar">
     <a class="topbar-brand" href="{{ route('admin.inicio') }}">
-      <img src="{{ asset('images/logo.png') }}" width="110" height="99" alt="" >
+      <img src="{{ asset('images/logo.png') }}" alt="Leo José" style="display:block;height:42px;width:auto;">
     </a>
 
     <span class="topbar-title">@yield('page-title', 'Inicio')</span>
@@ -381,15 +394,74 @@
     </footer>
 </div>
 
+<script>
+  // Vista previa de archivos subidos (fotos de productos, etc.). Si se pasa
+  // dropAreaId, esa zona de arrastre se OCULTA y se reemplaza por una tarjeta
+  // de vista previa más grande (imagen o ícono de PDF) con opción de cambiarla.
+  function previsualizarArchivo(input, previewBoxId, dropAreaId) {
+    const box = document.getElementById(previewBoxId);
+    if (!box) return;
+    const dropArea = dropAreaId ? document.getElementById(dropAreaId) : null;
+    const file = input.files && input.files[0];
+
+    if (!file) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      if (dropArea) dropArea.style.display = 'flex';
+      return;
+    }
+
+    if (dropArea) dropArea.style.display = 'none';
+    box.style.display = 'block';
+
+    const tamano = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+    const idInput = input.id;
+
+    const renderizar = (miniaturaHtml) => {
+      box.innerHTML = `
+        <div style="display:flex;gap:16px;align-items:center;padding:16px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg-3);">
+          ${miniaturaHtml}
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:0.9rem;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${file.name}</div>
+            <div style="font-size:0.78rem;color:var(--text-3);margin-top:2px;">${tamano}</div>
+            ${idInput ? `<button type="button" onclick="quitarArchivoSeleccionado('${idInput}','${previewBoxId}'${dropAreaId ? `,'${dropAreaId}'` : ''})"
+              style="margin-top:8px;background:none;border:none;color:var(--blue);font-weight:600;font-size:0.8rem;cursor:pointer;padding:0;text-decoration:underline;">
+              Cambiar archivo
+            </button>` : ''}
+          </div>
+        </div>`;
+    };
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        renderizar(`<img src="${e.target.result}" alt="Vista previa" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--border);flex-shrink:0;">`);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      renderizar(`<div style="width:110px;height:110px;border-radius:10px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:44px;height:44px;stroke:#EF4444;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>`);
+    }
+  }
+
+  function quitarArchivoSeleccionado(inputId, previewBoxId, dropAreaId) {
+    const input = document.getElementById(inputId);
+    if (input) input.value = '';
+    const box = document.getElementById(previewBoxId);
+    if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+    if (dropAreaId) {
+      const area = document.getElementById(dropAreaId);
+      if (area) area.style.display = 'flex';
+    }
+  }
+</script>
+
 @stack('scripts')
 
   <script>
-    // modo nocturno
+    // modo nocturno (la detección/aplicación inicial ya corrió en el <head>, ver arriba)
     const html = document.documentElement;
-    const saved = localStorage.getItem('lj-theme');
-    if (saved) html.setAttribute('data-theme', saved);
-    else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-      html.setAttribute('data-theme', 'dark');
 
     function toggleTheme() {
       const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -413,6 +485,46 @@
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.07 });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+
+  <!-- Lightbox: ver en grande fotos de productos y comprobantes de pago -->
+  <div class="lightbox-overlay" id="lightbox-overlay" onclick="cerrarLightbox()">
+    <button type="button" class="lightbox-cerrar" onclick="cerrarLightbox()" aria-label="Cerrar">&times;</button>
+    <img id="lightbox-img" src="" alt="Vista ampliada" onclick="event.stopPropagation()">
+  </div>
+  <style>
+    .lightbox-overlay {
+      display: none; position: fixed; inset: 0; z-index: 3000;
+      background: rgba(0,0,0,0.85);
+      align-items: center; justify-content: center;
+      padding: 40px; cursor: zoom-out;
+    }
+    .lightbox-overlay.open { display: flex; }
+    .lightbox-overlay img {
+      max-width: 92vw; max-height: 92vh; border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      cursor: default;
+    }
+    .lightbox-cerrar {
+      position: absolute; top: 20px; right: 28px;
+      background: rgba(255,255,255,0.12); border: none; color: white;
+      width: 40px; height: 40px; border-radius: 50%; font-size: 1.6rem; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .lightbox-cerrar:hover { background: rgba(255,255,255,0.25); }
+  </style>
+  <script>
+    function abrirLightbox(src) {
+      if (!src) return;
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-overlay').classList.add('open');
+    }
+    function cerrarLightbox() {
+      document.getElementById('lightbox-overlay').classList.remove('open');
+      document.getElementById('lightbox-img').src = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
   </script>
 
 </body>

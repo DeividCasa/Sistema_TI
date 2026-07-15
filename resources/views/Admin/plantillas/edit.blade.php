@@ -1,8 +1,8 @@
 @extends('Admin.panel_admin')
 
 
-@section('titulo', 'Editar Camiseta')
-@section('page-title', 'Editar Camiseta')
+@section('titulo', 'Editar prenda')
+@section('page-title', 'Editar prenda')
 @section('admin-content')
 @section('sidebar-display', 'display:flex')
 @section('sidebar-margin', 'var(--sidebar-w)')
@@ -117,21 +117,25 @@
         Imagen actual
       </label>
       @if($plantilla->imagen_preview)
-        <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}"
-          style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:12px;">
+        <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}" onclick="abrirLightbox(this.src)"
+          style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:12px;cursor:zoom-in;">
       @endif
 
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
         Cambiar imagen (opcional)
       </label>
-      <input type="file" name="imagen_preview" accept="image/*" onchange="previewImagen(event)"
-        style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
-        font-family:var(--font-b);font-size:0.88rem;color:var(--text-2);background:var(--bg-2);outline:none;">
-
-      <div id="preview-wrap" style="display:none;margin-top:12px;">
-        <img id="preview-img" src=""
-          style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid var(--border);">
-      </div>
+      <label for="imagen-plantilla" id="drop-area-plantilla" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:8px;padding:22px 16px;border:1.5px dashed var(--border-2);border-radius:12px;
+        background:var(--bg-3);cursor:pointer;transition:all var(--tr);text-align:center;">
+        <svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--blue);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span style="font-weight:600;font-size:0.86rem;color:var(--text-1);">Haz clic para seleccionar una imagen</span>
+        <span style="font-size:0.74rem;color:var(--text-3);">JPG, PNG o WEBP — máximo 2MB</span>
+        <input type="file" id="imagen-plantilla" name="imagen_preview" accept="image/*"
+          onchange="previsualizarArchivo(this, 'preview-imagen-plantilla', 'drop-area-plantilla')" style="display:none;">
+      </label>
+      <div id="preview-imagen-plantilla" style="display:none;margin-top:10px;"></div>
     </div>
 
     {{-- Activa --}}
@@ -140,7 +144,7 @@
         {{ $plantilla->activa ? 'checked' : '' }}
         style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;">
       <label for="activa" style="font-size:0.88rem;color:var(--text-2);cursor:pointer;">
-        Camiseta activa (visible para los clientes)
+        Prenda activa (visible para los clientes)
       </label>
     </div>
 
@@ -151,21 +155,5 @@
 
   </form>
 </div>
-
-@push('scripts')
-<script>
-  function previewImagen(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('preview-wrap').style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-</script>
-@endpush
 
 @endsection

@@ -7,8 +7,9 @@
         ->implode('');
     $iniciales = $iniciales ?: 'LJ';
     $usuarioLogueado = session('usuario_id') && session('usuario_rol') === 'cliente';
-    $cantidadCarrito = collect(session('carrito_uniformes', []))->sum('cantidad')
-        + collect(session('carrito_chompas', []))->sum('cantidad');
+    $cantidadCarrito = count(session('carrito_uniformes', []))
+        + count(session('carrito_chompas', []))
+        + count(session('carrito_plantillas', []));
 @endphp
 
 <header class="topbar">
@@ -26,7 +27,7 @@
 
     @endif
 
-    <a class="topbar-brand" href="{{ route('cliente.inicio') }}">
+    <a class="topbar-brand" href="{{ route('cliente.catalogo.index') }}">
         <img src="{{ asset('images/logo.png') }}" alt="Leo José">
     </a>
 
@@ -37,12 +38,16 @@
         </div>
     @endif
 
+    @php
+        $categoriaNav = request()->routeIs('cliente.catalogo.*') ? request()->query('categoria', 'todos') : null;
+    @endphp
     <div class="topbar-right">
-        <a href="{{ route('cliente.uniformes.index') }}" class="topbar-link @if(request()->routeIs('cliente.uniformes.*')) active @endif">Uniformes escolares</a>
-        <a href="{{ route('cliente.chompas.index') }}" class="topbar-link @if(request()->routeIs('cliente.chompas.*')) active @endif">Chompas</a>
+        <a href="{{ route('cliente.catalogo.index') }}" class="topbar-link @if($categoriaNav === 'todos') active @endif">Toda la ropa</a>
+        <a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}" class="topbar-link @if($categoriaNav === 'uniforme') active @endif">Uniformes escolares</a>
+        <a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}" class="topbar-link @if($categoriaNav === 'chompa') active @endif">Chompas</a>
         @if($usuarioLogueado)
             <a href="{{ route('cliente.disenios.index') }}" class="topbar-link @if(request()->routeIs('cliente.disenios.index')) active @endif">Mis diseños</a>
-            <a href="@yield('mis-pedidos-route', route('cliente.pedidos.index'))" class="topbar-link">Mis pedidos</a>
+            <a href="@yield('mis-pedidos-route', route('cliente.mis-pedidos'))" class="topbar-link">Mis pedidos</a>
         @endif
 
         <div class="topbar-divider"></div>

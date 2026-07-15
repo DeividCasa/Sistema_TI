@@ -14,7 +14,7 @@
 
 <div class="sec-header reveal">
   <div class="sec-title">{{ $chompa->nombre }}</div>
-  <a href="{{ route('cliente.chompas.index') }}" class="btn-secondary">← Volver al catálogo</a>
+  <a href="{{ session('catalogo_url', route('cliente.catalogo.index')) }}" class="btn-secondary">← Volver al catálogo</a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;">
@@ -64,13 +64,22 @@
       </div>
 
       {{-- Cantidad --}}
-      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-        Cantidad
-      </label>
-      <input type="number" name="cantidad" id="cantidad" value="1" min="1" max="100"
-             oninput="actualizarSubtotal()"
-             style="width:120px;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.95rem;
-             background:var(--bg-2);color:var(--text-1);outline:none;margin-bottom:20px;">
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
+          Cantidad
+        </label>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button type="button" onclick="cambiarCantidad(-1)"
+            style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);
+            background:var(--bg-2);color:var(--text-1);font-size:1.1rem;cursor:pointer;">−</button>
+          <input type="number" name="cantidad" id="cantidad" value="1" min="1" max="100" readonly
+            style="width:60px;text-align:center;padding:8px;border:1.5px solid var(--border);
+            border-radius:8px;font-family:var(--font-b);font-size:0.95rem;color:var(--text-1);background:var(--bg-2);">
+          <button type="button" onclick="cambiarCantidad(1)"
+            style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);
+            background:var(--bg-2);color:var(--text-1);font-size:1.1rem;cursor:pointer;">+</button>
+        </div>
+      </div>
 
       {{-- Subtotal en vivo --}}
       <div id="panel-subtotal" style="display:none;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:10px;padding:14px 18px;margin-bottom:20px;">
@@ -113,6 +122,15 @@ function actualizarSubtotal() {
   document.getElementById('panel-subtotal').style.display = 'block';
   document.getElementById('txt-subtotal').textContent = '$' + subtotal.toFixed(2);
   document.getElementById('txt-adelanto').textContent = '$' + (subtotal / 2).toFixed(2);
+}
+
+function cambiarCantidad(delta) {
+  const input = document.getElementById('cantidad');
+  let val = parseInt(input.value) + delta;
+  if (val < 1) val = 1;
+  if (val > 100) val = 100;
+  input.value = val;
+  actualizarSubtotal();
 }
 </script>
 

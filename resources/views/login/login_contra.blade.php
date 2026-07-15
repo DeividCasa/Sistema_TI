@@ -124,7 +124,9 @@
     .right {
       display: flex; align-items: center; justify-content: center;
       padding: 48px 52px;
-      background: var(--gray-50);
+      background:
+        linear-gradient(rgba(248,250,252,0.85), rgba(248,250,252,0.85)),
+        url('{{ asset('images/fondo.png') }}') center / cover no-repeat;
     }
 
     .card {

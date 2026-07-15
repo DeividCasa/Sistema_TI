@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Plantilla;
 
 
 class InicioController extends Controller
@@ -13,9 +12,7 @@ class InicioController extends Controller
      */
     public function index()
     {
-        $plantillas = Plantilla::all();
-
-        return view('Pagina_central.inicio_principal', compact('plantillas'));
+        return redirect()->route('cliente.catalogo.index');
     }
 
     /**

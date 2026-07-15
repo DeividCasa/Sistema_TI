@@ -293,7 +293,7 @@
             <div class="stat-footer">Registrados</div>
         </div>
         <div class="stat-item">
-            <div class="stat-title">Camisetas</div>
+            <div class="stat-title">Ropa</div>
             <div class="stat-number" style="color: #D97706;">{{ $total_plantillas }}</div>
             <div class="stat-footer">Activas</div>
         </div>
@@ -326,7 +326,7 @@
 {{-- Pedidos recientes (separado pero con estilo) --}}
 <div class="recent-header">
     <div class="recent-title">Pedidos recientes</div>
-    <a href="{{ route('admin.pedidos.index') }}" class="recent-link">Ver todos →</a>
+    <a href="{{ route('admin.pedidos-tienda.index') }}" class="recent-link">Ver todos →</a>
 </div>
 
 @if($pedidos_recientes->isEmpty())

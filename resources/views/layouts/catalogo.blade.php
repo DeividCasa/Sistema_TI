@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
+  <script>
+    // Aplicar el tema guardado antes de pintar, para evitar el flash claro/oscuro al navegar.
+    (function () {
+      const saved = localStorage.getItem('lj-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>@yield('titulo', 'Leo José | Catálogo Deportivo')</title>
@@ -25,6 +34,7 @@
       --blue-soft:    #EFF6FF;
       --blue-border:  #BFDBFE;
       --blue-light:   #60A5FA;
+      --blue-shadow:  rgba(36,6,119,0.2);
       --accent:       #0D9488;
       --accent-soft:  #F0FDFA;
       --accent-border:#99F6E4;
@@ -46,31 +56,44 @@
 
     /* ========== MODO OSCURO ========== */
     [data-theme="dark"] {
-      --bg:           #171e2c;
-      --bg-2:         #000000;
-      --bg-3:         #1A2235;
-      --border:       #1E2D45;
-      --border-2:     #2A3F5F;
+      --bg:           #0B1220;
+      --bg-2:         #141B2E;
+      --bg-3:         #1C2540;
+      --border:       #263349;
+      --border-2:     #34405E;
       --text-1:       #F1F5F9;
-      --text-2:       #ebebeb;
-      --text-3:       #677b97;
-      --sidebar-bg:   #080E1A;
-      --sidebar-actbg:rgba(37,99,235,0.2);
-      --blue-soft:    rgba(37,99,235,0.12);
-      --blue-border:  rgba(37,99,235,0.3);
+      --text-2:       #A9B4C7;
+      --text-3:       #71829C;
+      --blue:         #8B7CF6;
+      --blue-h:       #A296FF;
+      --blue-soft:    rgba(139,124,246,0.14);
+      --blue-border:  rgba(139,124,246,0.32);
+      --blue-shadow:  rgba(139,124,246,0.35);
+      --sidebar-bg:   #070B15;
+      --sidebar-actbg:rgba(139,124,246,0.2);
       --accent:       #2DD4BF;
       --accent-soft:  rgba(45,212,191,0.12);
       --accent-border:rgba(45,212,191,0.3);
-      --shadow-sm:    0 1px 3px rgba(0,0,0,0.3);
-      --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
-      --shadow-lg:    0 12px 40px rgba(0,0,0,0.5);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.35);
+      --shadow-md:    0 4px 18px rgba(0,0,0,0.45);
+      --shadow-lg:    0 14px 44px rgba(0,0,0,0.55);
     }
 
-    /* Fondo con textura sutil profesional */
+    /* Fondo con imagen de marca */
     body {
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" opacity="0.08"><path d="M0 0h40v40H0z" fill="none"/><path d="M20 0v40M0 20h40" stroke="%23475569" stroke-width="0.5"/></svg>');
+      background-image:
+        linear-gradient(rgba(241,245,249,0.90), rgba(241,245,249,0.90)),
+        url('{{ asset('images/fondo.png') }}');
       background-color: var(--bg);
+      background-size: cover;
+      background-position: center;
       background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+    [data-theme="dark"] body {
+      background-image:
+        linear-gradient(rgba(11,18,32,0.92), rgba(11,18,32,0.92)),
+        url('{{ asset('images/fondo.png') }}');
     }
 
     html, body { height: 100%; scroll-behavior: smooth; }
@@ -97,7 +120,7 @@
       display: flex; align-items: center;
       text-decoration: none; flex-shrink: 0;
     }
-    .topbar-brand img { display: block; height: 44px; width: auto; }
+    .topbar-brand img { display: block; height: 60px; width: auto; }
     .search-box {
       flex: 1; max-width: 360px;
       display: flex; align-items: center;
@@ -340,6 +363,42 @@
       display: inline-block; flex-shrink: 0;
     }
 
+    /* Filtro de precio: slider de rango con dos manijas */
+    .price-range-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.85rem; font-weight: 700; color: var(--text-1);
+      margin-bottom: 14px;
+    }
+    .price-slider {
+      position: relative; height: 20px; margin: 0 2px 4px;
+    }
+    .price-slider .price-track {
+      position: absolute; top: 8px; left: 0; right: 0; height: 4px;
+      background: var(--border); border-radius: 4px;
+    }
+    .price-slider .price-track-fill {
+      position: absolute; top: 8px; height: 4px;
+      background: var(--blue); border-radius: 4px;
+    }
+    .price-slider input[type="range"] {
+      position: absolute; top: 0; left: 0; width: 100%; height: 20px;
+      margin: 0; background: transparent; pointer-events: none;
+      -webkit-appearance: none; appearance: none;
+    }
+    .price-slider input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
+    .price-slider input[type="range"]::-moz-range-track { background: transparent; }
+    .price-slider input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; pointer-events: auto;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--blue); border: 2px solid var(--bg-2);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      cursor: pointer; margin-top: 2px;
+    }
+    .price-slider input[type="range"]::-moz-range-thumb {
+      pointer-events: auto; width: 14px; height: 14px; border-radius: 50%;
+      background: var(--blue); border: 2px solid var(--bg-2); cursor: pointer;
+    }
+
     /* ========== MAIN CONTENT ========== */
     .main-wrap {
       margin-top: var(--nav-h);
@@ -536,7 +595,7 @@
       background: var(--blue); color: white; border: none;
       font-family: var(--font-b); font-size: 0.88rem; font-weight: 600;
       cursor: pointer; text-decoration: none;
-      box-shadow: 0 4px 14px rgba(36,6,119,0.2);
+      box-shadow: 0 4px 14px var(--blue-shadow);
       transition: all var(--tr);
     }
     .btn-primary:hover { background: var(--blue-h); transform: translateY(-1px); }
@@ -669,7 +728,7 @@
     }
     @media (max-width: 550px) {
       .topbar { padding: 0 12px; gap: 10px; }
-      .topbar-brand img { height: 34px; }
+      .topbar-brand img { height: 44px; }
       .topbar-link { display: none; }
     }
 
@@ -734,12 +793,8 @@
 @include('cliente.componentes.whatsapp-flotante')
 
 <script>
-  // Tema
+  // Tema (la detección/aplicación inicial ya corrió en el <head>, ver arriba)
   const html = document.documentElement;
-  const savedTheme = localStorage.getItem('lj-theme');
-  if (savedTheme) html.setAttribute('data-theme', savedTheme);
-  else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-    html.setAttribute('data-theme', 'dark');
 
   function toggleTheme() {
     const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -763,9 +818,110 @@
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.07 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Vista previa de archivos subidos (comprobantes, fotos, etc.). Si se pasa
+  // dropAreaId, esa zona de arrastre se OCULTA y se reemplaza por una tarjeta
+  // de vista previa más grande (imagen o ícono de PDF) con opción de cambiarla.
+  function previsualizarArchivo(input, previewBoxId, dropAreaId) {
+    const box = document.getElementById(previewBoxId);
+    if (!box) return;
+    const dropArea = dropAreaId ? document.getElementById(dropAreaId) : null;
+    const file = input.files && input.files[0];
+
+    if (!file) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      if (dropArea) dropArea.style.display = 'flex';
+      return;
+    }
+
+    if (dropArea) dropArea.style.display = 'none';
+    box.style.display = 'block';
+
+    const tamano = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+    const idInput = input.id;
+
+    const renderizar = (miniaturaHtml) => {
+      box.innerHTML = `
+        <div style="display:flex;gap:16px;align-items:center;padding:16px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg-3);">
+          ${miniaturaHtml}
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:0.9rem;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${file.name}</div>
+            <div style="font-size:0.78rem;color:var(--text-3);margin-top:2px;">${tamano}</div>
+            ${idInput ? `<button type="button" onclick="quitarArchivoSeleccionado('${idInput}','${previewBoxId}'${dropAreaId ? `,'${dropAreaId}'` : ''})"
+              style="margin-top:8px;background:none;border:none;color:var(--blue);font-weight:600;font-size:0.8rem;cursor:pointer;padding:0;text-decoration:underline;">
+              Cambiar archivo
+            </button>` : ''}
+          </div>
+        </div>`;
+    };
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        renderizar(`<img src="${e.target.result}" alt="Vista previa" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--border);flex-shrink:0;">`);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      renderizar(`<div style="width:110px;height:110px;border-radius:10px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:44px;height:44px;stroke:#EF4444;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>`);
+    }
+  }
+
+  function quitarArchivoSeleccionado(inputId, previewBoxId, dropAreaId) {
+    const input = document.getElementById(inputId);
+    if (input) input.value = '';
+    const box = document.getElementById(previewBoxId);
+    if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+    if (dropAreaId) {
+      const area = document.getElementById(dropAreaId);
+      if (area) area.style.display = 'flex';
+    }
+  }
 </script>
 
 @stack('scripts')
+
+<!-- Lightbox: ver en grande fotos de productos y comprobantes de pago -->
+<div class="lightbox-overlay" id="lightbox-overlay" onclick="cerrarLightbox()">
+  <button type="button" class="lightbox-cerrar" onclick="cerrarLightbox()" aria-label="Cerrar">&times;</button>
+  <img id="lightbox-img" src="" alt="Vista ampliada" onclick="event.stopPropagation()">
+</div>
+<style>
+  .lightbox-overlay {
+    display: none; position: fixed; inset: 0; z-index: 3000;
+    background: rgba(0,0,0,0.85);
+    align-items: center; justify-content: center;
+    padding: 40px; cursor: zoom-out;
+  }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-overlay img {
+    max-width: 92vw; max-height: 92vh; border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    cursor: default;
+  }
+  .lightbox-cerrar {
+    position: absolute; top: 20px; right: 28px;
+    background: rgba(255,255,255,0.12); border: none; color: white;
+    width: 40px; height: 40px; border-radius: 50%; font-size: 1.6rem; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .lightbox-cerrar:hover { background: rgba(255,255,255,0.25); }
+</style>
+<script>
+  function abrirLightbox(src) {
+    if (!src) return;
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-overlay').classList.add('open');
+  }
+  function cerrarLightbox() {
+    document.getElementById('lightbox-overlay').classList.remove('open');
+    document.getElementById('lightbox-img').src = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
+</script>
 
 </body>
 </html>

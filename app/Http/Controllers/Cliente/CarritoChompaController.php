@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Chompa;
 use App\Models\ChompaTalla;
 use App\Models\PedidoChompa;
-use App\Models\PedidoChompaItem;
 use App\Models\ComprobanteChompa;
+use App\Services\CheckoutService;
 use Illuminate\Http\Request;
 
 class CarritoChompaController extends Controller
@@ -16,16 +16,43 @@ class CarritoChompaController extends Controller
     public function index()
     {
         $carrito = session('carrito_chompas', []);
+        $carritoUniformes = session('carrito_uniformes', []);
+        $carritoPlantillas = session('carrito_plantillas', []);
 
         $total = 0;
         foreach ($carrito as $item) {
             $total += $item['precio'] * $item['cantidad'];
         }
-
         $adelanto = round($total / 2, 2);
         $saldo    = $total - $adelanto;
 
-        return view('cliente.chompas.carrito', compact('carrito', 'total', 'adelanto', 'saldo'));
+        $totalUniformes = 0;
+        foreach ($carritoUniformes as $item) {
+            $totalUniformes += $item['precio'] * $item['cantidad'];
+        }
+
+        $totalPlantillas = 0;
+        foreach ($carritoPlantillas as $item) {
+            $totalPlantillas += $item['precio'] * $item['cantidad'];
+        }
+
+        $tiposConItems = collect([
+            !empty($carrito) ? 'chompa' : null,
+            !empty($carritoUniformes) ? 'uniforme' : null,
+            !empty($carritoPlantillas) ? 'plantilla' : null,
+        ])->filter()->values();
+        $hayAmbos = $tiposConItems->count() > 1;
+
+        $totalCombinado = $total + $totalUniformes + $totalPlantillas;
+        $adelantoCombinado = $adelanto + round($totalUniformes / 2, 2) + round($totalPlantillas / 2, 2);
+        $saldoCombinado = $totalCombinado - $adelantoCombinado;
+
+        return view('cliente.chompas.carrito', compact(
+            'carrito', 'total', 'adelanto', 'saldo',
+            'carritoUniformes', 'totalUniformes',
+            'carritoPlantillas', 'totalPlantillas',
+            'hayAmbos', 'totalCombinado', 'adelantoCombinado', 'saldoCombinado'
+        ));
     }
 
     // ── AGREGAR AL CARRITO
@@ -94,8 +121,9 @@ class CarritoChompaController extends Controller
             return response()->json([
                 'success' => true,
                 'html'    => view('cliente.componentes.carrito-dropdown')->render(),
-                'count'   => collect(session('carrito_uniformes', []))->sum('cantidad')
-                    + collect(session('carrito_chompas', []))->sum('cantidad'),
+                'count'   => count(session('carrito_uniformes', []))
+                    + count(session('carrito_chompas', []))
+                    + count(session('carrito_plantillas', [])),
             ]);
         }
 
@@ -110,58 +138,31 @@ class CarritoChompaController extends Controller
     }
 
     // ── CONFIRMAR PEDIDO
-    public function confirmar()
+    public function confirmar(CheckoutService $checkout)
     {
-        $carrito = session('carrito_chompas', []);
-
-        if (empty($carrito)) {
-            return redirect()->route('cliente.chompas.index')
+        if (empty(session('carrito_uniformes', [])) && empty(session('carrito_chompas', [])) && empty(session('carrito_plantillas', []))) {
+            return redirect()->route('cliente.catalogo.index')
                              ->with('success', 'Tu carrito está vacío.');
         }
 
-        $clienteId    = session('usuario_id');
-        $total        = 0;
-        $cantidadTotal = 0;
+        $resultado = $checkout->confirmar(session('usuario_id'));
 
-        foreach ($carrito as $item) {
-            $total         += $item['precio'] * $item['cantidad'];
-            $cantidadTotal += $item['cantidad'];
+        if ($resultado['maestro']) {
+            return redirect()->route('cliente.pedido-maestro.pago', $resultado['maestro']->id)
+                             ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
         }
 
-        $adelanto = round($total / 2, 2);
-        $saldo    = $total - $adelanto;
-
-        // Generar código único: PCH-YYYYNNNNN
-        do {
-            $codigo = 'PCH-' . date('Y') . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
-        } while (PedidoChompa::where('codigo', $codigo)->exists());
-
-        $pedido = PedidoChompa::create([
-            'cliente_id'      => $clienteId,
-            'codigo'          => $codigo,
-            'cantidad_total'  => $cantidadTotal,
-            'precio_total'    => $total,
-            'precio_adelanto' => $adelanto,
-            'precio_saldo'    => $saldo,
-            'estado'          => 'recibido',
-            'estado_pago'     => 'pendiente',
-        ]);
-
-        foreach ($carrito as $item) {
-            PedidoChompaItem::create([
-                'pedido_chompa_id' => $pedido->id,
-                'chompa_id'        => $item['chompa_id'],
-                'chompa_talla_id'  => $item['talla_id'],
-                'talla'            => $item['talla'],
-                'precio_unitario'  => $item['precio'],
-                'cantidad'         => $item['cantidad'],
-                'subtotal'         => $item['precio'] * $item['cantidad'],
-            ]);
+        if ($resultado['pedidoChompa']) {
+            return redirect()->route('cliente.chompas.pago', $resultado['pedidoChompa']->id)
+                             ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
         }
 
-        session()->forget('carrito_chompas');
+        if ($resultado['pedidoUniforme']) {
+            return redirect()->route('cliente.uniformes.pago', $resultado['pedidoUniforme']->id)
+                             ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
+        }
 
-        return redirect()->route('cliente.chompas.pago', $pedido->id)
+        return redirect()->route('cliente.plantillas.pago', $resultado['pedidoPlantilla']->id)
                          ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
     }
 
@@ -209,6 +210,7 @@ class CarritoChompaController extends Controller
     {
         $pedidos = PedidoChompa::with(['items.chompa', 'comprobantes'])
                                ->where('cliente_id', session('usuario_id'))
+                               ->whereNull('pedido_maestro_id')
                                ->orderBy('created_at', 'desc')
                                ->get();
 

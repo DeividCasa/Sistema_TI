@@ -12,7 +12,7 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--text-3);
+        color: white;
         margin: 1rem 0 0.5rem 1rem;
     }
     .nav-item {
@@ -22,7 +22,7 @@
         padding: 0.65rem 1rem;
         margin: 0.2rem 0.5rem;
         border-radius: 10px;
-        color: var(--text-2);
+        color: var(--sidebar-txt);
         text-decoration: none;
         font-size: 0.85rem;
         font-weight: 500;
@@ -52,36 +52,11 @@
         Dashboard
     </a>
 
-    <a href="{{ route('admin.pedidos.index') }}" class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Pedidos
-    </a>
-
     <a href="{{ route('admin.plantillas.index') }}" class="nav-item">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Camisetas
+        Ropa
     </a>
 
-    <a href="{{ route('admin.clientes.index') }}" class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
-        Clientes
-    </a>
-    <a href="{{ route('admin.disenios3d.index') }}" class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M12 2l9 4.9v10.2L12 22l-9-4.9V6.9L12 2z"/><path d="M12 22V12M21 6.9L12 12 3 6.9"/></svg>
-        Diseños 3D
-    </a>
-    <a href="{{ route('admin.uniformes.index') }}" class="nav-item">
-    <svg viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="7"/>
-    </svg>
-    Uniformes escolares
-    </a>
-    <a href="{{ route('admin.pedidos-uniformes.index') }}" class="nav-item">
-        <svg viewBox="0 0 24 24">
-            <path d="M3 7h18M5 7v11a2 2 0 002 2h10a2 2 0 002-2V7M9 11h6M9 15h6"/>
-        </svg>
-        Pedidos de Uniformes
-    </a>
     <a href="{{ route('admin.chompas.index') }}" class="nav-item">
     <svg viewBox="0 0 24 24">
         {{-- Icono: chompa / ropa --}}
@@ -89,17 +64,30 @@
     </svg>
     Chompas
     </a>
-    <a href="{{ route('admin.pedidos-chompas.index') }}" class="nav-item">
+
+    <a href="{{ route('admin.uniformes.index') }}" class="nav-item">
     <svg viewBox="0 0 24 24">
-        <path d="M3 7h18M5 7v11a2 2 0 002 2h10a2 2 0 002-2V7M9 11h6M9 15h6"/>
+        <rect x="3" y="3" width="7" height="7"/>
     </svg>
-    Pedidos de Chompas
+    Uniformes escolares
     </a>
 
+    <a href="{{ route('admin.pedidos-tienda.index') }}" class="nav-item">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 7h18M5 7v11a2 2 0 002 2h10a2 2 0 002-2V7M9 11h6M9 15h6"/>
+        </svg>
+        Pedidos
+    </a>
 
-</a>
-</a>
+    <a href="{{ route('admin.disenios3d.index') }}" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M12 2l9 4.9v10.2L12 22l-9-4.9V6.9L12 2z"/><path d="M12 22V12M21 6.9L12 12 3 6.9"/></svg>
+        Diseños 3D
+    </a>
 
+    <a href="{{ route('admin.clientes.index') }}" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+        Clientes
+    </a>
 </div>
 
 @endpush

@@ -9,6 +9,7 @@ use App\Models\SolicitudDiseno;
 use App\Models\TallaPedido;
 use App\Models\TallaSolicitud;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SolicitudDisenoController extends Controller
 {
@@ -90,28 +91,32 @@ class SolicitudDisenoController extends Controller
         $precioSaldo    = $precioTotal - $precioAdelanto;
         $codigo         = 'LJ-' . date('Y') . '-' . str_pad(Pedido::count() + 1, 3, '0', STR_PAD_LEFT);
 
-        $pedido = Pedido::create([
-            'cliente_id'      => $solicitud->cliente_id,
-            'disenio_id'      => $solicitud->disenio_id,
-            'codigo'          => $codigo,
-            'cantidad_total'  => $cantidadTotal,
-            'precio_total'    => $precioTotal,
-            'precio_adelanto' => $precioAdelanto,
-            'precio_saldo'    => $precioSaldo,
-            'estado'          => 'recibido',
-            'estado_pago'     => 'pendiente',
-            'observaciones'   => $solicitud->descripcion,
-        ]);
-
-        foreach ($solicitud->tallas as $tallaSolicitud) {
-            TallaPedido::create([
-                'pedido_id' => $pedido->id,
-                'talla'     => $tallaSolicitud->talla,
-                'cantidad'  => $tallaSolicitud->cantidad,
+        $pedido = DB::transaction(function () use ($solicitud, $codigo, $cantidadTotal, $precioTotal, $precioAdelanto, $precioSaldo) {
+            $pedido = Pedido::create([
+                'cliente_id'      => $solicitud->cliente_id,
+                'disenio_id'      => $solicitud->disenio_id,
+                'codigo'          => $codigo,
+                'cantidad_total'  => $cantidadTotal,
+                'precio_total'    => $precioTotal,
+                'precio_adelanto' => $precioAdelanto,
+                'precio_saldo'    => $precioSaldo,
+                'estado'          => 'recibido',
+                'estado_pago'     => 'pendiente',
+                'observaciones'   => $solicitud->descripcion,
             ]);
-        }
 
-        $solicitud->update(['estado' => 'aceptado', 'pedido_id' => $pedido->id]);
+            foreach ($solicitud->tallas as $tallaSolicitud) {
+                TallaPedido::create([
+                    'pedido_id' => $pedido->id,
+                    'talla'     => $tallaSolicitud->talla,
+                    'cantidad'  => $tallaSolicitud->cantidad,
+                ]);
+            }
+
+            $solicitud->update(['estado' => 'aceptado', 'pedido_id' => $pedido->id]);
+
+            return $pedido;
+        });
 
         return redirect()->route('cliente.pedidos.comprobante', $pedido->id)
                          ->with('success', '¡Cotización aceptada! Ahora sube tu comprobante de pago.');

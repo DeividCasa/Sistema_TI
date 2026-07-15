@@ -48,6 +48,9 @@ class DisenioController extends Controller
             'imagen_captura'  => 'nullable|string', // viene como data:image/png;base64,....
             'imagen_3d_frente'=> 'nullable|string',
             'imagen_3d_atras' => 'nullable|string',
+            'pantaloneta_activa'     => 'nullable|in:0,1',
+            'medias_activas'         => 'nullable|in:0,1',
+            'pantalon_chompa_activo' => 'nullable|in:0,1',
         ]);
 
         $clienteId = session('usuario_id');
@@ -84,6 +87,13 @@ class DisenioController extends Controller
                     'capucha' => $request->color_capucha,
                     'parte_abajo' => $request->color_parte_abajo,
                 ],
+
+                // Indican si el cliente agregó el conjunto completo (camiseta +
+                // pantaloneta + medias, o chompa + pantalón) en vez de solo la prenda.
+                'pantaloneta_activa'     => $request->boolean('pantaloneta_activa'),
+                'medias_activas'         => $request->boolean('medias_activas'),
+                'pantalon_chompa_activo' => $request->boolean('pantalon_chompa_activo'),
+
                 'canvas_json' => $request->canvas_json,
             
                 'texto' => $request->texto,

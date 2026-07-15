@@ -9,15 +9,6 @@ use Illuminate\Http\Request;
 
 class PedidoChompaController extends Controller
 {
-    // ── LISTA DE PEDIDOS DE CHOMPAS
-    public function index()
-    {
-        $pedidos = PedidoChompa::with(['cliente', 'items.chompa', 'comprobantes'])
-                               ->orderBy('created_at', 'desc')
-                               ->get();
-        return view('Admin.pedidos_chompas.index', compact('pedidos'));
-    }
-
     // ── DETALLE DEL PEDIDO
     public function show($id)
     {

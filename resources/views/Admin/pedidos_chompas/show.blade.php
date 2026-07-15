@@ -15,7 +15,7 @@
 
 <div class="sec-header reveal">
   <div class="sec-title">Pedido {{ $pedido->codigo }}</div>
-  <a href="{{ route('admin.pedidos-chompas.index') }}" class="btn-secondary">← Volver</a>
+  <a href="{{ route('admin.pedidos-tienda.index') }}" class="btn-secondary">← Volver</a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
@@ -83,8 +83,8 @@
       @foreach($pedido->items as $item)
         <tr style="border-top:1px solid var(--border);">
           <td style="padding:10px 16px;">
-            <img src="{{ asset('storage/' . $item->chompa->imagen) }}" alt=""
-                 style="width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">
+            <img src="{{ asset('storage/' . $item->chompa->imagen) }}" alt="" onclick="abrirLightbox(this.src)"
+                 style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;">
           </td>
           <td style="padding:10px 16px;font-weight:600;color:var(--text-1);">{{ $item->chompa->nombre }}</td>
           <td style="padding:10px 16px;color:var(--text-2);">{{ $item->chompa->tipo_tela }}</td>
@@ -108,10 +108,16 @@
 
   @forelse($pedido->comprobantes as $comprobante)
     <div style="display:flex;gap:20px;padding:18px 20px;border-top:1px solid var(--border);align-items:flex-start;flex-wrap:wrap;">
-      <a href="{{ asset('storage/' . $comprobante->archivo) }}" target="_blank">
-        <img src="{{ asset('storage/' . $comprobante->archivo) }}" alt="Voucher"
-             style="width:130px;height:130px;object-fit:cover;border-radius:10px;border:1px solid var(--border);">
-      </a>
+      @if(Str::endsWith(strtolower($comprobante->archivo), '.pdf'))
+        <a href="{{ asset('storage/' . $comprobante->archivo) }}" target="_blank">
+          <div style="width:130px;height:130px;border-radius:10px;background:var(--bg-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:#EF4444;fill:none;stroke-width:1.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+        </a>
+      @else
+        <img src="{{ asset('storage/' . $comprobante->archivo) }}" alt="Voucher" onclick="abrirLightbox(this.src)"
+             style="width:130px;height:130px;object-fit:cover;border-radius:10px;border:1px solid var(--border);cursor:zoom-in;">
+      @endif
 
       <div style="flex:1;min-width:220px;font-size:0.87rem;color:var(--text-2);line-height:1.9;">
         <div>

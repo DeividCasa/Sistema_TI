@@ -111,12 +111,21 @@
           @endif
         </div>
 
-        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:7px;">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:10px;">
           Foto del voucher (imagen o PDF)
         </label>
-        <input type="file" name="comprobante" accept="image/*,.pdf"
-          style="width:100%;padding:12px;border:1.5px dashed var(--border-2);border-radius:10px;font-size:0.87rem;
-          color:var(--text-2);background:var(--bg-3);margin-bottom:16px;">
+        <label for="archivo-chompa" id="drop-area-chompa" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:10px;padding:28px 16px;border:1.5px dashed var(--border-2);border-radius:12px;
+          background:var(--bg-3);cursor:pointer;transition:all var(--tr);text-align:center;">
+          <svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:var(--blue);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span style="font-weight:600;font-size:0.9rem;color:var(--text-1);">Haz clic para seleccionar tu archivo</span>
+          <span style="font-size:0.78rem;color:var(--text-3);">JPG, PNG o PDF — máximo 5MB</span>
+          <input type="file" id="archivo-chompa" name="comprobante" accept="image/*,.pdf"
+            onchange="previsualizarArchivo(this, 'preview-archivo-chompa', 'drop-area-chompa')" style="display:none;" required>
+        </label>
+        <div id="preview-archivo-chompa" style="display:none;margin-top:12px;margin-bottom:16px;"></div>
 
         <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:7px;">
           Número de referencia / transacción (opcional)

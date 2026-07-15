@@ -22,6 +22,11 @@ use App\Http\Controllers\Admin\ChompaController;
 use App\Http\Controllers\Admin\PedidoChompaController;
 use App\Http\Controllers\Cliente\ChompaClienteController;
 use App\Http\Controllers\Cliente\CarritoChompaController;
+use App\Http\Controllers\Cliente\CarritoMaestroController;
+use App\Http\Controllers\Cliente\CarritoPlantillaController;
+use App\Http\Controllers\Cliente\CatalogoGeneralController;
+use App\Http\Controllers\Admin\PedidoTiendaController;
+use App\Http\Controllers\Admin\PedidoPlantillaController;
 
 use App\Models\Pedido;
 use App\Models\Cliente;
@@ -41,14 +46,20 @@ Route::get('/logout', function () {
     return redirect()->route('login.paso1');
 })->name('logout');
 
+// Toda la ropa: catálogo único (camisetas, shorts, conjuntos, uniformes y chompas
+// mezclados). Es la página de inicio del cliente y reemplaza las secciones que
+// antes estaban separadas (cada una con su propio filtro).
+Route::get('/toda-la-ropa', [CatalogoGeneralController::class, 'index'])
+    ->name('cliente.catalogo.index');
+
 Route::get('/Pagina_central', function () {
-    $plantillas = Plantilla::where('activa', 1)->get();
-    return view('Pagina_central.inicio_principal', compact('plantillas'));
+    return redirect()->route('cliente.catalogo.index');
 })->name('cliente.inicio');
 
 // Rutas públicas de uniformes (fuera del middleware de sesión)
-Route::get('/uniformes-escolares', [UniformeClienteController::class, 'index'])
-    ->name('cliente.uniformes.index');
+Route::get('/uniformes-escolares', function () {
+    return redirect()->route('cliente.catalogo.index', ['categoria' => 'uniforme']);
+})->name('cliente.uniformes.index');
 
 Route::get('/uniformes-escolares/{id}', [UniformeClienteController::class, 'show'])
     ->name('cliente.uniformes.show');
@@ -102,6 +113,28 @@ Route::middleware('sesion:cliente')->group(function () {
     Route::post('/carrito/confirmar', [CarritoUniformeController::class, 'confirmar'])
         ->name('cliente.carrito.confirmar');
 
+    // Carrito de ropa (camisetas, shorts, conjuntos, otros)
+    Route::post('/carrito/plantillas/agregar', [CarritoPlantillaController::class, 'agregar'])
+        ->name('cliente.plantillas.agregar');
+
+    Route::post('/carrito/plantillas/actualizar/{key}', [CarritoPlantillaController::class, 'actualizar'])
+        ->name('cliente.plantillas.actualizar');
+
+    Route::delete('/carrito/plantillas/quitar/{key}', [CarritoPlantillaController::class, 'quitar'])
+        ->name('cliente.plantillas.quitar');
+
+    Route::post('/carrito/plantillas/vaciar', [CarritoPlantillaController::class, 'vaciar'])
+        ->name('cliente.plantillas.vaciar');
+
+    Route::get('/plantillas/pedido/{id}/pago', [CarritoPlantillaController::class, 'pago'])
+        ->name('cliente.plantillas.pago');
+
+    Route::post('/plantillas/pedido/{id}/comprobante', [CarritoPlantillaController::class, 'guardarComprobante'])
+        ->name('cliente.plantillas.comprobante');
+
+    Route::get('/mis-pedidos-ropa', [CarritoPlantillaController::class, 'misPedidos'])
+        ->name('cliente.plantillas.mis-pedidos');
+
     Route::get('/uniformes/pedido/{id}/pago', [CarritoUniformeController::class, 'pago'])
         ->name('cliente.uniformes.pago');
 
@@ -112,8 +145,9 @@ Route::middleware('sesion:cliente')->group(function () {
         ->name('cliente.uniformes.mis-pedidos');
 
     // Rutas de chompas (requieren sesión)
-    Route::get('/chompas', [ChompaClienteController::class, 'index'])
-        ->name('cliente.chompas.index');
+    Route::get('/chompas', function () {
+        return redirect()->route('cliente.catalogo.index', ['categoria' => 'chompa']);
+    })->name('cliente.chompas.index');
 
     Route::get('/chompas/{id}', [ChompaClienteController::class, 'show'])
         ->name('cliente.chompas.show');
@@ -144,6 +178,16 @@ Route::middleware('sesion:cliente')->group(function () {
 
     Route::get('/mis-pedidos-chompas', [CarritoChompaController::class, 'misPedidos'])
         ->name('cliente.chompas.mis-pedidos');
+
+    // Rutas del pedido maestro (uniforme + chompa combinados en un solo pedido)
+    Route::get('/pedido-maestro/{id}/pago', [CarritoMaestroController::class, 'pago'])
+        ->name('cliente.pedido-maestro.pago');
+
+    Route::post('/pedido-maestro/{id}/comprobante', [CarritoMaestroController::class, 'guardarComprobante'])
+        ->name('cliente.pedido-maestro.comprobante');
+
+    Route::get('/mis-pedidos-tienda', [CarritoMaestroController::class, 'misPedidos'])
+        ->name('cliente.mis-pedidos');
 });
 
 Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -188,7 +232,7 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     Route::resource('plantillas', PlantillaController::class);
 
     Route::resource('pedidos', PedidoController::class)
-        ->only(['index', 'show', 'update']);
+        ->only(['show', 'update']);
 
     Route::post('/pedidos/{id}/pago-completo', [PedidoController::class, 'marcarPagoCompleto'])
         ->name('pedidos.pago-completo');
@@ -211,7 +255,7 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
         ->except(['show']);
 
     Route::resource('pedidos-uniformes', PedidoUniformeController::class)
-        ->only(['index', 'show', 'update'])
+        ->only(['show', 'update'])
         ->parameters([
             'pedidos-uniformes' => 'id'
         ]);
@@ -232,7 +276,7 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
         ->except(['show']);
 
     Route::resource('pedidos-chompas', PedidoChompaController::class)
-        ->only(['index', 'show', 'update'])
+        ->only(['show', 'update'])
         ->parameters([
             'pedidos-chompas' => 'id'
         ]);
@@ -247,6 +291,33 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     Route::post('/comprobantes-chompas/{id}/rechazar',
         [PedidoChompaController::class, 'rechazarComprobante'])
         ->name('comprobantes-chompas.rechazar');
+
+    Route::resource('pedidos-plantillas', PedidoPlantillaController::class)
+        ->only(['show', 'update'])
+        ->parameters([
+            'pedidos-plantillas' => 'id'
+        ]);
+
+    Route::post('/pedidos-plantillas/{id}/pago-completo', [PedidoPlantillaController::class, 'marcarPagoCompleto'])
+        ->name('pedidos-plantillas.pago-completo');
+
+    Route::post('/comprobantes-plantillas/{id}/verificar',
+        [PedidoPlantillaController::class, 'verificarComprobante'])
+        ->name('comprobantes-plantillas.verificar');
+
+    Route::post('/comprobantes-plantillas/{id}/rechazar',
+        [PedidoPlantillaController::class, 'rechazarComprobante'])
+        ->name('comprobantes-plantillas.rechazar');
+
+    // ── PEDIDOS DE TIENDA: lista unificada de uniformes + chompas (sueltos o combinados)
+    Route::get('/pedidos-tienda', [PedidoTiendaController::class, 'index'])->name('pedidos-tienda.index');
+    Route::get('/pedidos-tienda/{id}', [PedidoTiendaController::class, 'show'])->name('pedidos-tienda.show');
+    Route::post('/pedidos-tienda/{id}/pago-completo', [PedidoTiendaController::class, 'marcarPagoCompleto'])
+        ->name('pedidos-tienda.pago-completo');
+    Route::post('/comprobantes-maestro/{id}/verificar', [PedidoTiendaController::class, 'verificarComprobante'])
+        ->name('comprobantes-maestro.verificar');
+    Route::post('/comprobantes-maestro/{id}/rechazar', [PedidoTiendaController::class, 'rechazarComprobante'])
+        ->name('comprobantes-maestro.rechazar');
 });
 
 Route::get('/admin_ini', function () {

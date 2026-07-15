@@ -108,7 +108,7 @@ class PedidoController extends Controller
         $pedido->estado_pago = 'adelanto_enviado';
         $pedido->save();
 
-        return redirect()->route('cliente.pedidos.index')
+        return redirect()->route('cliente.mis-pedidos')
                          ->with('success', '¡Comprobante enviado! El administrador lo verificará pronto.');
     }
 

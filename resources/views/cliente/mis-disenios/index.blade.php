@@ -67,9 +67,18 @@
         border: none; color: #fff; font-size: 2rem; line-height: 1; cursor: pointer;
     }
     .disenio-body { padding: 1.1rem 1.2rem 1.2rem; }
+    .disenio-nombre-row {
+        display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+        margin-bottom: 0.15rem;
+    }
     .disenio-nombre {
         font-family: var(--font-d); font-weight: 700; font-size: 1rem;
-        color: var(--text-1); margin-bottom: 0.15rem;
+        color: var(--text-1);
+    }
+    .disenio-tipo-tag {
+        font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+        padding: 0.2rem 0.55rem; border-radius: 20px;
+        background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-border);
     }
     .disenio-fecha { font-size: 0.72rem; color: var(--text-3); margin-bottom: 0.85rem; }
     .disenio-estado {
@@ -158,7 +167,18 @@
     @else
         <div class="disenios-grid">
             @foreach($disenios as $disenio)
-                @php $solicitud = $disenio->solicitudes->first(); @endphp
+                @php
+                    $solicitud = $disenio->solicitudes->first();
+                    $tipoPrenda = $disenio->configuracion['tipo_prenda'] ?? null;
+
+                    $esConjuntoCompleto = ($tipoPrenda === 'camiseta'
+                            && !empty($disenio->configuracion['pantaloneta_activa'])
+                            && !empty($disenio->configuracion['medias_activas']))
+                        || ($tipoPrenda === 'chompa'
+                            && !empty($disenio->configuracion['pantalon_chompa_activo']));
+
+                    $etiquetaTipo = $esConjuntoCompleto ? 'Conjunto completo' : ($tipoPrenda ? ucfirst($tipoPrenda) : null);
+                @endphp
                 <div class="disenio-card">
                     <div class="disenio-imagenes">
                         <div class="disenio-imagen-col">
@@ -189,7 +209,12 @@
                         </div>
                     </div>
                     <div class="disenio-body">
-                        <div class="disenio-nombre">{{ $disenio->nombre }}</div>
+                        <div class="disenio-nombre-row">
+                            <div class="disenio-nombre">{{ $disenio->nombre }}</div>
+                            @if($etiquetaTipo)
+                                <span class="disenio-tipo-tag">{{ $etiquetaTipo }}</span>
+                            @endif
+                        </div>
                         <div class="disenio-fecha">{{ $disenio->created_at->format('d M Y') }}</div>
 
                         @if(!$solicitud)
