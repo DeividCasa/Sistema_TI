@@ -52,6 +52,10 @@
       background:var(--blue-soft);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px;">
       {{ $plantilla->tipo_prenda }}
     </div>
+    <div style="font-size:0.78rem;font-weight:600;color:var(--blue);
+      background:var(--blue-soft);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px;margin-left:6px;">
+      {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$plantilla->genero] ?? 'Unisex' }}
+    </div>
 
     <h2 style="font-family:var(--font-d);font-size:1.6rem;font-weight:800;color:var(--text-1);margin-bottom:8px;">
       {{ $plantilla->nombre }}

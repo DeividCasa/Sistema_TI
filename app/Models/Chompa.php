@@ -11,6 +11,7 @@ class Chompa extends Model
     protected $fillable = [
         'nombre',
         'tipo_tela',
+        'genero',
         'descripcion',
         'imagen',
         'activo',

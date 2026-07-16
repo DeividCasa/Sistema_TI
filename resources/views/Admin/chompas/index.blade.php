@@ -280,7 +280,12 @@
                 </div>
                 <div class="plantilla-info">
                     <div class="plantilla-nombre">{{ $chompa->nombre }}</div>
-                    <div class="plantilla-tipo">{{ $chompa->tipo_tela }}</div>
+                    <div class="plantilla-tipo">
+                        {{ $chompa->tipo_tela }}
+                        <span class="talla-chip" style="margin-left:6px;">
+                            {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$chompa->genero] ?? 'Unisex' }}
+                        </span>
+                    </div>
                     <div class="tallas-chips">
                         @foreach($chompa->tallas as $talla)
                             <span class="talla-chip {{ !$talla->disponible ? 'no-disponible' : '' }}">

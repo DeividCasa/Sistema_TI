@@ -29,6 +29,7 @@ class UniformeController extends Controller
         $request->validate([
             'nombre'           => 'required|string|max:150',
             'tipo_tela'        => 'required|string|max:100',
+            'genero'           => 'required|in:hombre,mujer,unisex',
             'descripcion'      => 'nullable|string',
             'imagen'           => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tallas'           => 'required|array|min:1',
@@ -37,6 +38,7 @@ class UniformeController extends Controller
         ], [
             'nombre.required'          => 'El nombre del uniforme es obligatorio.',
             'tipo_tela.required'       => 'El tipo de tela es obligatorio.',
+            'genero.required'          => 'Selecciona para quién es el uniforme.',
             'imagen.required'          => 'La foto del uniforme es obligatoria.',
             'imagen.image'             => 'El archivo debe ser una imagen.',
             'imagen.max'               => 'La imagen no debe superar 2MB.',
@@ -53,6 +55,7 @@ class UniformeController extends Controller
         $uniforme = Uniforme::create([
             'nombre'      => $request->nombre,
             'tipo_tela'   => $request->tipo_tela,
+            'genero'      => $request->genero,
             'descripcion' => $request->descripcion,
             'imagen'      => $imagenPath,
             'activo'      => $request->has('activo') ? 1 : 0,
@@ -87,6 +90,7 @@ class UniformeController extends Controller
         $request->validate([
             'nombre'           => 'required|string|max:150',
             'tipo_tela'        => 'required|string|max:100',
+            'genero'           => 'required|in:hombre,mujer,unisex',
             'descripcion'      => 'nullable|string',
             'imagen'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tallas'           => 'required|array|min:1',
@@ -104,6 +108,7 @@ class UniformeController extends Controller
 
         $uniforme->nombre      = $request->nombre;
         $uniforme->tipo_tela   = $request->tipo_tela;
+        $uniforme->genero      = $request->genero;
         $uniforme->descripcion = $request->descripcion;
         $uniforme->activo      = $request->has('activo') ? 1 : 0;
         $uniforme->save();

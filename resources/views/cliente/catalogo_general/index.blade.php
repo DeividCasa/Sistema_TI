@@ -10,6 +10,7 @@
     'mostrados'         => $mostrados,
     'categoriaActiva'   => $categoriaActiva,
     'tallaActiva'       => $tallaActiva,
+    'generoActivo'      => $generoActivo,
     'precioMinActivo'   => $precioMinActivo,
     'precioMaxActivo'   => $precioMaxActivo,
   ])

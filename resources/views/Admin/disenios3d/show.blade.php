@@ -76,6 +76,10 @@
           <span class="t-muted">Tela</span>
           <span class="t-text">{{ $solicitud->tela }}</span>
         </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span class="t-muted">Para quién</span>
+          <span class="t-text">{{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$solicitud->genero] ?? 'Unisex' }}</span>
+        </div>
       </div>
       <div class="tabla-box">
         <div class="tabla-head" style="grid-template-columns:1fr 1fr;">

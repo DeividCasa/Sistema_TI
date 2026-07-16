@@ -28,6 +28,7 @@ public function store(Request $request)
     $request->validate([
         'nombre'         => 'required|string|max:100',
         'tipo_prenda'    => 'required|in:camiseta,short,conjunto,otro',
+        'genero'         => 'required|in:hombre,mujer,unisex',
         'descripcion'    => 'nullable|string',
         'precio'         => 'required|numeric|min:0',
         'colores'        => 'nullable|array',
@@ -37,6 +38,7 @@ public function store(Request $request)
     ], [
         'nombre.required'         => 'El nombre es obligatorio.',
         'tipo_prenda.required'    => 'El tipo de prenda es obligatorio.',
+        'genero.required'         => 'Selecciona para quién es la prenda.',
         'precio.required'         => 'El precio es obligatorio.',
         'precio.numeric'          => 'El precio debe ser un número.',
         'imagen_preview.required' => 'La imagen es obligatoria.',
@@ -49,6 +51,7 @@ public function store(Request $request)
     Plantilla::create([
         'nombre'         => $request->nombre,
         'tipo_prenda'    => $request->tipo_prenda,
+        'genero'         => $request->genero,
         'descripcion'    => $request->descripcion,
         'precio'         => $request->precio,
         'colores'        => $request->colores ?? [],
@@ -76,6 +79,7 @@ public function store(Request $request)
     $request->validate([
         'nombre'         => 'required|string|max:100',
         'tipo_prenda'    => 'required|in:camiseta,short,conjunto,otro',
+        'genero'         => 'required|in:hombre,mujer,unisex',
         'descripcion'    => 'nullable|string',
         'precio'         => 'required|numeric|min:0',
         'colores'        => 'nullable|array',
@@ -92,6 +96,7 @@ public function store(Request $request)
 
     $plantilla->nombre      = $request->nombre;
     $plantilla->tipo_prenda = $request->tipo_prenda;
+    $plantilla->genero      = $request->genero;
     $plantilla->descripcion = $request->descripcion;
     $plantilla->precio      = $request->precio;
     $plantilla->colores     = $request->colores ?? [];

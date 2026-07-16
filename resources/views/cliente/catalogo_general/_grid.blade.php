@@ -10,6 +10,9 @@
     </div>
     <div class="product-body">
       <div class="product-name">{{ $producto['nombre'] }}</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--blue);margin-bottom:2px;">
+        {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$producto['genero'] ?? null] ?? 'Unisex' }}
+      </div>
       <div class="product-price">${{ number_format($producto['precio'], 2) }}</div>
       @if(!empty($producto['tallas']))
         <div class="product-sizes">

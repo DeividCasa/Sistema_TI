@@ -12,6 +12,7 @@ class SolicitudDiseno extends Model
         'cliente_id',
         'disenio_id',
         'pedido_id',
+        'genero',
         'tela',
         'descripcion',
         'precio',

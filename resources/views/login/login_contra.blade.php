@@ -125,7 +125,7 @@
       display: flex; align-items: center; justify-content: center;
       padding: 48px 52px;
       background:
-        linear-gradient(rgba(248,250,252,0.85), rgba(248,250,252,0.85)),
+        linear-gradient(rgba(248,250,252,0.55), rgba(248,250,252,0.72)),
         url('{{ asset('images/fondo.png') }}') center / cover no-repeat;
     }
 
@@ -352,6 +352,7 @@
         @error('password')
           <div class="err">{{ $message }}</div>
         @enderror
+        <div class="err" id="password-client-err" style="display:none;">Mínimo 6 caracteres.</div>
       </div>
 
       <label class="remember">
@@ -399,6 +400,27 @@
     document.getElementById('s-label').textContent = val.length ? labels[score] : '';
     document.getElementById('s-label').style.color  = colors[score];
   }
+
+  // Validación en vivo: longitud mínima antes de enviar
+  const passwordInput = document.getElementById('password');
+  const passwordErr = document.getElementById('password-client-err');
+
+  function validarPassword() {
+    const valido = passwordInput.value.length >= 6;
+    passwordInput.classList.toggle('is-error', passwordInput.value.length > 0 && !valido);
+    passwordErr.style.display = (passwordInput.value.length > 0 && !valido) ? 'flex' : 'none';
+    return valido;
+  }
+
+  passwordInput.addEventListener('input', validarPassword);
+  passwordInput.addEventListener('blur', validarPassword);
+
+  passwordInput.closest('form').addEventListener('submit', function (e) {
+    if (!validarPassword()) {
+      e.preventDefault();
+      passwordInput.focus();
+    }
+  });
 </script>
 
 </body>

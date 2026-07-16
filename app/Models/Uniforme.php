@@ -11,6 +11,7 @@ class Uniforme extends Model
     protected $fillable = [
         'nombre',
         'tipo_tela',
+        'genero',
         'descripcion',
         'imagen',
         'activo',

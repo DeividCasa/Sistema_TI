@@ -90,7 +90,9 @@
     .right {
       display: flex; align-items: center; justify-content: center;
       padding: 40px 48px;
-      background: var(--gray-50);
+      background:
+        linear-gradient(rgba(248,250,252,0.55), rgba(248,250,252,0.72)),
+        url('{{ asset('images/fondo.png') }}') center / cover no-repeat;
       overflow-y: auto;
     }
 
@@ -135,6 +137,17 @@
     .field input:focus { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(96,165,250,0.18); }
     .field input.is-error { border-color: var(--red-400); background: var(--red-50); }
     .field-error { font-size: 0.76rem; color: var(--red-500); margin-top: 5px; font-weight: 500; }
+
+    .input-wrap { position: relative; }
+    .input-wrap input { padding-right: 42px; }
+    .toggle-btn {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--gray-400); display: flex; align-items: center;
+      transition: color 0.18s;
+    }
+    .toggle-btn:hover { color: var(--blue); }
+    .toggle-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
     .btn {
       width: 100%; padding: 13px;
@@ -227,23 +240,26 @@
       <div class="grid-2">
         <div class="field">
           <label>Nombre</label>
-          <input type="text" name="nombre" value="{{ old('nombre') }}"
+          <input type="text" id="reg-nombre" name="nombre" value="{{ old('nombre') }}"
             placeholder="Juan" class="{{ $errors->has('nombre') ? 'is-error' : '' }}">
           @error('nombre') <div class="field-error">{{ $message }}</div> @enderror
+          <div class="field-error" id="err-nombre" style="display:none;">El nombre es obligatorio.</div>
         </div>
         <div class="field">
           <label>Apellido</label>
-          <input type="text" name="apellido" value="{{ old('apellido') }}"
+          <input type="text" id="reg-apellido" name="apellido" value="{{ old('apellido') }}"
             placeholder="Pérez" class="{{ $errors->has('apellido') ? 'is-error' : '' }}">
           @error('apellido') <div class="field-error">{{ $message }}</div> @enderror
+          <div class="field-error" id="err-apellido" style="display:none;">El apellido es obligatorio.</div>
         </div>
       </div>
 
       <div class="field">
         <label>Correo electrónico</label>
-        <input type="email" name="email" value="{{ old('email') }}"
+        <input type="email" id="reg-email" name="email" value="{{ old('email') }}"
           placeholder="tucorreo@ejemplo.com" class="{{ $errors->has('email') ? 'is-error' : '' }}">
         @error('email') <div class="field-error">{{ $message }}</div> @enderror
+        <div class="field-error" id="err-email" style="display:none;">Ingresa un correo válido.</div>
       </div>
 
       <div class="grid-2">
@@ -262,14 +278,26 @@
       <div class="grid-2">
         <div class="field">
           <label>Contraseña</label>
-          <input type="password" name="password"
-            placeholder="••••••••" class="{{ $errors->has('password') ? 'is-error' : '' }}">
+          <div class="input-wrap">
+            <input type="password" id="reg-password" name="password"
+              placeholder="••••••••" class="{{ $errors->has('password') ? 'is-error' : '' }}">
+            <button type="button" class="toggle-btn" onclick="togglePass('reg-password', this)" title="Ver contraseña" tabindex="-1">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
           @error('password') <div class="field-error">{{ $message }}</div> @enderror
+          <div class="field-error" id="err-password" style="display:none;">Mínimo 6 caracteres.</div>
         </div>
         <div class="field">
           <label>Confirmar</label>
-          <input type="password" name="password_confirmation"
-            placeholder="••••••••">
+          <div class="input-wrap">
+            <input type="password" id="reg-password-confirm" name="password_confirmation"
+              placeholder="••••••••">
+            <button type="button" class="toggle-btn" onclick="togglePass('reg-password-confirm', this)" title="Ver contraseña" tabindex="-1">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="field-error" id="err-password-confirm" style="display:none;">Las contraseñas no coinciden.</div>
         </div>
       </div>
 
@@ -285,6 +313,82 @@
 
   </div>
 </div>
+
+<script>
+  function togglePass(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    const mostrar = inp.type === 'password';
+    inp.type = mostrar ? 'text' : 'password';
+    btn.querySelector('svg').innerHTML = mostrar
+      ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+
+  const campos = {
+    nombre:   document.getElementById('reg-nombre'),
+    apellido: document.getElementById('reg-apellido'),
+    email:    document.getElementById('reg-email'),
+    password: document.getElementById('reg-password'),
+    confirm:  document.getElementById('reg-password-confirm'),
+  };
+  const errores = {
+    nombre:   document.getElementById('err-nombre'),
+    apellido: document.getElementById('err-apellido'),
+    email:    document.getElementById('err-email'),
+    password: document.getElementById('err-password'),
+    confirm:  document.getElementById('err-password-confirm'),
+  };
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function marcarError(campo, esInvalido) {
+    campos[campo].classList.toggle('is-error', esInvalido);
+    errores[campo].style.display = esInvalido ? 'block' : 'none';
+  }
+
+  function validarRequerido(campo) {
+    const invalido = campos[campo].value.trim() === '';
+    marcarError(campo, invalido);
+    return !invalido;
+  }
+
+  function validarEmail() {
+    const invalido = !emailRegex.test(campos.email.value.trim());
+    marcarError('email', invalido);
+    return !invalido;
+  }
+
+  function validarPassword() {
+    const invalido = campos.password.value.length < 6;
+    marcarError('password', invalido);
+    return !invalido;
+  }
+
+  function validarConfirmacion() {
+    const invalido = campos.confirm.value !== campos.password.value;
+    marcarError('confirm', invalido);
+    return !invalido;
+  }
+
+  campos.nombre.addEventListener('blur', () => validarRequerido('nombre'));
+  campos.apellido.addEventListener('blur', () => validarRequerido('apellido'));
+  campos.email.addEventListener('input', validarEmail);
+  campos.password.addEventListener('input', () => { validarPassword(); if (campos.confirm.value) validarConfirmacion(); });
+  campos.confirm.addEventListener('input', validarConfirmacion);
+
+  campos.confirm.closest('form').addEventListener('submit', function (e) {
+    const ok = [
+      validarRequerido('nombre'),
+      validarRequerido('apellido'),
+      validarEmail(),
+      validarPassword(),
+      validarConfirmacion(),
+    ].every(Boolean);
+
+    if (!ok) {
+      e.preventDefault();
+    }
+  });
+</script>
 
 </body>
 </html>

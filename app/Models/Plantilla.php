@@ -11,6 +11,7 @@ class Plantilla extends Model
     protected $fillable = [
         'nombre',
         'tipo_prenda',
+        'genero',
         'descripcion',
         'precio',
         'colores',

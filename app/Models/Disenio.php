@@ -11,6 +11,7 @@ class Disenio extends Model
     protected $fillable = [
         'cliente_id',
         'plantilla_id',
+        'genero',
         'nombre',
         'configuracion',
         'imagen_generada',

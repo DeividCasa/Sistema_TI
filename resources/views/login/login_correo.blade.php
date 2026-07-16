@@ -133,7 +133,7 @@
       display: flex; align-items: center; justify-content: center;
       padding: 48px 52px;
       background:
-        linear-gradient(rgba(248,250,252,0.85), rgba(248,250,252,0.85)),
+        linear-gradient(rgba(248,250,252,0.55), rgba(248,250,252,0.72)),
         url('{{ asset('images/fondo.png') }}') center / cover no-repeat;
     }
 
@@ -329,9 +329,10 @@
         @error('email')
           <div class="err">{{ $message }}</div>
         @enderror
+        <div class="err" id="email-client-err" style="display:none;">Ingresa un correo válido (ej. nombre@correo.com).</div>
       </div>
 
-      <button type="submit" class="btn">
+      <button type="submit" class="btn" id="btn-continuar">
         Continuar
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
@@ -346,6 +347,29 @@
 
   </div>
 </div>
+
+<script>
+  const emailInput = document.getElementById('email');
+  const emailErr = document.getElementById('email-client-err');
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validarEmail() {
+    const valido = emailRegex.test(emailInput.value.trim());
+    emailInput.classList.toggle('is-error', emailInput.value.trim() !== '' && !valido);
+    emailErr.style.display = (emailInput.value.trim() !== '' && !valido) ? 'flex' : 'none';
+    return valido;
+  }
+
+  emailInput.addEventListener('input', validarEmail);
+  emailInput.addEventListener('blur', validarEmail);
+
+  emailInput.closest('form').addEventListener('submit', function (e) {
+    if (!validarEmail()) {
+      e.preventDefault();
+      emailInput.focus();
+    }
+  });
+</script>
 
 </body>
 </html>

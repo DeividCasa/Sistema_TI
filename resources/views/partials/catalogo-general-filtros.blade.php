@@ -24,6 +24,24 @@
 </div>
 
 <div class="filter-group">
+  <h6><i class="fas fa-venus-mars"></i> Género</h6>
+  <ul id="filtros-genero-gen">
+    <li data-genero="todos" class="{{ $generoActivo === 'todos' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('todos', this)">
+      <i class="fas fa-th-large"></i> Todos
+    </li>
+    <li data-genero="hombre" class="{{ $generoActivo === 'hombre' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('hombre', this)">
+      <i class="fas fa-mars"></i> Para Hombre
+    </li>
+    <li data-genero="mujer" class="{{ $generoActivo === 'mujer' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('mujer', this)">
+      <i class="fas fa-venus"></i> Para Mujer
+    </li>
+    <li data-genero="unisex" class="{{ $generoActivo === 'unisex' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('unisex', this)">
+      <i class="fas fa-genderless"></i> Unisex
+    </li>
+  </ul>
+</div>
+
+<div class="filter-group">
   <h6><i class="fas fa-chart-simple"></i> Tallas</h6>
   <ul id="filtros-talla-gen">
     <li data-talla="todos" class="{{ $tallaActiva === 'todos' ? 'filtro-activo' : '' }}" onclick="filtrarTallaGeneral('todos', this)">
@@ -56,6 +74,7 @@
   const CATALOGO_GENERAL_URL = @json(route('cliente.catalogo.index'));
   let catGenActual = @json($categoriaActiva);
   let tallaGenActual = @json($tallaActiva);
+  let generoGenActual = @json($generoActivo);
   let precioGenMin = {{ (float) $precioMinActivo }};
   let precioGenMax = {{ (float) $precioMaxActivo }};
   const precioGenGlobalMin = {{ (int) $precioGlobalMin }};
@@ -83,6 +102,13 @@
   function filtrarTallaGeneral(talla, el) {
     tallaGenActual = talla;
     document.querySelectorAll('#filtros-talla-gen li').forEach(li => li.classList.remove('filtro-activo'));
+    el.classList.add('filtro-activo');
+    recargarCatalogoGeneral();
+  }
+
+  function filtrarGeneroGeneral(genero, el) {
+    generoGenActual = genero;
+    document.querySelectorAll('#filtros-genero-gen li').forEach(li => li.classList.remove('filtro-activo'));
     el.classList.add('filtro-activo');
     recargarCatalogoGeneral();
   }
@@ -121,6 +147,7 @@
     const params = new URLSearchParams();
     params.set('categoria', catGenActual);
     params.set('talla', tallaGenActual);
+    params.set('genero', generoGenActual);
     params.set('precio_min', precioGenMin);
     params.set('precio_max', precioGenMax);
     if (buscador && buscador.value.trim() !== '') params.set('q', buscador.value.trim());

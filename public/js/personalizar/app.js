@@ -20,6 +20,7 @@ async function guardarDiseno() {
   const body = new URLSearchParams({
     plantilla_id          : PLANTILLA_ID ?? '',
     nombre                : document.getElementById('nombre-diseno').value,
+    genero                : document.getElementById('genero-diseno').value,
     tipo_prenda           : tipoPrendaActual,
     color_frente          : estado.colorFrente,
     color_atras           : estado.colorAtras,

@@ -30,6 +30,7 @@ class ChompaController extends Controller
         $request->validate([
             'nombre'           => 'required|string|max:150',
             'tipo_tela'        => 'required|string|max:100',
+            'genero'           => 'required|in:hombre,mujer,unisex',
             'descripcion'      => 'nullable|string',
             'imagen'           => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tallas'           => 'required|array|min:1',
@@ -38,6 +39,7 @@ class ChompaController extends Controller
         ], [
             'nombre.required'          => 'El nombre de la chompa es obligatorio.',
             'tipo_tela.required'       => 'El tipo de tela es obligatorio.',
+            'genero.required'          => 'Selecciona para quién es la chompa.',
             'imagen.required'          => 'La foto de la chompa es obligatoria.',
             'imagen.image'             => 'El archivo debe ser una imagen.',
             'imagen.max'               => 'La imagen no debe superar 2MB.',
@@ -54,6 +56,7 @@ class ChompaController extends Controller
         $chompa = Chompa::create([
             'nombre'      => $request->nombre,
             'tipo_tela'   => $request->tipo_tela,
+            'genero'      => $request->genero,
             'descripcion' => $request->descripcion,
             'imagen'      => $imagenPath,
             'activo'      => $request->has('activo') ? 1 : 0,
@@ -87,6 +90,7 @@ class ChompaController extends Controller
         $request->validate([
             'nombre'           => 'required|string|max:150',
             'tipo_tela'        => 'required|string|max:100',
+            'genero'           => 'required|in:hombre,mujer,unisex',
             'descripcion'      => 'nullable|string',
             'imagen'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tallas'           => 'required|array|min:1',
@@ -103,6 +107,7 @@ class ChompaController extends Controller
 
         $chompa->nombre      = $request->nombre;
         $chompa->tipo_tela   = $request->tipo_tela;
+        $chompa->genero      = $request->genero;
         $chompa->descripcion = $request->descripcion;
         $chompa->activo      = $request->has('activo') ? 1 : 0;
         $chompa->save();

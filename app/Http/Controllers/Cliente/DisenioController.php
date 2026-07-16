@@ -28,6 +28,7 @@ class DisenioController extends Controller
         $request->validate([
             'plantilla_id'    => 'nullable|exists:plantillas,id',
             'nombre'          => 'nullable|string|max:150',
+            'genero'          => 'nullable|in:hombre,mujer,unisex',
             'tipo_prenda'     => 'required|string',
             'color_frente'           => 'required|string|max:20',
             'color_atras'            => 'required|string|max:20',
@@ -72,6 +73,7 @@ class DisenioController extends Controller
         $disenio = Disenio::create([
             'cliente_id'   => $clienteId,
             'plantilla_id' => $request->plantilla_id,
+            'genero'       => $request->genero ?: 'unisex',
             'nombre'       => $request->nombre ?: 'Mi diseño',
             'configuracion' => [
                 'tipo_prenda' => $request->tipo_prenda,

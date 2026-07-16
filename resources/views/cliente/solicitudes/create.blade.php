@@ -137,6 +137,15 @@
                 </div>
 
                 <div style="margin-bottom:20px;">
+                    <label class="campo-label">¿Para quién es?</label>
+                    <select name="genero" class="campo-select" required>
+                        <option value="unisex" {{ $disenio->genero === 'unisex' ? 'selected' : '' }}>Unisex</option>
+                        <option value="hombre" {{ $disenio->genero === 'hombre' ? 'selected' : '' }}>Para Hombre</option>
+                        <option value="mujer" {{ $disenio->genero === 'mujer' ? 'selected' : '' }}>Para Mujer</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:20px;">
                     <label class="campo-label">Tallas y cantidades</label>
                     <div id="tallas-filas">
                         <div class="talla-fila">

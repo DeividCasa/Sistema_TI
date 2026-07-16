@@ -45,6 +45,20 @@
 
     <div style="margin-bottom:18px;">
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
+        Para quién es
+      </label>
+      @php $generoActual = old('genero', $uniforme->genero); @endphp
+      <select name="genero"
+        style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
+        font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
+        <option value="unisex" {{ $generoActual === 'unisex' ? 'selected' : '' }}>Unisex</option>
+        <option value="hombre" {{ $generoActual === 'hombre' ? 'selected' : '' }}>Para Hombre</option>
+        <option value="mujer" {{ $generoActual === 'mujer' ? 'selected' : '' }}>Para Mujer</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
         Descripción
       </label>
       <textarea name="descripcion" rows="3"

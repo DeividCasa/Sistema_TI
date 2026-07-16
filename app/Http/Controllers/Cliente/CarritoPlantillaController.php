@@ -33,7 +33,11 @@ class CarritoPlantillaController extends Controller
         }
 
         $carrito = session('carrito_plantillas', []);
-        $key = $plantilla->id . '-' . ($talla ?: 'sin-talla') . '-' . ($color ?: 'sin-color');
+        // El color viene como hex (#2563EB); el '#' rompe las URLs generadas por
+        // route() (Laravel no lo escapa y el navegador lo trata como fragmento),
+        // así que para la key usamos el hex sin el símbolo.
+        $colorKey = $color ? ltrim($color, '#') : 'sin-color';
+        $key = $plantilla->id . '-' . ($talla ?: 'sin-talla') . '-' . $colorKey;
 
         if (isset($carrito[$key])) {
             $carrito[$key]['cantidad'] += $request->cantidad;

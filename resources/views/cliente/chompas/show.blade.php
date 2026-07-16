@@ -28,6 +28,9 @@
   {{-- INFO + FORMULARIO --}}
   <div class="card card-pad reveal">
     <div style="font-size:1.2rem;font-weight:800;color:var(--text-1);margin-bottom:6px;">{{ $chompa->nombre }}</div>
+    <span style="font-size:0.78rem;font-weight:600;color:var(--blue);background:var(--blue-soft);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:10px;">
+      {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$chompa->genero] ?? 'Unisex' }}
+    </span>
     <div style="font-size:0.85rem;color:var(--text-2);margin-bottom:4px;">
       <strong>Tipo de tela:</strong> {{ $chompa->tipo_tela }}
     </div>

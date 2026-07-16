@@ -28,6 +28,9 @@
   {{-- INFO + FORMULARIO --}}
   <div class="card card-pad reveal">
     <div style="font-size:1.2rem;font-weight:800;color:var(--text-1);margin-bottom:6px;">{{ $uniforme->nombre }}</div>
+    <span style="font-size:0.78rem;font-weight:600;color:var(--blue);background:var(--blue-soft);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:10px;">
+      {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$uniforme->genero] ?? 'Unisex' }}
+    </span>
     <div style="font-size:0.85rem;color:var(--text-2);margin-bottom:4px;"><strong>Tipo de tela:</strong> {{ $uniforme->tipo_tela }}</div>
     @if($uniforme->descripcion)
       <div style="font-size:0.87rem;color:var(--text-2);line-height:1.6;margin-bottom:16px;">{{ $uniforme->descripcion }}</div>

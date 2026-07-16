@@ -19,14 +19,16 @@ class CatalogoGeneralController extends Controller
 
         $categoria = $request->query('categoria', 'todos');
         $talla     = $request->query('talla', 'todos');
+        $genero    = $request->query('genero', 'todos');
         $precioMin = $request->query('precio_min');
         $precioMax = $request->query('precio_max');
         $texto     = trim((string) $request->query('q', ''));
         $offset    = max(0, (int) $request->query('offset', 0));
 
-        $filtrados = $todos->filter(function ($item) use ($categoria, $talla, $precioMin, $precioMax, $texto) {
+        $filtrados = $todos->filter(function ($item) use ($categoria, $talla, $genero, $precioMin, $precioMax, $texto) {
             if ($categoria !== 'todos' && $item['tipo'] !== $categoria) return false;
             if ($talla !== 'todos' && !in_array($talla, $item['tallas'], true)) return false;
+            if ($genero !== 'todos' && $item['genero'] !== $genero) return false;
             if ($precioMin !== null && $item['precio'] < (float) $precioMin) return false;
             if ($precioMax !== null && $item['precio'] > (float) $precioMax) return false;
             if ($texto !== '' && !str_contains(strtolower($item['nombre']), strtolower($texto))) return false;
@@ -66,6 +68,7 @@ class CatalogoGeneralController extends Controller
             'precioGlobalMax'   => $precioGlobalMax,
             'categoriaActiva'   => $categoria,
             'tallaActiva'       => $talla,
+            'generoActivo'      => $genero,
             'precioMinActivo'   => $precioMin !== null ? (float) $precioMin : $precioGlobalMin,
             'precioMaxActivo'   => $precioMax !== null ? (float) $precioMax : $precioGlobalMax,
         ]);
@@ -77,6 +80,7 @@ class CatalogoGeneralController extends Controller
             return [
                 'id'     => 'plantilla-' . $p->id,
                 'tipo'   => $p->tipo_prenda,
+                'genero' => $p->genero,
                 'nombre' => $p->nombre,
                 'precio' => (float) $p->precio,
                 'tallas' => collect($p->tallas ?? [])->map(fn ($t) => strtolower($t))->values()->all(),
@@ -93,6 +97,7 @@ class CatalogoGeneralController extends Controller
             return [
                 'id'     => 'uniforme-' . $u->id,
                 'tipo'   => 'uniforme',
+                'genero' => $u->genero,
                 'nombre' => $u->nombre,
                 'precio' => $precio !== null ? (float) $precio : 0.0,
                 'tallas' => $tallasDisp->pluck('talla')->map(fn ($t) => strtolower($t))->values()->all(),
@@ -109,6 +114,7 @@ class CatalogoGeneralController extends Controller
             return [
                 'id'     => 'chompa-' . $c->id,
                 'tipo'   => 'chompa',
+                'genero' => $c->genero,
                 'nombre' => $c->nombre,
                 'precio' => $precio !== null ? (float) $precio : 0.0,
                 'tallas' => $tallasDisp->pluck('talla')->map(fn ($t) => strtolower($t))->values()->all(),

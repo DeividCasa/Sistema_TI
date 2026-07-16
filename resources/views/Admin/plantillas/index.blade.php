@@ -265,7 +265,12 @@
                 </div>
                 <div class="plantilla-info">
                     <div class="plantilla-nombre">{{ $plantilla->nombre }}</div>
-                    <div class="plantilla-tipo">{{ $plantilla->tipo_prenda }}</div>
+                    <div class="plantilla-tipo">
+                        {{ $plantilla->tipo_prenda }}
+                        <span style="background:var(--blue-soft);border:1px solid var(--blue-border);color:var(--blue);padding:3px 9px;font-size:0.72rem;font-weight:600;margin-left:6px;display:inline-block;">
+                            {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$plantilla->genero] ?? 'Unisex' }}
+                        </span>
+                    </div>
                     <div class="acciones">
                         <a href="{{ route('admin.plantillas.edit', $plantilla->id) }}" class="btn-edit">Editar</a>
                         <form action="{{ route('admin.plantillas.destroy', $plantilla->id) }}" method="POST"

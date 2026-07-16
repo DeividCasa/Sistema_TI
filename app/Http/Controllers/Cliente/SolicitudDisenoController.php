@@ -48,6 +48,7 @@ class SolicitudDisenoController extends Controller
 
         $request->validate([
             'tela'              => 'required|string|max:60',
+            'genero'            => 'required|in:hombre,mujer,unisex',
             'descripcion'       => 'nullable|string|max:1000',
             'tallas'            => 'required|array|min:1',
             'tallas.*.talla'    => 'required|string|max:10',
@@ -57,6 +58,7 @@ class SolicitudDisenoController extends Controller
         $solicitud = SolicitudDiseno::create([
             'cliente_id'  => session('usuario_id'),
             'disenio_id'  => $disenio->id,
+            'genero'      => $request->genero,
             'tela'        => $request->tela,
             'descripcion' => $request->descripcion,
             'estado'      => 'pendiente',
