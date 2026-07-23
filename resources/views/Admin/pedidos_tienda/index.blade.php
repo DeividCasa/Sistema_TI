@@ -179,7 +179,12 @@
                 data-pago="{{ $pedido->estado_pago }}"
                 data-codigo="{{ strtolower($pedido->codigo) }}"
                 data-cliente="{{ strtolower($pedido->cliente->nombre . ' ' . $pedido->cliente->apellido . ' ' . $pedido->cliente->email) }}">
-              <td class="cell-strong" style="color:var(--blue);">{{ $pedido->codigo }}</td>
+              <td class="cell-strong" style="color:var(--blue);">
+                {{ $pedido->codigo }}
+                @if($entrada['nuevo'])
+                  <span style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:700;margin-left:6px;vertical-align:middle;">🆕 Nuevo</span>
+                @endif
+              </td>
               <td>
                 <span style="background:var(--bg-3);border:1px solid var(--border);padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;">
                   {{ $entrada['tipo'] }}

@@ -13,6 +13,14 @@
   </div>
 @endif
 
+@if($errors->any())
+  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
+    @foreach($errors->all() as $error)
+      <div>{{ $error }}</div>
+    @endforeach
+  </div>
+@endif
+
 <div class="sec-header reveal">
   <div class="sec-title">Pedido {{ $pedido->codigo }} <span style="font-size:0.7rem;background:var(--blue-soft);color:var(--blue);padding:3px 10px;border-radius:6px;margin-left:8px;">Combinado</span></div>
   <a href="{{ route('admin.pedidos-tienda.index') }}" class="btn-secondary">← Volver</a>
@@ -31,6 +39,19 @@
       <div><strong style="color:var(--text-1);">Dirección:</strong> {{ $pedido->cliente->direccion ?? 'No registrada' }}</div>
       <div><strong style="color:var(--text-1);">Fecha del pedido:</strong> {{ $pedido->created_at->format('d/m/Y H:i') }}</div>
     </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+    <div style="font-size:0.95rem;font-weight:700;color:var(--text-1);margin-bottom:12px;">Tiempo estimado de entrega (general)</div>
+    <form action="{{ route('admin.pedidos-tienda.tiempo-estimado', $pedido->id) }}" method="POST">
+      @csrf
+      <div style="display:flex;gap:10px;">
+        <input type="text" name="tiempo_estimado" value="{{ $pedido->tiempo_estimado }}"
+          placeholder="Ej: 3 días, 1 semana, 1 mes..."
+          style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);">
+        <button type="submit" class="btn-primary" style="padding:10px 18px;">Guardar</button>
+      </div>
+    </form>
   </div>
 
   {{-- RESUMEN DE PAGO --}}
@@ -64,6 +85,11 @@
   @if($pedido->pedidoPlantilla)
     <div class="card card-pad reveal">
       <div style="font-size:0.95rem;font-weight:700;color:var(--text-1);margin-bottom:12px;">Estado de producción — Ropa</div>
+      @if(!\App\Support\PedidoEstados::pagoVerificado($pedido->pedidoPlantilla->estado_pago))
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:12px 14px;border-radius:10px;font-size:0.82rem;line-height:1.5;">
+          🔒 Verifica el comprobante de pago antes de cambiar el estado.
+        </div>
+      @else
       <form action="{{ route('admin.pedidos-plantillas.update', $pedido->pedidoPlantilla->id) }}" method="POST">
         @csrf
         @method('PUT')
@@ -76,13 +102,22 @@
           </select>
           <button type="submit" class="btn-primary" style="padding:10px 18px;">Actualizar</button>
         </div>
+        <input type="text" name="tiempo_estimado" value="{{ $pedido->pedidoPlantilla->tiempo_estimado }}"
+          placeholder="Tiempo estimado: 3 días, 1 semana..."
+          style="width:100%;margin-top:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);">
       </form>
+      @endif
     </div>
   @endif
 
   @if($pedido->pedidoUniforme)
     <div class="card card-pad reveal">
       <div style="font-size:0.95rem;font-weight:700;color:var(--text-1);margin-bottom:12px;">Estado de producción — Uniformes</div>
+      @if(!\App\Support\PedidoEstados::pagoVerificado($pedido->pedidoUniforme->estado_pago))
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:12px 14px;border-radius:10px;font-size:0.82rem;line-height:1.5;">
+          🔒 Verifica el comprobante de pago antes de cambiar el estado.
+        </div>
+      @else
       <form action="{{ route('admin.pedidos-uniformes.update', $pedido->pedidoUniforme->id) }}" method="POST">
         @csrf
         @method('PUT')
@@ -95,13 +130,22 @@
           </select>
           <button type="submit" class="btn-primary" style="padding:10px 18px;">Actualizar</button>
         </div>
+        <input type="text" name="tiempo_estimado" value="{{ $pedido->pedidoUniforme->tiempo_estimado }}"
+          placeholder="Tiempo estimado: 3 días, 1 semana..."
+          style="width:100%;margin-top:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);">
       </form>
+      @endif
     </div>
   @endif
 
   @if($pedido->pedidoChompa)
     <div class="card card-pad reveal">
       <div style="font-size:0.95rem;font-weight:700;color:var(--text-1);margin-bottom:12px;">Estado de producción — Chompas</div>
+      @if(!\App\Support\PedidoEstados::pagoVerificado($pedido->pedidoChompa->estado_pago))
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:12px 14px;border-radius:10px;font-size:0.82rem;line-height:1.5;">
+          🔒 Verifica el comprobante de pago antes de cambiar el estado.
+        </div>
+      @else
       <form action="{{ route('admin.pedidos-chompas.update', $pedido->pedidoChompa->id) }}" method="POST">
         @csrf
         @method('PUT')
@@ -114,7 +158,11 @@
           </select>
           <button type="submit" class="btn-primary" style="padding:10px 18px;">Actualizar</button>
         </div>
+        <input type="text" name="tiempo_estimado" value="{{ $pedido->pedidoChompa->tiempo_estimado }}"
+          placeholder="Tiempo estimado: 3 días, 1 semana..."
+          style="width:100%;margin-top:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);">
       </form>
+      @endif
     </div>
   @endif
 </div>

@@ -60,6 +60,7 @@ class ChompaController extends Controller
             'descripcion' => $request->descripcion,
             'imagen'      => $imagenPath,
             'activo'      => $request->has('activo') ? 1 : 0,
+            'destacado'   => $request->has('destacado') ? 1 : 0,
         ]);
 
         foreach ($request->tallas as $fila) {
@@ -110,6 +111,7 @@ class ChompaController extends Controller
         $chompa->genero      = $request->genero;
         $chompa->descripcion = $request->descripcion;
         $chompa->activo      = $request->has('activo') ? 1 : 0;
+        $chompa->destacado   = $request->has('destacado') ? 1 : 0;
         $chompa->save();
 
         // Re-sincronizar tallas

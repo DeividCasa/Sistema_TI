@@ -19,6 +19,7 @@ class Plantilla extends Model
         'archivo_3d',
         'imagen_preview',
         'activa',
+        'destacado',
     ];
 
     protected $casts = [

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Models\Cliente;
 use App\Models\Administrador;
+use App\Mail\CodigoAccesoMail;
 
 class LoginController extends Controller
 {
@@ -64,45 +66,131 @@ class LoginController extends Controller
     }
 
     public function verificarContrasena(Request $request)
-{
-    if (!Session::has('login_email')) {
-        return redirect()->route('login.paso1');
+    {
+        if (!Session::has('login_email')) {
+            return redirect()->route('login.paso1');
+        }
+
+        $request->validate([
+            'password' => 'required|min:6'
+        ], [
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min'      => 'Mínimo 6 caracteres.',
+        ]);
+
+        $email = Session::get('login_email');
+        $rol   = Session::get('login_rol');
+
+        if ($rol === 'admin') {
+            $usuario = Administrador::where('email', $email)->first();
+        } else {
+            $usuario = Cliente::where('email', $email)->first();
+        }
+
+        // Verificar contraseña
+        if (!$usuario || !Hash::check($request->password, $usuario->password)) {
+            return back()->withErrors([
+                'password' => 'Contraseña incorrecta.'
+            ]);
+        }
+
+        // ── Los administradores requieren un código de acceso enviado a su correo
+        if ($rol === 'admin') {
+            $this->enviarCodigoAcceso($usuario);
+            return redirect()->route('login.paso3');
+        }
+
+        // Guardar sesión (clientes entran directo)
+        Session::put('usuario_id',     $usuario->id);
+        Session::put('usuario_nombre', $usuario->nombre);
+        Session::put('usuario_rol',    $rol);
+        Session::forget(['login_email', 'login_rol', 'login_nombre']);
+
+        return redirect()->route('cliente.inicio');
     }
 
-    $request->validate([
-        'password' => 'required|min:6'
-    ], [
-        'password.required' => 'La contraseña es obligatoria.',
-        'password.min'      => 'Mínimo 6 caracteres.',
-    ]);
+    // ── Mostrar paso 3 (código de acceso, solo admin)
+    public function showCodigo()
+    {
+        if (!Session::has('login_email') || Session::get('login_rol') !== 'admin' || !Session::has('login_codigo_expira')) {
+            return redirect()->route('login.paso1');
+        }
 
-    $email = Session::get('login_email');
-    $rol   = Session::get('login_rol');
-
-    if ($rol === 'admin') {
-        $usuario = Administrador::where('email', $email)->first();
-    } else {
-        $usuario = Cliente::where('email', $email)->first();
-    }
-
-    // Verificar contraseña
-    if (!$usuario || !\Hash::check($request->password, $usuario->password)) {
-        return back()->withErrors([
-            'password' => 'Contraseña incorrecta.'
+        return view('login.login_codigo', [
+            'email'  => Session::get('login_email'),
+            'nombre' => Session::get('login_nombre'),
         ]);
     }
 
-    // Guardar sesión
-    Session::put('usuario_id',     $usuario->id);
-    Session::put('usuario_nombre', $usuario->nombre);
-    Session::put('usuario_rol',    $rol);
-    Session::forget(['login_email', 'login_rol', 'login_nombre']);
+    // ── Validar código de acceso
+    public function verificarCodigo(Request $request)
+    {
+        if (!Session::has('login_email') || Session::get('login_rol') !== 'admin') {
+            return redirect()->route('login.paso1');
+        }
 
-    // Redirigir según rol
-    if ($rol === 'admin') {
+        $request->validate([
+            'codigo' => 'required|digits:6',
+        ], [
+            'codigo.required' => 'El código es obligatorio.',
+            'codigo.digits'   => 'El código debe tener 6 dígitos.',
+        ]);
+
+        $expira = Session::get('login_codigo_expira');
+
+        if (!$expira || now()->greaterThan($expira)) {
+            return back()->withErrors([
+                'codigo' => 'El código ha expirado. Solicita uno nuevo.'
+            ]);
+        }
+
+        if ($request->codigo !== Session::get('login_codigo')) {
+            return back()->withErrors([
+                'codigo' => 'El código ingresado es incorrecto.'
+            ]);
+        }
+
+        $email  = Session::get('login_email');
+        $nombre = Session::get('login_nombre');
+        $usuario = Administrador::where('email', $email)->first();
+
+        if (!$usuario) {
+            return redirect()->route('login.paso1');
+        }
+
+        Session::put('usuario_id',     $usuario->id);
+        Session::put('usuario_nombre', $usuario->nombre);
+        Session::put('usuario_rol',    'admin');
+        Session::forget(['login_email', 'login_rol', 'login_nombre', 'login_codigo', 'login_codigo_expira']);
+
         return redirect()->route('admin.inicio');
     }
 
-    return redirect()->route('cliente.inicio');
-}
+    // ── Reenviar código de acceso
+    public function reenviarCodigo()
+    {
+        if (!Session::has('login_email') || Session::get('login_rol') !== 'admin') {
+            return redirect()->route('login.paso1');
+        }
+
+        $usuario = Administrador::where('email', Session::get('login_email'))->first();
+
+        if (!$usuario) {
+            return redirect()->route('login.paso1');
+        }
+
+        $this->enviarCodigoAcceso($usuario);
+
+        return back()->with('info', 'Te enviamos un nuevo código a tu correo.');
+    }
+
+    private function enviarCodigoAcceso(Administrador $admin): void
+    {
+        $codigo = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        Session::put('login_codigo', $codigo);
+        Session::put('login_codigo_expira', now()->addMinutes(10));
+
+        Mail::to($admin->email)->send(new CodigoAccesoMail($admin->nombre, $codigo));
+    }
 }

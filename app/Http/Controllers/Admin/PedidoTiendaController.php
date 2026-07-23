@@ -24,26 +24,31 @@ class PedidoTiendaController extends Controller
                 'comprobantes',
             ])
             ->get()
-            ->map(fn ($p) => ['tipo' => 'Combinado', 'pedido' => $p, 'fecha' => $p->created_at]);
+            ->map(function ($p) {
+                $nuevo = collect([$p->pedidoUniforme, $p->pedidoChompa, $p->pedidoPlantilla])
+                    ->filter()
+                    ->contains(fn ($hijo) => is_null($hijo->visto_admin_at));
+                return ['tipo' => 'Combinado', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => $nuevo];
+            });
 
         $soloUniformes = PedidoUniforme::with(['cliente', 'items.uniforme', 'comprobantes'])
             ->whereNull('pedido_maestro_id')
             ->get()
-            ->map(fn ($p) => ['tipo' => 'Uniforme', 'pedido' => $p, 'fecha' => $p->created_at]);
+            ->map(fn ($p) => ['tipo' => 'Uniforme', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $soloChompas = PedidoChompa::with(['cliente', 'items.chompa', 'comprobantes'])
             ->whereNull('pedido_maestro_id')
             ->get()
-            ->map(fn ($p) => ['tipo' => 'Chompa', 'pedido' => $p, 'fecha' => $p->created_at]);
+            ->map(fn ($p) => ['tipo' => 'Chompa', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $soloPlantillas = PedidoPlantilla::with(['cliente', 'items.plantilla', 'comprobantes'])
             ->whereNull('pedido_maestro_id')
             ->get()
-            ->map(fn ($p) => ['tipo' => 'Ropa', 'pedido' => $p, 'fecha' => $p->created_at]);
+            ->map(fn ($p) => ['tipo' => 'Ropa', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $camisetas = Pedido::with(['cliente', 'disenio'])
             ->get()
-            ->map(fn ($p) => ['tipo' => 'Camiseta', 'pedido' => $p, 'fecha' => $p->created_at]);
+            ->map(fn ($p) => ['tipo' => 'Camiseta', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $pedidos = $maestros->concat($soloUniformes)->concat($soloChompas)->concat($soloPlantillas)->concat($camisetas)
             ->sortByDesc('fecha')
@@ -64,7 +69,24 @@ class PedidoTiendaController extends Controller
             ])
             ->findOrFail($id);
 
+        foreach ([$pedido->pedidoUniforme, $pedido->pedidoChompa, $pedido->pedidoPlantilla] as $hijo) {
+            if ($hijo && is_null($hijo->visto_admin_at)) {
+                $hijo->visto_admin_at = now();
+                $hijo->save();
+            }
+        }
+
         return view('Admin.pedidos_tienda.show', compact('pedido'));
+    }
+
+    // ── ACTUALIZAR TIEMPO ESTIMADO DE ENTREGA (nivel maestro)
+    public function actualizarTiempoEstimado(Request $request, $id)
+    {
+        $pedido = PedidoMaestro::findOrFail($id);
+        $pedido->tiempo_estimado = $request->tiempo_estimado;
+        $pedido->save();
+
+        return back()->with('success', 'Tiempo estimado actualizado.');
     }
 
     // ── MARCAR PAGO COMO COMPLETADO (override manual del admin), cascada a hijos

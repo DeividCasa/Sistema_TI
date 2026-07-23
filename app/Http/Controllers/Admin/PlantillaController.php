@@ -58,6 +58,7 @@ public function store(Request $request)
         'tallas'         => $request->tallas ?? [],
         'imagen_preview' => $imagenPath,
         'activa'         => $request->has('activa') ? 1 : 0,
+        'destacado'      => $request->has('destacado') ? 1 : 0,
     ]);
 
     return redirect()->route('admin.plantillas.index')
@@ -102,6 +103,7 @@ public function store(Request $request)
     $plantilla->colores     = $request->colores ?? [];
     $plantilla->tallas      = $request->tallas ?? [];
     $plantilla->activa      = $request->has('activa') ? 1 : 0;
+    $plantilla->destacado   = $request->has('destacado') ? 1 : 0;
     $plantilla->save();
 
     return redirect()->route('admin.plantillas.index')

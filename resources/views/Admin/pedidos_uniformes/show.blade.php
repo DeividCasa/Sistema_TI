@@ -13,6 +13,14 @@
   </div>
 @endif
 
+@if($errors->any())
+  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
+    @foreach($errors->all() as $error)
+      <div>{{ $error }}</div>
+    @endforeach
+  </div>
+@endif
+
 <div class="sec-header reveal">
   <div class="sec-title">Pedido {{ $pedido->codigo }}</div>
   <a href="{{ route('admin.pedidos-tienda.index') }}" class="btn-secondary">← Volver</a>
@@ -45,6 +53,11 @@
 
     <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
 
+    @if(!\App\Support\PedidoEstados::pagoVerificado($pedido->estado_pago))
+      <div style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:14px 16px;border-radius:10px;font-size:0.85rem;line-height:1.5;">
+        🔒 Verifica el comprobante de pago del cliente antes de poder cambiar el estado de este pedido.
+      </div>
+    @else
     <form action="{{ route('admin.pedidos-uniformes.update', $pedido->id) }}" method="POST">
       @csrf
       @method('PUT')
@@ -58,7 +71,12 @@
         </select>
         <button type="submit" class="btn-primary" style="padding:10px 18px;">Actualizar</button>
       </div>
+      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin:14px 0 7px;">Tiempo estimado de entrega</label>
+      <input type="text" name="tiempo_estimado" value="{{ $pedido->tiempo_estimado }}"
+        placeholder="Ej: 3 días, 1 semana, 1 mes..."
+        style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);">
     </form>
+    @endif
   </div>
 </div>
 

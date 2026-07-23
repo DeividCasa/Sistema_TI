@@ -355,6 +355,10 @@
         <div class="err" id="password-client-err" style="display:none;">Mínimo 6 caracteres.</div>
       </div>
 
+      <div style="text-align:right; margin-bottom:18px;">
+        <a href="{{ route('password.solicitar') }}" style="font-size:0.82rem; color:var(--blue-600); font-weight:600; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+      </div>
+
       <label class="remember">
         <input type="checkbox" name="remember">
         Recordarme en este dispositivo

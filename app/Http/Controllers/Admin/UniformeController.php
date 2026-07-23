@@ -59,6 +59,7 @@ class UniformeController extends Controller
             'descripcion' => $request->descripcion,
             'imagen'      => $imagenPath,
             'activo'      => $request->has('activo') ? 1 : 0,
+            'destacado'   => $request->has('destacado') ? 1 : 0,
         ]);
 
         // Guardar cada talla con su precio
@@ -111,6 +112,7 @@ class UniformeController extends Controller
         $uniforme->genero      = $request->genero;
         $uniforme->descripcion = $request->descripcion;
         $uniforme->activo      = $request->has('activo') ? 1 : 0;
+        $uniforme->destacado   = $request->has('destacado') ? 1 : 0;
         $uniforme->save();
 
         // Re-sincronizar tallas: se borran las que no vienen y se actualizan/crean las demás

@@ -151,18 +151,35 @@ class DisenioController extends Controller
     // ── Convierte un data:image/png;base64,... en archivo real dentro de storage
     private function guardarCapturaBase64(string $dataUrl): ?string
     {
+        $extensionesPermitidas = [
+            'png'  => 'png',
+            'jpg'  => 'jpg',
+            'jpeg' => 'jpg',
+            'webp' => 'webp',
+        ];
+
         if (!preg_match('/^data:image\/(\w+);base64,/', $dataUrl, $tipo)) {
             return null;
         }
 
-        $extension = $tipo[1] === 'jpeg' ? 'jpg' : $tipo[1];
-        $datosBinarios = base64_decode(substr($dataUrl, strpos($dataUrl, ',') + 1));
-
-        if ($datosBinarios === false) {
+        $tipoDeclarado = strtolower($tipo[1]);
+        if (!isset($extensionesPermitidas[$tipoDeclarado])) {
             return null;
         }
 
-        $ruta = 'disenios_capturas/' . Str::uuid() . '.' . $extension;
+        $datosBinarios = base64_decode(substr($dataUrl, strpos($dataUrl, ',') + 1), true);
+
+        if ($datosBinarios === false || $datosBinarios === '') {
+            return null;
+        }
+
+        // Verificamos que los bytes decodificados sean realmente una imagen
+        // (no basta con confiar en el tipo declarado en el data URL).
+        if (@getimagesizefromstring($datosBinarios) === false) {
+            return null;
+        }
+
+        $ruta = 'disenios_capturas/' . Str::uuid() . '.' . $extensionesPermitidas[$tipoDeclarado];
         Storage::disk('public')->put($ruta, $datosBinarios);
 
         return $ruta;

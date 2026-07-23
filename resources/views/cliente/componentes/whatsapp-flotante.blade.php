@@ -1,6 +1,9 @@
 @php
-    $waNumero = '593992502749';
-    $waMensaje = rawurlencode('Hola, quisiera más información sobre sus productos.');
+    $waInfo = \App\Models\InformacionLocal::actual();
+    $waNumero = $waInfo->whatsapp_numero ?: '593992502749';
+    $waMensaje = rawurlencode($waInfo->whatsapp_mensaje ?: 'Hola, quisiera más información sobre sus productos.');
+    $waDireccion = $waInfo->whatsapp_direccion ?: 'UTC San Felipe';
+    $waHorario = $waInfo->whatsapp_horario ?: 'Todos los días: 7:00 AM - 6:00 PM';
 @endphp
 
 <div class="whatsapp-wrap" id="whatsapp-wrap">
@@ -9,15 +12,15 @@
 
         <div class="wa-row">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>UTC San Felipe</span>
+            <span>{{ $waDireccion }}</span>
         </div>
         <div class="wa-row">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-            <span>+593 99 250 2749</span>
+            <span>+{{ $waNumero }}</span>
         </div>
         <div class="wa-row">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Todos los días: 7:00 AM - 6:00 PM</span>
+            <span>{{ $waHorario }}</span>
         </div>
 
         <a href="https://wa.me/{{ $waNumero }}?text={{ $waMensaje }}" target="_blank" rel="noopener" class="wa-btn-enviar">

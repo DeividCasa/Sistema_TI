@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SolicitudDiseno;
+use App\Support\Notificaciones;
 use Illuminate\Http\Request;
 
 class SolicitudDisenoController extends Controller
@@ -11,6 +12,8 @@ class SolicitudDisenoController extends Controller
     // ── LISTA DE SOLICITUDES DE DISEÑO 3D
     public function index()
     {
+        Notificaciones::marcarVisto('disenios3d');
+
         $solicitudes = SolicitudDiseno::with(['cliente', 'disenio'])
                                       ->orderBy('created_at', 'desc')
                                       ->get();

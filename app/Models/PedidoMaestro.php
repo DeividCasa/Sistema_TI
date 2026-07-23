@@ -15,6 +15,7 @@ class PedidoMaestro extends Model
         'precio_adelanto',
         'precio_saldo',
         'estado_pago',
+        'tiempo_estimado',
     ];
 
     public function cliente()

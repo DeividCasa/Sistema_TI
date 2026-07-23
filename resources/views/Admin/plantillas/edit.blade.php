@@ -164,6 +164,16 @@
       </label>
     </div>
 
+    {{-- Destacado --}}
+    <div style="margin-bottom:24px;display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" name="destacado" id="destacado" value="1"
+        {{ $plantilla->destacado ? 'checked' : '' }}
+        style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;">
+      <label for="destacado" style="font-size:0.88rem;color:var(--text-2);cursor:pointer;">
+        Destacar en la página de inicio
+      </label>
+    </div>
+
     <div style="display:flex;gap:10px;">
       <button type="submit" class="btn-primary">Actualizar camiseta</button>
       <a href="{{ route('admin.plantillas.index') }}" class="btn-secondary">Cancelar</a>

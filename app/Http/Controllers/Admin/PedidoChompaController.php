@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EstadoPedidoMail;
 use App\Models\PedidoChompa;
 use App\Models\ComprobanteChompa;
+use App\Support\PedidoEstados;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class PedidoChompaController extends Controller
 {
@@ -14,22 +17,46 @@ class PedidoChompaController extends Controller
     {
         $pedido = PedidoChompa::with(['cliente', 'items.chompa', 'comprobantes'])
                               ->findOrFail($id);
+
+        if (is_null($pedido->visto_admin_at)) {
+            $pedido->visto_admin_at = now();
+            $pedido->save();
+        }
+
         return view('Admin.pedidos_chompas.show', compact('pedido'));
     }
 
     // ── CAMBIAR ESTADO DEL PEDIDO
     public function update(Request $request, $id)
     {
+        $pedido = PedidoChompa::findOrFail($id);
+
+        if (!PedidoEstados::pagoVerificado($pedido->estado_pago)) {
+            return back()->withErrors(['estado' => 'Debes verificar el comprobante de pago antes de cambiar el estado del pedido.']);
+        }
+
         $request->validate([
             'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
         ]);
 
-        $pedido = PedidoChompa::findOrFail($id);
         $pedido->estado = $request->estado;
         if ($request->filled('observaciones')) {
             $pedido->observaciones = $request->observaciones;
         }
+        if ($request->filled('tiempo_estimado')) {
+            $pedido->tiempo_estimado = $request->tiempo_estimado;
+        }
         $pedido->save();
+
+        if ($pedido->cliente?->email) {
+            Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
+                $pedido->cliente->nombre,
+                $pedido->codigo,
+                'Chompa',
+                PedidoEstados::label($pedido->estado),
+                $pedido->tiempo_estimado,
+            ));
+        }
 
         return back()->with('success', 'Estado del pedido actualizado.');
     }

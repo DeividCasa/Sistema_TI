@@ -289,7 +289,7 @@
         </div>
         <div class="stat-item">
             <div class="stat-title">Clientes</div>
-            <div class="stat-number" style="color: #7C3AED;">{{ $total_clientes }}</div>
+            <div class="stat-number" style="color: var(--blue);">{{ $total_clientes }}</div>
             <div class="stat-footer">Registrados</div>
         </div>
         <div class="stat-item">

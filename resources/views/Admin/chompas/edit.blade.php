@@ -118,6 +118,11 @@
       <label for="activo" style="font-size:0.88rem;color:var(--text-2);">Chompa visible para los clientes</label>
     </div>
 
+    <div style="margin-bottom:24px;display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" name="destacado" id="destacado" {{ $chompa->destacado ? 'checked' : '' }} style="width:16px;height:16px;">
+      <label for="destacado" style="font-size:0.88rem;color:var(--text-2);">Destacar en la página de inicio</label>
+    </div>
+
     <button type="submit" class="btn-primary" style="width:100%;padding:13px;font-size:0.95rem;">
       Guardar cambios
     </button>

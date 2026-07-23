@@ -19,6 +19,7 @@ class Pedido extends Model
         'estado',
         'estado_pago',
         'observaciones',
+        'tiempo_estimado',
     ];
 
     public function cliente()

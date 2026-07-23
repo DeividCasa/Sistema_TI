@@ -15,6 +15,7 @@ class Uniforme extends Model
         'descripcion',
         'imagen',
         'activo',
+        'destacado',
     ];
 
     public function tallas()

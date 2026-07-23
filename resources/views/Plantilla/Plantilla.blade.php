@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('titulo', 'Leo José')</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,31 +23,36 @@
        VARIABLES MODO CLARO
     ══════════════════════ */
     :root {
-      --bg:           #F1F5F9;
+      --bg:           #FAF8F5;
       --bg-2:         #FFFFFF;
-      --bg-3:         #F8FAFC;
-      --border:       #E2E8F0;
-      --border-2:     #CBD5E1;
-      --text-1:       #0F172A;
-      --text-2:       #475569;
-      --text-3:       #240677;
-      --blue:         #240677;
-      --blue-h:       #1D4ED8;
-      --blue-soft:    #EFF6FF;
-      --blue-border:  #BFDBFE;
-      --blue-light:   #60A5FA;
-      --blue-shadow:  rgba(36,6,119,0.22);
-      --sidebar-bg:   #0F172A;
-      --sidebar-txt:  rgba(255,255,255,0.55);
+      --bg-3:         #F3F0EA;
+      --border:       #E7E2D9;
+      --border-2:     #D2CBBC;
+      --text-1:       #1C1A17;
+      --text-2:       #5B564D;
+      --text-3:       #948E80;
+      --blue:         #0E6B4F;
+      --blue-h:       #0A5540;
+      --blue-soft:    #E4F1EC;
+      --blue-border:  #BFE1D2;
+      --blue-light:   #2F9271;
+      --blue-shadow:  rgba(14,107,79,0.22);
+      --accent:       #1D4ED8;
+      --accent-soft:  #DBEAFE;
+      --accent-border:#93C5FD;
+      --ink:          #1B1721;
+      --sidebar-bg:   #1B1721;
+      --sidebar-txt:  rgba(255,255,255,0.62);
       --sidebar-act:  #FFFFFF;
-      --sidebar-hover:rgba(255,255,255,0.06);
-      --sidebar-actbg:rgba(255,255,255,0.1);
-      --shadow-sm:    0 1px 3px rgba(0,0,0,0.06);
-      --shadow-md:    0 4px 16px rgba(0,0,0,0.08);
-      --shadow-lg:    0 12px 40px rgba(0,0,0,0.1);
+      --sidebar-hover:rgba(255,255,255,0.08);
+      --sidebar-actbg:rgba(29,78,216,0.28);
+      --shadow-sm:    0 1px 3px rgba(28,26,23,0.08);
+      --shadow-md:    0 4px 16px rgba(28,26,23,0.1);
+      --shadow-lg:    0 12px 40px rgba(28,26,23,0.14);
       --radius:       14px;
-      --font-d:       'Outfit', sans-serif;
-      --font-b:       'DM Sans', sans-serif;
+      --radius-sm:    10px;
+      --font-d:       'Fraunces', serif;
+      --font-b:       'Inter', sans-serif;
       --nav-h:        60px;
       --sidebar-w:    240px;
       --tr:           0.22s cubic-bezier(.4,0,.2,1);
@@ -57,21 +62,25 @@
        VARIABLES MODO OSCURO
     ══════════════════════ */
     [data-theme="dark"] {
-      --bg:           #0B1220;
-      --bg-2:         #141B2E;
-      --bg-3:         #1C2540;
-      --border:       #263349;
-      --border-2:     #34405E;
-      --text-1:       #F1F5F9;
-      --text-2:       #A9B4C7;
-      --text-3:       #71829C;
-      --blue:         #8B7CF6;
-      --blue-h:       #A296FF;
-      --blue-soft:    rgba(139,124,246,0.14);
-      --blue-border:  rgba(139,124,246,0.32);
-      --blue-shadow:  rgba(139,124,246,0.35);
-      --sidebar-bg:   #070B15;
-      --sidebar-actbg:rgba(139,124,246,0.2);
+      --bg:           #15130F;
+      --bg-2:         #1E1B23;
+      --bg-3:         #262330;
+      --border:       #363047;
+      --border-2:     #453E5C;
+      --text-1:       #F3F0FF;
+      --text-2:       #B6AFC9;
+      --text-3:       #837B99;
+      --blue:         #34D399;
+      --blue-h:       #6EE7B7;
+      --blue-soft:    rgba(52,211,153,0.14);
+      --blue-border:  rgba(52,211,153,0.32);
+      --blue-shadow:  rgba(52,211,153,0.35);
+      --accent:       #60A5FA;
+      --accent-soft:  rgba(96,165,250,0.16);
+      --accent-border:rgba(96,165,250,0.35);
+      --ink:          #0E0B14;
+      --sidebar-bg:   #0E0B14;
+      --sidebar-actbg:rgba(96,165,250,0.22);
       --shadow-sm:    0 1px 3px rgba(0,0,0,0.35);
       --shadow-md:    0 4px 18px rgba(0,0,0,0.45);
       --shadow-lg:    0 14px 44px rgba(0,0,0,0.55);

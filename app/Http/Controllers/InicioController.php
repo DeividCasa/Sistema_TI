@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Cliente\CatalogoGeneralController;
+use App\Models\InformacionLocal;
+use App\Models\Testimonio;
 use Illuminate\Http\Request;
 
 
 class InicioController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Página de inicio del cliente: banner, categorías, destacados y testimonios.
      */
     public function index()
     {
-        return redirect()->route('cliente.catalogo.index');
+        return view('cliente.inicio', [
+            'info'        => InformacionLocal::actual(),
+            'destacados'  => (new CatalogoGeneralController())->destacados(),
+            'testimonios' => Testimonio::where('activo', 1)->where('estado', 'aprobado')->orderBy('orden')->orderBy('created_at', 'desc')->take(5)->get(),
+        ]);
     }
 
     /**

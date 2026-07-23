@@ -74,9 +74,17 @@ class CatalogoGeneralController extends Controller
         ]);
     }
 
-    private function obtenerTodosLosProductos(): Collection
+    // ── PRODUCTOS DESTACADOS PARA LA PÁGINA DE INICIO
+    public function destacados(int $limite = 8): Collection
     {
-        $plantillas = Plantilla::where('activa', 1)->get()->map(function ($p) {
+        return $this->obtenerTodosLosProductos(true)->take($limite);
+    }
+
+    private function obtenerTodosLosProductos(bool $soloDestacados = false): Collection
+    {
+        $plantillas = Plantilla::where('activa', 1)
+            ->when($soloDestacados, fn ($q) => $q->where('destacado', 1))
+            ->get()->map(function ($p) {
             return [
                 'id'     => 'plantilla-' . $p->id,
                 'tipo'   => $p->tipo_prenda,
@@ -91,7 +99,9 @@ class CatalogoGeneralController extends Controller
             ];
         });
 
-        $uniformes = Uniforme::where('activo', 1)->with('tallas')->get()->map(function ($u) {
+        $uniformes = Uniforme::where('activo', 1)
+            ->when($soloDestacados, fn ($q) => $q->where('destacado', 1))
+            ->with('tallas')->get()->map(function ($u) {
             $tallasDisp = $u->tallas->where('disponible', 1);
             $precio = $tallasDisp->pluck('precio')->min();
             return [
@@ -108,7 +118,9 @@ class CatalogoGeneralController extends Controller
             ];
         });
 
-        $chompas = Chompa::where('activo', 1)->with('tallas')->get()->map(function ($c) {
+        $chompas = Chompa::where('activo', 1)
+            ->when($soloDestacados, fn ($q) => $q->where('destacado', 1))
+            ->with('tallas')->get()->map(function ($c) {
             $tallasDisp = $c->tallas->where('disponible', 1);
             $precio = $tallasDisp->pluck('precio')->min();
             return [

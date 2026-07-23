@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegistroController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\Admin\PlantillaController;
 use App\Http\Controllers\Admin\PedidoController;
 use App\Http\Controllers\Admin\ClienteController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Cliente\PedidoController as ClientePedidoController;
 use App\Http\Controllers\Cliente\DisenioController;
 use App\Http\Controllers\Cliente\LogoController;
 use App\Http\Controllers\Cliente\SolicitudDisenoController;
+use App\Http\Controllers\Cliente\TestimonioController as ClienteTestimonioController;
 use App\Http\Controllers\Admin\SolicitudDisenoController as AdminSolicitudDisenoController;
 use App\Http\Controllers\Admin\UniformeController;
 use App\Http\Controllers\Admin\PedidoUniformeController;
@@ -27,6 +29,8 @@ use App\Http\Controllers\Cliente\CarritoPlantillaController;
 use App\Http\Controllers\Cliente\CatalogoGeneralController;
 use App\Http\Controllers\Admin\PedidoTiendaController;
 use App\Http\Controllers\Admin\PedidoPlantillaController;
+use App\Http\Controllers\Admin\InformacionLocalController;
+use App\Http\Controllers\Admin\TestimonioController;
 
 use App\Models\Pedido;
 use App\Models\Cliente;
@@ -35,16 +39,26 @@ use App\Models\Plantilla;
 
 Route::get('/', [InicioController::class, 'index'])->name('inicio');
 Route::get('/registro', [RegistroController::class, 'show'])->name('registro');
-Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store');
+Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store')->middleware('throttle:10,1');
 Route::get('/login', [LoginController::class, 'showCorreo'])->name('login.paso1');
-Route::post('/login/verificar-correo', [LoginController::class, 'verificarCorreo'])->name('login.verificar-correo');
+Route::post('/login/verificar-correo', [LoginController::class, 'verificarCorreo'])->name('login.verificar-correo')->middleware('throttle:10,1');
 Route::get('/login/contrasena', [LoginController::class, 'showContrasena'])->name('login.paso2');
-Route::post('/login/verificar-contrasena', [LoginController::class, 'verificarContrasena'])->name('login.verificar-contrasena');
+Route::post('/login/verificar-contrasena', [LoginController::class, 'verificarContrasena'])->name('login.verificar-contrasena')->middleware('throttle:10,1');
+Route::get('/login/codigo', [LoginController::class, 'showCodigo'])->name('login.paso3');
+Route::post('/login/verificar-codigo', [LoginController::class, 'verificarCodigo'])->name('login.verificar-codigo')->middleware('throttle:5,1');
+Route::post('/login/reenviar-codigo', [LoginController::class, 'reenviarCodigo'])->name('login.reenviar-codigo')->middleware('throttle:3,1');
 
 Route::get('/logout', function () {
     session()->flush();
     return redirect()->route('login.paso1');
 })->name('logout');
+
+// ── Recuperar contraseña (clientes y administradores)
+Route::get('/password/olvide', [PasswordResetController::class, 'showSolicitar'])->name('password.solicitar');
+Route::post('/password/olvide', [PasswordResetController::class, 'enviarCodigo'])->name('password.enviar-codigo')->middleware('throttle:5,1');
+Route::get('/password/codigo', [PasswordResetController::class, 'showCodigo'])->name('password.codigo');
+Route::post('/password/restablecer', [PasswordResetController::class, 'restablecer'])->name('password.restablecer')->middleware('throttle:5,1');
+Route::post('/password/reenviar-codigo', [PasswordResetController::class, 'reenviarCodigo'])->name('password.reenviar-codigo')->middleware('throttle:3,1');
 
 // Toda la ropa: catálogo único (camisetas, shorts, conjuntos, uniformes y chompas
 // mezclados). Es la página de inicio del cliente y reemplaza las secciones que
@@ -52,9 +66,7 @@ Route::get('/logout', function () {
 Route::get('/toda-la-ropa', [CatalogoGeneralController::class, 'index'])
     ->name('cliente.catalogo.index');
 
-Route::get('/Pagina_central', function () {
-    return redirect()->route('cliente.catalogo.index');
-})->name('cliente.inicio');
+Route::get('/Pagina_central', [InicioController::class, 'index'])->name('cliente.inicio');
 
 // Rutas públicas de uniformes (fuera del middleware de sesión)
 Route::get('/uniformes-escolares', function () {
@@ -86,6 +98,10 @@ Route::middleware('sesion:cliente')->group(function () {
     Route::get('/logos', [LogoController::class, 'index'])->name('logos.index');
     Route::post('/logos', [LogoController::class, 'store'])->name('logos.store');
     Route::delete('/logos/{id}', [LogoController::class, 'destroy'])->name('logos.destroy');
+
+    // ── APÓYANOS / DEJA TU OPINIÓN
+    Route::get('/opinion', [ClienteTestimonioController::class, 'create'])->name('cliente.testimonios.create');
+    Route::post('/opinion', [ClienteTestimonioController::class, 'store'])->name('cliente.testimonios.store');
 
     // ── MIS DISEÑOS Y SOLICITUD DE COTIZACIÓN
     Route::get('/mis-disenios', [SolicitudDisenoController::class, 'index'])->name('cliente.disenios.index');
@@ -275,6 +291,13 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     Route::resource('chompas', ChompaController::class)
         ->except(['show']);
 
+    Route::get('/testimonios', [TestimonioController::class, 'index'])->name('testimonios.index');
+    Route::post('/testimonios/{id}/aprobar', [TestimonioController::class, 'aprobar'])->name('testimonios.aprobar');
+    Route::post('/testimonios/{id}/rechazar', [TestimonioController::class, 'rechazar'])->name('testimonios.rechazar');
+    Route::post('/testimonios/{id}/activar', [TestimonioController::class, 'activar'])->name('testimonios.activar');
+    Route::post('/testimonios/{id}/desactivar', [TestimonioController::class, 'desactivar'])->name('testimonios.desactivar');
+    Route::delete('/testimonios/{id}', [TestimonioController::class, 'destroy'])->name('testimonios.destroy');
+
     Route::resource('pedidos-chompas', PedidoChompaController::class)
         ->only(['show', 'update'])
         ->parameters([
@@ -314,10 +337,16 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     Route::get('/pedidos-tienda/{id}', [PedidoTiendaController::class, 'show'])->name('pedidos-tienda.show');
     Route::post('/pedidos-tienda/{id}/pago-completo', [PedidoTiendaController::class, 'marcarPagoCompleto'])
         ->name('pedidos-tienda.pago-completo');
+    Route::post('/pedidos-tienda/{id}/tiempo-estimado', [PedidoTiendaController::class, 'actualizarTiempoEstimado'])
+        ->name('pedidos-tienda.tiempo-estimado');
     Route::post('/comprobantes-maestro/{id}/verificar', [PedidoTiendaController::class, 'verificarComprobante'])
         ->name('comprobantes-maestro.verificar');
     Route::post('/comprobantes-maestro/{id}/rechazar', [PedidoTiendaController::class, 'rechazarComprobante'])
         ->name('comprobantes-maestro.rechazar');
+
+    // ── INFORMACIÓN DEL LOCAL (página de inicio del cliente)
+    Route::get('/informacion-local', [InformacionLocalController::class, 'edit'])->name('informacion-local.edit');
+    Route::put('/informacion-local', [InformacionLocalController::class, 'update'])->name('informacion-local.update');
 });
 
 Route::get('/admin_ini', function () {

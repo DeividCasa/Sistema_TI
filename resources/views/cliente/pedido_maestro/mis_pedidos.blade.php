@@ -417,6 +417,14 @@
                                 </div><br>
                             @endforeach
                         </div>
+                        @if($pedido->tiempo_estimado)
+                        <div class="estado-item">
+                            <div class="estado-label">Entrega estimada</div>
+                            <div class="estado-badge est-recibido">
+                                {{ $pedido->tiempo_estimado }}
+                            </div>
+                        </div>
+                        @endif
                         <div class="estado-item">
                             <div class="estado-label">Estado pago</div>
                             <div class="estado-badge {{ $clasePago }}">

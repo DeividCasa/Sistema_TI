@@ -180,12 +180,12 @@ class CarritoChompaController extends Controller
     public function guardarComprobante(Request $request, $id)
     {
         $request->validate([
-            'comprobante' => 'required|image|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+            'comprobante' => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'referencia'  => 'nullable|string|max:100',
             'monto'       => 'nullable|numeric|min:0',
         ], [
             'comprobante.required' => 'Debes adjuntar el comprobante de pago.',
-            'comprobante.image'    => 'El archivo debe ser imagen o PDF.',
+            'comprobante.mimes'    => 'El archivo debe ser imagen o PDF.',
         ]);
 
         $pedido = PedidoChompa::where('cliente_id', session('usuario_id'))->findOrFail($id);

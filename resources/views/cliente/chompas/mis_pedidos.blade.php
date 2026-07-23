@@ -40,6 +40,12 @@
           {{ str_replace('_', ' ', $pedido->estado) }}
         </span>
 
+        @if($pedido->tiempo_estimado)
+          <span style="background:var(--blue-soft);border:1px solid var(--blue);color:var(--blue);padding:4px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;">
+            Entrega estimada: {{ $pedido->tiempo_estimado }}
+          </span>
+        @endif
+
         @php
           $pagos = [
             'pendiente'           => ['#FEF9C3','#A16207','Pago pendiente'],
