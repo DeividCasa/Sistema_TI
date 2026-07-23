@@ -210,25 +210,32 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
 
     Route::get('/dashboard', function () {
 
-        $total_pedidos = Pedido::count();
-        $en_produccion = Pedido::where('estado', 'en_produccion')->count();
-        $listos = Pedido::where('estado', 'listo')->count();
-        $entregados = Pedido::where('estado', 'entregado')->count();
-        $recibidos = Pedido::where('estado', 'recibido')->count();
-        $cancelados = Pedido::where('estado', 'cancelado')->count();
+        // Colección unificada: maestros + uniformes/chompas/ropa/camisetas sueltos.
+        // Se usa la misma fuente que la tabla "Pedidos" para que los números y la
+        // lista de recientes del dashboard siempre coincidan con ella.
+        $pedidosUnificados = PedidoTiendaController::pedidosUnificados();
+
+        $total_pedidos = $pedidosUnificados->count();
         $total_clientes = Cliente::count();
         $total_plantillas = Plantilla::where('activa', 1)->count();
 
-        $pedidos_recientes = Pedido::with('cliente')
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        // Los pedidos "Combinado" no tienen un estado propio (cada hijo lleva el
+        // suyo), así que el desglose por estado se calcula sobre el resto de tipos.
+        $estados = $pedidosUnificados->map(fn ($e) => $e['pedido']->estado ?? null);
+        $en_produccion = $estados->filter(fn ($e) => $e === 'en_produccion')->count();
+        $listos = $estados->filter(fn ($e) => $e === 'listo')->count();
+        $entregados = $estados->filter(fn ($e) => $e === 'entregado')->count();
+        $recibidos = $estados->filter(fn ($e) => $e === 'recibido')->count();
+        $cancelados = $estados->filter(fn ($e) => $e === 'cancelado')->count();
 
-        $pedidos_por_mes = Pedido::selectRaw('MONTH(created_at) as mes, COUNT(*) as total')
-            ->whereYear('created_at', date('Y'))
-            ->groupBy('mes')
-            ->orderBy('mes')
-            ->get();
+        $pedidos_recientes = $pedidosUnificados->take(5);
+
+        $pedidos_por_mes = $pedidosUnificados
+            ->filter(fn ($e) => $e['fecha']->year == date('Y'))
+            ->groupBy(fn ($e) => $e['fecha']->month)
+            ->map(fn ($grupo, $mes) => ['mes' => (int) $mes, 'total' => $grupo->count()])
+            ->sortBy('mes')
+            ->values();
 
         return view('Admin.admin_ini', compact(
             'total_pedidos',

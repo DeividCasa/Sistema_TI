@@ -347,7 +347,17 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($pedidos_recientes as $pedido)
+            @foreach($pedidos_recientes as $entrada)
+                @php
+                    $pedido = $entrada['pedido'];
+                    $rutaDetalle = match($entrada['tipo']) {
+                        'Combinado' => 'admin.pedidos-tienda.show',
+                        'Uniforme'  => 'admin.pedidos-uniformes.show',
+                        'Chompa'    => 'admin.pedidos-chompas.show',
+                        'Ropa'      => 'admin.pedidos-plantillas.show',
+                        'Camiseta'  => 'admin.pedidos.show',
+                    };
+                @endphp
                 <tr>
                     <td data-label="Código"><span class="t-code">{{ $pedido->codigo }}</span></td>
                     <td data-label="Cliente">
@@ -356,7 +366,7 @@
                     </td>
                     <td data-label="Estado">
                         @php
-                            $estadoClase = match($pedido->estado) {
+                            $estadoClase = match($pedido->estado ?? null) {
                                 'recibido' => 'badge-recibido',
                                 'en_produccion' => 'badge-produccion',
                                 'listo' => 'badge-listo',
@@ -364,13 +374,13 @@
                                 'cancelado' => 'badge-cancelado',
                                 default => 'badge-pendiente'
                             };
-                            $estadoTexto = match($pedido->estado) {
+                            $estadoTexto = match($pedido->estado ?? null) {
                                 'recibido' => 'Recibido',
                                 'en_produccion' => 'En producción',
                                 'listo' => 'Listo',
                                 'entregado' => 'Entregado',
                                 'cancelado' => 'Cancelado',
-                                default => $pedido->estado
+                                default => 'Combinado'
                             };
                         @endphp
                         <span class="badge-estado {{ $estadoClase }}">{{ $estadoTexto }}</span>
@@ -396,7 +406,7 @@
                     </td>
                     <td data-label="Fecha">{{ $pedido->created_at->format('d M Y') }}</td>
                     <td data-label="Acción">
-                        <a href="{{ route('admin.pedidos.show', $pedido->id) }}" class="btn-ver">Ver</a>
+                        <a href="{{ route($rutaDetalle, $pedido->id) }}" class="btn-ver">Ver</a>
                     </td>
                 </tr>
             @endforeach

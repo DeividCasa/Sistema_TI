@@ -137,6 +137,7 @@
             <th>Adelanto (50%)</th>
             <th>Estado pago</th>
             <th></th>
+            <th>Pago completo</th>
           </tr>
         </thead>
         <tbody>
@@ -198,15 +199,17 @@
               <td>${{ number_format($pedido->precio_adelanto, 2) }}</td>
               <td>
                 <span class="badge {{ $claseBadge }}">{{ $texto }}</span>
+              </td>
+              <td class="cell-actions">
+                <a href="{{ route($rutaDetalle, $pedido->id) }}">Ver detalle</a>
+              </td>
+              <td class="cell-actions">
                 @if($pedido->estado_pago !== 'pagado_completo')
-                  <form action="{{ route($rutaPagoCompleto, $pedido->id) }}" method="POST" style="display:inline-block;margin-left:6px;" onsubmit="return confirm('¿Marcar este pedido como pagado por completo?');">
+                  <form action="{{ route($rutaPagoCompleto, $pedido->id) }}" method="POST" onsubmit="return confirm('¿Marcar este pedido como pagado por completo?');">
                     @csrf
                     <button type="submit" class="btn-marcar-pagado">Marcar pagado</button>
                   </form>
                 @endif
-              </td>
-              <td class="cell-actions">
-                <a href="{{ route($rutaDetalle, $pedido->id) }}">Ver detalle</a>
               </td>
             </tr>
           @endforeach

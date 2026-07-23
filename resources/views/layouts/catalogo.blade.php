@@ -73,8 +73,8 @@
       --text-1:       #F3F0FF;
       --text-2:       #B6AFC9;
       --text-3:       #837B99;
-      --blue:         #34D399;
-      --blue-h:       #6EE7B7;
+      --blue:         #135c2c;
+      --blue-h:       #105227;
       --blue-soft:    rgba(52,211,153,0.14);
       --blue-border:  rgba(52,211,153,0.32);
       --blue-shadow:  rgba(52,211,153,0.35);

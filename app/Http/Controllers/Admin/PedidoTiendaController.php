@@ -16,6 +16,14 @@ class PedidoTiendaController extends Controller
     // ── LISTA UNIFICADA: maestros + pedidos sueltos de ropa/uniforme/chompa/camiseta personalizada (legado)
     public function index()
     {
+        $pedidos = self::pedidosUnificados();
+
+        return view('Admin.pedidos_tienda.index', compact('pedidos'));
+    }
+
+    // ── Colección unificada de TODOS los tipos de pedido (usada también por el dashboard)
+    public static function pedidosUnificados()
+    {
         $maestros = PedidoMaestro::with([
                 'cliente',
                 'pedidoUniforme.items.uniforme',
@@ -50,11 +58,9 @@ class PedidoTiendaController extends Controller
             ->get()
             ->map(fn ($p) => ['tipo' => 'Camiseta', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
-        $pedidos = $maestros->concat($soloUniformes)->concat($soloChompas)->concat($soloPlantillas)->concat($camisetas)
+        return $maestros->concat($soloUniformes)->concat($soloChompas)->concat($soloPlantillas)->concat($camisetas)
             ->sortByDesc('fecha')
             ->values();
-
-        return view('Admin.pedidos_tienda.index', compact('pedidos'));
     }
 
     // ── DETALLE DE UN PEDIDO COMBINADO

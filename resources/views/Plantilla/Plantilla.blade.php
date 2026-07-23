@@ -295,12 +295,12 @@
     [data-theme="dark"] .badge-info    { background: #1e3a8a; color: #bfdbfe; }
     [data-theme="dark"] .badge-danger  { background: #7f1d1d; color: #fecaca; }
 
-    .btn-marcar-pagado {
-      display: inline-block; padding: 3px 9px; border-radius: 6px;
-      background: transparent; color: #15803D; border: 1px solid #bbf7d0;
+    .admin-table .cell-actions .btn-marcar-pagado {
+      display: inline-block; padding: 3px 9px; border-radius: 6px; margin-right: 0;
+      background: transparent; color: var(--accent); border: 1px solid var(--accent-border);
       font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
     }
-    .btn-marcar-pagado:hover { background: #15803D; color: white; border-color: #15803D; }
+    .admin-table .cell-actions .btn-marcar-pagado:hover { background: var(--accent); color: white; border-color: var(--accent); }
 
     /* tablas (grid, componente antiguo, se mantiene por compatibilidad) */
     .tabla-box {
