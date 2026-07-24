@@ -101,6 +101,10 @@
       width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(0,0,0,.15);
     }
 
+    @media(max-width:1400px){
+      :root{--panel:220px;}
+    }
+
     @media(max-width:900px){
       .visor-3d{display:none;}
       :root{--panel:240px;}

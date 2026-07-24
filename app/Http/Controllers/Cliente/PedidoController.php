@@ -20,7 +20,7 @@ class PedidoController extends Controller
             'plantilla_id' => 'required|exists:plantillas,id',
             'talla'        => 'required|string',
             'color'        => 'nullable|string',
-            'cantidad'     => 'required|integer|min:1',
+            'cantidad'     => 'required|integer|min:1|max:100',
         ]);
 
         $plantilla = Plantilla::findOrFail($request->plantilla_id);
@@ -110,16 +110,5 @@ class PedidoController extends Controller
 
         return redirect()->route('cliente.mis-pedidos')
                          ->with('success', '¡Comprobante enviado! El administrador lo verificará pronto.');
-    }
-
-    // ── LISTA "MIS PEDIDOS"
-    public function index()
-    {
-        $pedidos = Pedido::with(['disenio.plantilla', 'comprobantes'])
-                         ->where('cliente_id', session('usuario_id'))
-                         ->orderBy('created_at', 'desc')
-                         ->get();
-
-        return view('cliente.pedidos', compact('pedidos'));
     }
 }

@@ -13,19 +13,31 @@ use Illuminate\Http\Request;
 
 class CarritoMaestroController extends Controller
 {
-    // ── PÁGINA DE PAGO (subir comprobante combinado)
-    public function pago($id)
+    // ── PÁGINA DE PAGO (subir comprobante) — sirve para cualquier tipo de pedido suelto o combinado
+    public function pago($tipo, $id)
     {
-        $pedido = PedidoMaestro::with([
-                'pedidoPlantilla.items.plantilla',
-                'pedidoUniforme.items.uniforme',
-                'pedidoChompa.items.chompa',
-                'comprobantes',
-            ])
-            ->where('cliente_id', session('usuario_id'))
-            ->findOrFail($id);
+        $clienteId = session('usuario_id');
 
-        return view('cliente.pedido_maestro.pago', compact('pedido'));
+        $pedido = match ($tipo) {
+            'maestro'  => PedidoMaestro::with(['pedidoPlantilla.items.plantilla', 'pedidoUniforme.items.uniforme', 'pedidoChompa.items.chompa', 'comprobantes'])
+                ->where('cliente_id', $clienteId)->findOrFail($id),
+            'uniforme' => PedidoUniforme::with(['items.uniforme', 'comprobantes'])
+                ->where('cliente_id', $clienteId)->findOrFail($id),
+            'chompa'   => PedidoChompa::with(['items.chompa', 'comprobantes'])
+                ->where('cliente_id', $clienteId)->findOrFail($id),
+            'ropa'     => PedidoPlantilla::with(['items.plantilla', 'comprobantes'])
+                ->where('cliente_id', $clienteId)->findOrFail($id),
+            default    => abort(404),
+        };
+
+        $rutaComprobante = match ($tipo) {
+            'maestro'  => route('cliente.pedido-maestro.comprobante', $pedido->id),
+            'uniforme' => route('cliente.uniformes.comprobante', $pedido->id),
+            'chompa'   => route('cliente.chompas.comprobante', $pedido->id),
+            'ropa'     => route('cliente.plantillas.comprobante', $pedido->id),
+        };
+
+        return view('cliente.pedido_maestro.pago', compact('pedido', 'tipo', 'rutaComprobante'));
     }
 
     // ── GUARDAR COMPROBANTE COMBINADO

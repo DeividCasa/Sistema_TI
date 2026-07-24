@@ -23,7 +23,7 @@
   <a href="{{ route('cliente.mis-pedidos') }}" class="btn-secondary">← Mis pedidos</a>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<div class="grid-2col" style="--cols:1fr 1fr;gap:24px;">
 
   {{-- RESUMEN DEL PEDIDO --}}
   <div class="card card-pad reveal">

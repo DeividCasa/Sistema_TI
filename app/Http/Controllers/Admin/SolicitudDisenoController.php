@@ -35,7 +35,7 @@ class SolicitudDisenoController extends Controller
         $solicitud = SolicitudDiseno::findOrFail($id);
 
         $request->validate([
-            'precio'        => 'required|numeric|min:0',
+            'precio'        => 'required|numeric|min:0|max:250',
             'mensaje_admin' => 'nullable|string|max:1000',
         ]);
 

@@ -35,7 +35,7 @@ class ChompaController extends Controller
             'imagen'           => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tallas'           => 'required|array|min:1',
             'tallas.*.talla'   => 'required|string|max:10|distinct',
-            'tallas.*.precio'  => 'required|numeric|min:0.01',
+            'tallas.*.precio'  => 'required|numeric|min:0.01|max:250',
         ], [
             'nombre.required'          => 'El nombre de la chompa es obligatorio.',
             'tipo_tela.required'       => 'El tipo de tela es obligatorio.',
@@ -49,6 +49,7 @@ class ChompaController extends Controller
             'tallas.*.precio.required' => 'Cada talla debe tener su precio.',
             'tallas.*.precio.numeric'  => 'El precio debe ser un número.',
             'tallas.*.precio.min'      => 'El precio debe ser mayor a 0.',
+            'tallas.*.precio.max'      => 'El precio no debe superar $250.',
         ]);
 
         $imagenPath = $request->file('imagen')->store('chompas', 'public');
@@ -96,7 +97,7 @@ class ChompaController extends Controller
             'imagen'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'tallas'           => 'required|array|min:1',
             'tallas.*.talla'   => 'required|string|max:10|distinct',
-            'tallas.*.precio'  => 'required|numeric|min:0.01',
+            'tallas.*.precio'  => 'required|numeric|min:0.01|max:250',
         ]);
 
         if ($request->hasFile('imagen')) {

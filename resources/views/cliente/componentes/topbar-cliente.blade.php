@@ -42,13 +42,18 @@
         $categoriaNav = request()->routeIs('cliente.catalogo.*') ? request()->query('categoria', 'todos') : null;
     @endphp
     <div class="topbar-right">
-        <a href="{{ route('cliente.catalogo.index') }}" class="topbar-link @if($categoriaNav === 'todos') active @endif">Toda la ropa</a>
-        <a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}" class="topbar-link @if($categoriaNav === 'uniforme') active @endif">Uniformes escolares</a>
-        <a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}" class="topbar-link @if($categoriaNav === 'chompa') active @endif">Chompas</a>
-        @if($usuarioLogueado)
-            <a href="{{ route('cliente.disenios.index') }}" class="topbar-link @if(request()->routeIs('cliente.disenios.index')) active @endif">Mis diseños</a>
-            <a href="@yield('mis-pedidos-route', route('cliente.mis-pedidos'))" class="topbar-link">Mis pedidos</a>
-        @endif
+        <button type="button" class="btn-menu-movil" onclick="toggleNavMovil()" aria-label="Menú">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+        <div class="nav-links-wrap" id="nav-links-wrap">
+            <a href="{{ route('cliente.catalogo.index') }}" class="topbar-link @if($categoriaNav === 'todos') active @endif">Toda la ropa</a>
+            <a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}" class="topbar-link @if($categoriaNav === 'uniforme') active @endif">Uniformes escolares</a>
+            <a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}" class="topbar-link @if($categoriaNav === 'chompa') active @endif">Chompas</a>
+            @if($usuarioLogueado)
+                <a href="{{ route('cliente.disenios.index') }}" class="topbar-link @if(request()->routeIs('cliente.disenios.index')) active @endif">Mis diseños</a>
+                <a href="@yield('mis-pedidos-route', route('cliente.mis-pedidos'))" class="topbar-link">Mis pedidos</a>
+            @endif
+        </div>
 
         <div class="topbar-divider"></div>
 
@@ -106,6 +111,10 @@
         function toggleCarrito() {
             document.getElementById('carrito-wrap')?.classList.toggle('open');
         }
+        function toggleNavMovil() {
+            document.getElementById('nav-links-wrap')?.classList.toggle('open');
+            document.querySelector('.btn-menu-movil')?.classList.toggle('open');
+        }
         document.addEventListener('click', function (event) {
             const filtrosWrap = document.getElementById('filtros-wrap');
             if (filtrosWrap && !filtrosWrap.contains(event.target)) {
@@ -114,6 +123,12 @@
             const carritoWrap = document.getElementById('carrito-wrap');
             if (carritoWrap && !carritoWrap.contains(event.target)) {
                 carritoWrap.classList.remove('open');
+            }
+            const navLinksWrap = document.getElementById('nav-links-wrap');
+            const btnMenuMovil = document.querySelector('.btn-menu-movil');
+            if (navLinksWrap && !navLinksWrap.contains(event.target) && btnMenuMovil && !btnMenuMovil.contains(event.target)) {
+                navLinksWrap.classList.remove('open');
+                btnMenuMovil.classList.remove('open');
             }
         });
 

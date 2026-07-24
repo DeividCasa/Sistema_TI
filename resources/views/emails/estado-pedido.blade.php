@@ -19,6 +19,12 @@
               <p style="margin:0 0 6px; font-size:14px; color:#64748B;">Hola {{ $nombre }},</p>
               <h1 style="margin:0 0 14px; font-size:20px; color:#1E293B; font-weight:800;">Tu pedido tiene una actualización</h1>
               <p style="margin:0 0 4px; font-size:14px; color:#64748B;">Pedido <strong>{{ $codigo }}</strong> ({{ $tipoPedido }})</p>
+              @if($imagenPath && file_exists($imagenPath))
+                <div style="text-align:center; margin:18px 0 4px;">
+                  <img src="{{ $message->embed($imagenPath) }}" alt="Vista previa del pedido"
+                       style="max-width:100%; width:220px; border-radius:10px; border:1px solid #E2E8F0;">
+                </div>
+              @endif
               <div style="text-align:center; margin:18px 0 22px;">
                 <span style="display:inline-block; padding:10px 24px; background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:10px; font-size:16px; font-weight:800; color:#1D4ED8;">
                   {{ $estadoLabel }}

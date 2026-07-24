@@ -146,34 +146,10 @@ class CarritoUniformeController extends Controller
                 ->with('success', 'Tu carrito está vacío.');
         }
 
-        $resultado = $checkout->confirmar(session('usuario_id'));
+        $checkout->confirmar(session('usuario_id'));
 
-        if ($resultado['maestro']) {
-            return redirect()->route('cliente.pedido-maestro.pago', $resultado['maestro']->id)
-                ->with('success', '¡Pedido creado! Ahora realiza el pago.');
-        }
-
-        if ($resultado['pedidoUniforme']) {
-            return redirect()->route('cliente.uniformes.pago', $resultado['pedidoUniforme']->id)
-                ->with('success', '¡Pedido creado! Ahora realiza el pago.');
-        }
-
-        if ($resultado['pedidoChompa']) {
-            return redirect()->route('cliente.chompas.pago', $resultado['pedidoChompa']->id)
-                ->with('success', '¡Pedido creado! Ahora realiza el pago.');
-        }
-
-        return redirect()->route('cliente.plantillas.pago', $resultado['pedidoPlantilla']->id)
+        return redirect()->route('cliente.mis-pedidos')
             ->with('success', '¡Pedido creado! Ahora realiza el pago.');
-    }
-
-    public function pago($id)
-    {
-        $pedido = PedidoUniforme::with(['items.uniforme', 'comprobantes'])
-            ->where('cliente_id', session('usuario_id'))
-            ->findOrFail($id);
-
-        return view('cliente.pago', compact('pedido'));
     }
 
     public function guardarComprobante(Request $request, $id)
@@ -211,18 +187,7 @@ class CarritoUniformeController extends Controller
 
         $pedido->save();
 
-        return redirect()->route('cliente.uniformes.mis-pedidos')
+        return redirect()->route('cliente.mis-pedidos')
             ->with('success', '¡Comprobante enviado!');
-    }
-
-    public function misPedidos()
-    {
-        $pedidos = PedidoUniforme::with(['items.uniforme', 'comprobantes'])
-            ->where('cliente_id', session('usuario_id'))
-            ->whereNull('pedido_maestro_id')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('cliente.mis_pedidos', compact('pedidos'));
     }
 }

@@ -80,4 +80,6 @@
 .visor-flecha:hover  { background: rgba(255,255,255,.22); color: #fff; }
 .visor-flecha:active { background: rgba(255,255,255,.34); }
 
+@media(max-width:1400px){ .visor-3d{ width:240px; } }
+
 @media(max-width:900px){ .visor-3d{ display:none; } }

@@ -86,7 +86,6 @@ Route::middleware('sesion:cliente')->group(function () {
     Route::post('/pedidos', [ClientePedidoController::class, 'store'])->name('pedidos.store');
     Route::get('/pedidos/{id}/comprobante', [ClientePedidoController::class, 'comprobante'])->name('cliente.pedidos.comprobante');
     Route::post('/pedidos/{id}/comprobante', [ClientePedidoController::class, 'guardarComprobante'])->name('cliente.pedidos.comprobante.store');
-    Route::get('/mis-pedidos', [ClientePedidoController::class, 'index'])->name('cliente.pedidos.index');
 
     // ── CREA TU DISEÑO CON IA / PERSONALIZAR
     Route::get('/personalizar/{plantilla?}', [DisenioController::class, 'create'])->name('disenios.create');
@@ -142,23 +141,11 @@ Route::middleware('sesion:cliente')->group(function () {
     Route::post('/carrito/plantillas/vaciar', [CarritoPlantillaController::class, 'vaciar'])
         ->name('cliente.plantillas.vaciar');
 
-    Route::get('/plantillas/pedido/{id}/pago', [CarritoPlantillaController::class, 'pago'])
-        ->name('cliente.plantillas.pago');
-
     Route::post('/plantillas/pedido/{id}/comprobante', [CarritoPlantillaController::class, 'guardarComprobante'])
         ->name('cliente.plantillas.comprobante');
 
-    Route::get('/mis-pedidos-ropa', [CarritoPlantillaController::class, 'misPedidos'])
-        ->name('cliente.plantillas.mis-pedidos');
-
-    Route::get('/uniformes/pedido/{id}/pago', [CarritoUniformeController::class, 'pago'])
-        ->name('cliente.uniformes.pago');
-
     Route::post('/uniformes/pedido/{id}/comprobante', [CarritoUniformeController::class, 'guardarComprobante'])
         ->name('cliente.uniformes.comprobante');
-
-    Route::get('/mis-pedidos-uniformes', [CarritoUniformeController::class, 'misPedidos'])
-        ->name('cliente.uniformes.mis-pedidos');
 
     // Rutas de chompas (requieren sesión)
     Route::get('/chompas', function () {
@@ -186,24 +173,18 @@ Route::middleware('sesion:cliente')->group(function () {
     Route::post('/carrito-chompas/confirmar', [CarritoChompaController::class, 'confirmar'])
         ->name('cliente.chompas.confirmar');
 
-    Route::get('/chompas/pedido/{id}/pago', [CarritoChompaController::class, 'pago'])
-        ->name('cliente.chompas.pago');
-
     Route::post('/chompas/pedido/{id}/comprobante', [CarritoChompaController::class, 'guardarComprobante'])
         ->name('cliente.chompas.comprobante');
 
-    Route::get('/mis-pedidos-chompas', [CarritoChompaController::class, 'misPedidos'])
-        ->name('cliente.chompas.mis-pedidos');
-
     // Rutas del pedido maestro (uniforme + chompa combinados en un solo pedido)
-    Route::get('/pedido-maestro/{id}/pago', [CarritoMaestroController::class, 'pago'])
-        ->name('cliente.pedido-maestro.pago');
-
     Route::post('/pedido-maestro/{id}/comprobante', [CarritoMaestroController::class, 'guardarComprobante'])
         ->name('cliente.pedido-maestro.comprobante');
 
     Route::get('/mis-pedidos-tienda', [CarritoMaestroController::class, 'misPedidos'])
         ->name('cliente.mis-pedidos');
+
+    Route::get('/mis-pedidos-tienda/{tipo}/{id}/pago', [CarritoMaestroController::class, 'pago'])
+        ->name('cliente.mis-pedidos.pago');
 });
 
 Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(function () {

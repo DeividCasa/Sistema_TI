@@ -145,75 +145,51 @@ class CarritoChompaController extends Controller
                              ->with('success', 'Tu carrito está vacío.');
         }
 
-        $resultado = $checkout->confirmar(session('usuario_id'));
+        $checkout->confirmar(session('usuario_id'));
 
-        if ($resultado['maestro']) {
-            return redirect()->route('cliente.pedido-maestro.pago', $resultado['maestro']->id)
-                             ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
-        }
-
-        if ($resultado['pedidoChompa']) {
-            return redirect()->route('cliente.chompas.pago', $resultado['pedidoChompa']->id)
-                             ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
-        }
-
-        if ($resultado['pedidoUniforme']) {
-            return redirect()->route('cliente.uniformes.pago', $resultado['pedidoUniforme']->id)
-                             ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
-        }
-
-        return redirect()->route('cliente.plantillas.pago', $resultado['pedidoPlantilla']->id)
+        return redirect()->route('cliente.mis-pedidos')
                          ->with('success', '¡Pedido registrado! Ahora sube tu comprobante de adelanto.');
-    }
-
-    // ── PÁGINA DE PAGO (subir comprobante)
-    public function pago($id)
-    {
-        $pedido = PedidoChompa::with(['items.chompa', 'comprobantes'])
-                              ->where('cliente_id', session('usuario_id'))
-                              ->findOrFail($id);
-
-        return view('cliente.chompas.pago', compact('pedido'));
     }
 
     // ── GUARDAR COMPROBANTE
     public function guardarComprobante(Request $request, $id)
     {
-        $request->validate([
-            'comprobante' => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
-            'referencia'  => 'nullable|string|max:100',
-            'monto'       => 'nullable|numeric|min:0',
-        ], [
-            'comprobante.required' => 'Debes adjuntar el comprobante de pago.',
-            'comprobante.mimes'    => 'El archivo debe ser imagen o PDF.',
-        ]);
-
         $pedido = PedidoChompa::where('cliente_id', session('usuario_id'))->findOrFail($id);
 
-        $archivo = $request->file('comprobante')->store('comprobantes_chompa', 'public');
+        $request->validate([
+            'tipo'       => 'required|in:adelanto,pago_completo,saldo_final',
+            'archivo'    => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+            'referencia' => 'nullable|string|max:100',
+        ], [
+            'archivo.required' => 'Debes adjuntar el comprobante de pago.',
+            'archivo.mimes'    => 'El archivo debe ser imagen o PDF.',
+        ]);
+
+        $monto = match ($request->tipo) {
+            'adelanto'      => $pedido->precio_adelanto,
+            'pago_completo' => $pedido->precio_total,
+            'saldo_final'   => $pedido->precio_saldo,
+        };
+
+        $archivo = $request->file('archivo')->store('comprobantes_chompa', 'public');
 
         ComprobanteChompa::create([
             'pedido_chompa_id' => $pedido->id,
-            'tipo'             => 'adelanto',
+            'tipo'             => $request->tipo,
             'archivo'          => $archivo,
             'referencia'       => $request->referencia,
-            'monto'            => $request->monto ?? $pedido->precio_adelanto,
+            'monto'            => $monto,
             'estado'           => 'pendiente',
         ]);
 
-        return redirect()->route('cliente.chompas.mis-pedidos')
+        $pedido->estado_pago = match ($request->tipo) {
+            'adelanto'      => 'adelanto_enviado',
+            'pago_completo' => 'pago_completo_enviado',
+            'saldo_final'   => 'saldo_enviado',
+        };
+        $pedido->save();
+
+        return redirect()->route('cliente.mis-pedidos')
                          ->with('success', 'Comprobante enviado. En breve será verificado.');
-    }
-
-    // ── MIS PEDIDOS DE CHOMPAS
-    public function misPedidos()
-    {
-        $pedidos = PedidoChompa::with(['items.chompa', 'comprobantes'])
-                               ->where('cliente_id', session('usuario_id'))
-                               ->whereNull('pedido_maestro_id')
-                               ->orderBy('created_at', 'desc')
-                               ->get();
-
-        return view('cliente.chompas.mis_pedidos', compact('pedidos'));
     }
 }

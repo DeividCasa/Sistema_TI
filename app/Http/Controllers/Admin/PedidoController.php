@@ -54,12 +54,17 @@ class PedidoController extends Controller
         $pedido->save();
 
         if ($pedido->cliente?->email) {
+            $imagenPath = $pedido->disenio?->imagen_generada
+                ? \Illuminate\Support\Facades\Storage::disk('public')->path($pedido->disenio->imagen_generada)
+                : null;
+
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
                 $pedido->codigo,
                 'Camiseta personalizada',
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
+                $imagenPath,
             ));
         }
 

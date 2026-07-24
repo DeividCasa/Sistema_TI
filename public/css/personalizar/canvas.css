@@ -194,3 +194,16 @@
   border-color: var(--blue);
   color: #fff;
 }
+
+/* ── RESPONSIVE: evita que el ancho fijo del editor supere el viewport
+   de una laptop típica (~1280-1400px) y obligue a bajar el zoom del
+   navegador para ver todo el contenido. ── */
+@media(max-width:1400px){
+  .vista-tabs{width:84px;}
+  .vista-tab{padding:8px 6px;font-size:.68rem;gap:5px;overflow:hidden;text-overflow:ellipsis;}
+  .canvas-area{padding:14px 12px 10px;}
+}
+
+@media(max-width:1250px){
+  .canvas-wrap{zoom:0.85;}
+}

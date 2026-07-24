@@ -49,12 +49,18 @@ class PedidoUniformeController extends Controller
         $pedido->save();
 
         if ($pedido->cliente?->email) {
+            $imagenRelativa = $pedido->items()->with('uniforme')->first()?->uniforme?->imagen;
+            $imagenPath = $imagenRelativa
+                ? \Illuminate\Support\Facades\Storage::disk('public')->path($imagenRelativa)
+                : null;
+
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
                 $pedido->codigo,
                 'Uniforme',
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
+                $imagenPath,
             ));
         }
 

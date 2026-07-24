@@ -32,7 +32,7 @@
   <a href="{{ session('catalogo_url', route('cliente.catalogo.index')) }}" class="btn-secondary">← Volver al catálogo</a>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<div class="grid-2col" style="--cols:1fr 1fr;gap:24px;">
 
   {{-- IMAGEN SIN BORDE --}}
         <div class="product-image">

@@ -30,7 +30,7 @@ public function store(Request $request)
         'tipo_prenda'    => 'required|in:camiseta,short,conjunto,otro',
         'genero'         => 'required|in:hombre,mujer,unisex',
         'descripcion'    => 'nullable|string',
-        'precio'         => 'required|numeric|min:0',
+        'precio'         => 'required|numeric|min:0|max:250',
         'colores'        => 'nullable|array',
         'tallas'         => 'nullable|array',
         'imagen_preview' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -41,6 +41,7 @@ public function store(Request $request)
         'genero.required'         => 'Selecciona para quién es la prenda.',
         'precio.required'         => 'El precio es obligatorio.',
         'precio.numeric'          => 'El precio debe ser un número.',
+        'precio.max'              => 'El precio no debe superar $250.',
         'imagen_preview.required' => 'La imagen es obligatoria.',
         'imagen_preview.image'    => 'El archivo debe ser una imagen.',
         'imagen_preview.max'      => 'La imagen no debe superar 2MB.',
@@ -82,7 +83,7 @@ public function store(Request $request)
         'tipo_prenda'    => 'required|in:camiseta,short,conjunto,otro',
         'genero'         => 'required|in:hombre,mujer,unisex',
         'descripcion'    => 'nullable|string',
-        'precio'         => 'required|numeric|min:0',
+        'precio'         => 'required|numeric|min:0|max:250',
         'colores'        => 'nullable|array',
         'tallas'         => 'nullable|array',
         'imagen_preview' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -114,6 +115,15 @@ public function store(Request $request)
     public function destroy($id)
     {
         $plantilla = Plantilla::findOrFail($id);
+
+        $tienePedidos = \App\Models\PedidoPlantillaItem::where('plantilla_id', $plantilla->id)->exists();
+        if ($tienePedidos) {
+            $plantilla->activa = 0;
+            $plantilla->save();
+            return redirect()->route('admin.plantillas.index')
+                             ->with('success', 'La plantilla tiene pedidos asociados, se desactivó en lugar de eliminarse.');
+        }
+
         Storage::disk('public')->delete($plantilla->imagen_preview);
         $plantilla->delete();
 

@@ -101,16 +101,6 @@ class CarritoPlantillaController extends Controller
         return redirect()->route('cliente.carrito.index');
     }
 
-    // ── PÁGINA DE PAGO (subir comprobante)
-    public function pago($id)
-    {
-        $pedido = PedidoPlantilla::with(['items.plantilla', 'comprobantes'])
-                                 ->where('cliente_id', session('usuario_id'))
-                                 ->findOrFail($id);
-
-        return view('cliente.plantillas.pago', compact('pedido'));
-    }
-
     // ── GUARDAR COMPROBANTE
     public function guardarComprobante(Request $request, $id)
     {
@@ -149,19 +139,7 @@ class CarritoPlantillaController extends Controller
         };
         $pedido->save();
 
-        return redirect()->route('cliente.plantillas.mis-pedidos')
+        return redirect()->route('cliente.mis-pedidos')
                          ->with('success', '¡Comprobante enviado! El administrador lo verificará pronto.');
-    }
-
-    // ── MIS PEDIDOS DE ROPA
-    public function misPedidos()
-    {
-        $pedidos = PedidoPlantilla::with(['items.plantilla', 'comprobantes'])
-                                  ->where('cliente_id', session('usuario_id'))
-                                  ->whereNull('pedido_maestro_id')
-                                  ->orderBy('created_at', 'desc')
-                                  ->get();
-
-        return view('cliente.plantillas.mis_pedidos', compact('pedidos'));
     }
 }

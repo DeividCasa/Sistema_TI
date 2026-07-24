@@ -59,7 +59,7 @@
       --font-d:       'Fraunces', serif;
       --font-b:       'Inter', sans-serif;
       --nav-h:        64px;
-      --promo-h:      34px;
+      --promo-h:      0px;
       --tr:           0.22s cubic-bezier(.4,0,.2,1);
     }
 
@@ -122,18 +122,6 @@
 
     svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* ========== FRANJA DE BIENVENIDA ========== */
-    .promo-strip {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 201;
-      height: var(--promo-h);
-      background: var(--promo-bg);
-      color: rgba(255,255,255,0.92);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-b);
-      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 0 16px; text-align: center;
-    }
-
     /* ========== TOPBAR (banda oscura fija, no cambia con el tema claro/oscuro) ========== */
     .topbar {
       position: fixed; top: var(--promo-h); left: 0; right: 0; z-index: 200;
@@ -166,6 +154,7 @@
       display: flex; align-items: center; gap: 12px;
       margin-left: auto;
     }
+    .nav-links-wrap { display: flex; align-items: center; gap: 12px; }
     .topbar-link {
       font-size: 0.85rem;
       font-weight: 500;
@@ -177,6 +166,17 @@
     .topbar-link:hover { color: #fff; }
     .topbar-link.active { color: var(--accent); font-weight: 700; }
     .topbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.16); margin: 0 2px; flex-shrink: 0; }
+
+    /* Botón hamburguesa — solo visible en mobile (ver media query abajo) */
+    .btn-menu-movil {
+      display: none;
+      width: 38px; height: 38px; border-radius: 40px; flex-shrink: 0;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+      align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.75); cursor: pointer;
+    }
+    .btn-menu-movil svg { width: 18px; height: 18px; }
+    .btn-menu-movil:hover, .btn-menu-movil.open { background: rgba(255,255,255,0.16); color: #fff; }
 
     /* Botón de filtros (junto al logo) + panel desplegable */
     .filtros-wrap { position: relative; flex-shrink: 0; }
@@ -606,6 +606,17 @@
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 28px;
     }
+
+    /* Grid genérico de 2 columnas (carrito, producto, pago) — la proporción
+       se define por instancia con la variable --cols; en mobile colapsa a 1
+       columna (ver media query más abajo). */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: var(--cols, 1fr 1fr);
+    }
+    @media (max-width: 760px) {
+      .grid-2col { grid-template-columns: 1fr; }
+    }
     .product-card {
       background: var(--bg-2);
       overflow: hidden;
@@ -860,18 +871,32 @@
     @media (max-width: 550px) {
       .topbar { padding: 0 12px; gap: 10px; }
       .topbar-brand img { height: 44px; }
-      .topbar-link { display: none; }
+
+      .btn-menu-movil { display: flex; }
+      .nav-links-wrap {
+        display: none;
+        position: absolute; top: calc(100% + 10px); left: 12px; right: 12px;
+        background: var(--bg-2); border: 1px solid var(--border);
+        border-radius: var(--radius); box-shadow: var(--shadow-lg);
+        padding: 8px; flex-direction: column; gap: 2px; z-index: 260;
+      }
+      .nav-links-wrap.open { display: flex; }
+      .nav-links-wrap .topbar-link {
+        color: var(--text-1); padding: 11px 12px; border-radius: 8px;
+      }
+      .nav-links-wrap .topbar-link:hover { background: var(--bg-3); }
+      .nav-links-wrap .topbar-link.active { color: var(--blue); background: var(--blue-soft); }
+
+      .carrito-dropdown {
+        position: fixed; top: calc(var(--nav-h) + var(--promo-h) + 10px);
+        left: 12px; right: 12px; width: auto;
+      }
     }
 
     @stack('estilos')
   </style>
 </head>
 <body>
-
-@php $promoInfo = \App\Models\InformacionLocal::actual(); @endphp
-<div class="promo-strip">
-  {{ $promoInfo->nombre_local ?: 'Leo José' }}@if($promoInfo->descripcion) &nbsp;·&nbsp; {{ $promoInfo->descripcion }} @endif
-</div>
 
 @include('cliente.componentes.topbar-cliente')
 

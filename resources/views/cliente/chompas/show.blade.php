@@ -17,7 +17,7 @@
   <a href="{{ session('catalogo_url', route('cliente.catalogo.index')) }}" class="btn-secondary">← Volver al catálogo</a>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;">
+<div class="grid-2col" style="--cols:1fr 1fr;gap:28px;align-items:start;">
 
   {{-- FOTO --}}
   <div class="card reveal" style="overflow:hidden;">

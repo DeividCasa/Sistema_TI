@@ -6,7 +6,7 @@
    el editor, para que un refresh accidental no pierda el diseño.
    ═══════════════════════════════════════════════════════════════ */
 
-const CLAVE_BORRADOR = 'personalizar_borrador_' + (typeof PLANTILLA_ID !== 'undefined' && PLANTILLA_ID ? PLANTILLA_ID : 'libre');
+const CLAVE_BORRADOR = 'personalizar_borrador_' + (typeof CLIENTE_ID !== 'undefined' && CLIENTE_ID ? CLIENTE_ID : 'anon') + '_' + (typeof PLANTILLA_ID !== 'undefined' && PLANTILLA_ID ? PLANTILLA_ID : 'libre');
 
 function guardarBorradorLocal() {
   try {

@@ -28,7 +28,7 @@
   </div>
 @endif
 
-<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:start;">
+<div class="grid-2col" style="--cols:1.6fr 1fr;gap:24px;align-items:start;">
 
   {{-- ITEMS --}}
   <div class="card reveal" style="overflow:hidden;">

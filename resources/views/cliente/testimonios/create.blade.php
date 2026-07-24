@@ -5,7 +5,7 @@
 @push('estilos')
 <style>
   .star-rating {
-    display: flex; flex-direction: row-reverse; justify-content: center;
+    display: flex; flex-direction: row; justify-content: center; width: 100%;
     gap: 6px; margin: 8px 0 4px;
   }
   .star-rating input { display: none; }
@@ -14,9 +14,7 @@
     cursor: pointer; transition: color 0.15s, transform 0.15s;
   }
   .star-rating label:hover { transform: scale(1.1); }
-  .star-rating input:checked ~ label,
-  .star-rating label:hover,
-  .star-rating label:hover ~ label { color: #F59E0B; }
+  .star-rating label.active { color: #F59E0B; }
 </style>
 @endpush
 
@@ -63,12 +61,12 @@
         <label style="display:block;text-align:center;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:4px;">
           ¿Cómo calificas tu experiencia?
         </label>
-        <div class="star-rating">
-          <input type="radio" id="star5" name="calificacion" value="5" {{ old('calificacion') == 5 ? 'checked' : '' }}><label for="star5">★</label>
-          <input type="radio" id="star4" name="calificacion" value="4" {{ old('calificacion') == 4 ? 'checked' : '' }}><label for="star4">★</label>
-          <input type="radio" id="star3" name="calificacion" value="3" {{ old('calificacion') == 3 ? 'checked' : '' }}><label for="star3">★</label>
-          <input type="radio" id="star2" name="calificacion" value="2" {{ old('calificacion') == 2 ? 'checked' : '' }}><label for="star2">★</label>
-          <input type="radio" id="star1" name="calificacion" value="1" {{ old('calificacion') == 1 ? 'checked' : '' }}><label for="star1">★</label>
+        <div class="star-rating" id="star-rating">
+          <input type="radio" id="star1" name="calificacion" value="1" {{ old('calificacion') == 1 ? 'checked' : '' }}><label for="star1" data-valor="1">★</label>
+          <input type="radio" id="star2" name="calificacion" value="2" {{ old('calificacion') == 2 ? 'checked' : '' }}><label for="star2" data-valor="2">★</label>
+          <input type="radio" id="star3" name="calificacion" value="3" {{ old('calificacion') == 3 ? 'checked' : '' }}><label for="star3" data-valor="3">★</label>
+          <input type="radio" id="star4" name="calificacion" value="4" {{ old('calificacion') == 4 ? 'checked' : '' }}><label for="star4" data-valor="4">★</label>
+          <input type="radio" id="star5" name="calificacion" value="5" {{ old('calificacion') == 5 ? 'checked' : '' }}><label for="star5" data-valor="5">★</label>
         </div>
 
         <div style="margin:22px 0 20px;">
@@ -91,3 +89,32 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+  (function() {
+    const contenedor = document.getElementById('star-rating');
+    if (!contenedor) return;
+    const labels = Array.from(contenedor.querySelectorAll('label'));
+
+    function pintarHasta(valor) {
+      labels.forEach(l => l.classList.toggle('active', parseInt(l.dataset.valor, 10) <= valor));
+    }
+
+    function valorSeleccionado() {
+      const marcado = contenedor.querySelector('input:checked');
+      return marcado ? parseInt(marcado.value, 10) : 0;
+    }
+
+    labels.forEach(label => {
+      label.addEventListener('mouseenter', () => pintarHasta(parseInt(label.dataset.valor, 10)));
+    });
+    contenedor.addEventListener('mouseleave', () => pintarHasta(valorSeleccionado()));
+    contenedor.querySelectorAll('input').forEach(input => {
+      input.addEventListener('change', () => pintarHasta(valorSeleccionado()));
+    });
+
+    pintarHasta(valorSeleccionado());
+  })();
+</script>
+@endpush
