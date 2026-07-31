@@ -7,19 +7,6 @@
 
 @section('contenido')
 
-@if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    {{ session('success') }}
-  </div>
-@endif
-
-@if($errors->any())
-  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    @foreach($errors->all() as $error)
-      <div>{{ $error }}</div>
-    @endforeach
-  </div>
-@endif
 
 <div class="sec-header reveal">
   <div class="sec-title">Pedido {{ $pedido->codigo }} <span style="font-size:0.7rem;background:var(--blue-soft);color:var(--blue);padding:3px 10px;border-radius:6px;margin-left:8px;">Combinado</span></div>
@@ -335,7 +322,7 @@
             <button type="submit" class="btn-primary" style="padding:9px 20px;width:100%;">Verificar</button>
           </form>
           <form action="{{ route('admin.comprobantes-maestro.rechazar', $comprobante->id) }}" method="POST"
-                onsubmit="return confirm('¿Rechazar este comprobante?');">
+                data-confirm="¿Rechazar este comprobante?">
             @csrf
             <input type="hidden" name="nota_admin" value="Comprobante no válido.">
             <button type="submit"

@@ -4,11 +4,6 @@
 
 @section('contenido')
 
-@if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    {{ session('success') }}
-  </div>
-@endif
 
 <div class="sec-header reveal">
   <div class="sec-title">Mi carrito de chompas</div>
@@ -196,7 +191,7 @@
     </form>
 
     <form action="{{ route('cliente.chompas.vaciar') }}" method="POST" style="margin-top:10px;"
-          onsubmit="return confirm('¿Seguro que quieres vaciar el carrito de chompas?');">
+          data-confirm="¿Seguro que quieres vaciar el carrito de chompas?">
       @csrf
       <button type="submit" style="width:100%;padding:11px;border:1px solid var(--border);background:transparent;color:var(--text-3);border-radius:10px;cursor:pointer;font-size:0.85rem;">
         Vaciar {{ $hayAmbos ? 'chompas' : 'carrito' }}
@@ -204,14 +199,14 @@
     </form>
     @if($hayAmbos)
       <form action="{{ route('cliente.carrito.vaciar') }}" method="POST" style="margin-top:10px;"
-            onsubmit="return confirm('¿Seguro que quieres vaciar el carrito de uniformes?');">
+            data-confirm="¿Seguro que quieres vaciar el carrito de uniformes?">
         @csrf
         <button type="submit" style="width:100%;padding:11px;border:1px solid var(--border);background:transparent;color:var(--text-3);border-radius:10px;cursor:pointer;font-size:0.85rem;">
           Vaciar uniformes
         </button>
       </form>
       <form action="{{ route('cliente.plantillas.vaciar') }}" method="POST" style="margin-top:10px;"
-            onsubmit="return confirm('¿Seguro que quieres vaciar el carrito de ropa?');">
+            data-confirm="¿Seguro que quieres vaciar el carrito de ropa?">
         @csrf
         <button type="submit" style="width:100%;padding:11px;border:1px solid var(--border);background:transparent;color:var(--text-3);border-radius:10px;cursor:pointer;font-size:0.85rem;">
           Vaciar ropa

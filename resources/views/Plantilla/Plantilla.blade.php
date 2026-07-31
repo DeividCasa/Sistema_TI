@@ -263,13 +263,13 @@
     /* tabla de listados admin, un solo diseño para todas las vistas */
     .admin-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
     .admin-table th {
-      background: var(--bg-3); text-align: left; padding: 12px 16px;
+      background: var(--bg-3); text-align: left; padding: 12px 12px;
       color: var(--text-2); font-weight: 600; font-size: 0.7rem;
       text-transform: uppercase; letter-spacing: 0.04em;
       border-bottom: 1px solid var(--border);
     }
     .admin-table td {
-      padding: 10px 16px; border-top: 1px solid var(--border);
+      padding: 10px 12px; border-top: 1px solid var(--border);
       color: var(--text-2); vertical-align: middle;
     }
     .admin-table tbody tr:hover td { background: var(--bg-3); }
@@ -301,6 +301,24 @@
       font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
     }
     .admin-table .cell-actions .btn-marcar-pagado:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* botones de canal de notificación (WhatsApp / Correo) en detalle de pedido */
+    .canal-toggles { display: flex; gap: 10px; flex-wrap: wrap; }
+    .canal-toggle-input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .canal-toggle-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--bg-2); color: var(--text-2); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .canal-toggle-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .canal-toggle-input:focus-visible + .canal-toggle-btn { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .canal-toggle-whatsapp { border-color: #25D366; color: #25D366; }
+    .canal-toggle-email { border-color: #EA4335; color: #EA4335; }
+    .canal-toggle-whatsapp:hover { background: #25D36622; }
+    .canal-toggle-email:hover { background: #EA433522; }
+    .canal-toggle-input:checked + .canal-toggle-whatsapp { background: #25D366; color: #fff; }
+    .canal-toggle-input:checked + .canal-toggle-email { background: #EA4335; color: #fff; }
 
     /* tablas (grid, componente antiguo, se mantiene por compatibilidad) */
     .tabla-box {
@@ -356,6 +374,11 @@
       .topbar-brand { width: auto; }
       .main-content { padding: 20px 16px; }
     }
+  </style>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
+  <style>
+    .iziToast-question-actions button { cursor: pointer; }
   </style>
 
   @stack('estilos')
@@ -464,6 +487,68 @@
       if (area) area.style.display = 'flex';
     }
   }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+<script>
+  // ── Notificaciones flash (éxito / error / validación) vía iziToast
+  document.addEventListener('DOMContentLoaded', function () {
+    @if(session('success'))
+      iziToast.success({ title: 'Listo', message: @json(session('success')), position: 'topRight', timeout: 5000, close: true });
+    @endif
+    @if(session('error'))
+      iziToast.error({ title: 'Error', message: @json(session('error')), position: 'topRight', timeout: 6000, close: true });
+    @endif
+    @if($errors->any())
+      iziToast.error({ title: 'Revisa lo siguiente', message: @json(implode(' · ', $errors->all())), position: 'topRight', timeout: 7000, close: true });
+    @endif
+    @if(session('whatsapp_url'))
+      iziToast.success({
+        title: 'WhatsApp listo',
+        message: 'El mensaje está listo para enviar.',
+        position: 'topRight',
+        timeout: false,
+        close: true,
+        buttons: [
+          ['<button>Abrir WhatsApp</button>', function (instance, toast) {
+            window.open(@json(session('whatsapp_url')), '_blank');
+            instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+          }],
+        ],
+      });
+    @endif
+  });
+
+  // ── Confirmaciones vía iziToast en vez de confirm() nativo.
+  // Cualquier <form data-confirm="mensaje"> pide confirmación antes de enviarse.
+  document.addEventListener('submit', function (event) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-confirm') || form.dataset.confirmado) {
+      return;
+    }
+    event.preventDefault();
+    iziToast.question({
+      timeout: false,
+      close: false,
+      overlay: true,
+      displayMode: 'once',
+      id: 'confirmacion',
+      zindex: 999,
+      title: 'Confirmar',
+      message: form.getAttribute('data-confirm'),
+      position: 'center',
+      buttons: [
+        ['<button><b>Sí, continuar</b></button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+          form.dataset.confirmado = '1';
+          form.submit();
+        }, true],
+        ['<button>Cancelar</button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }],
+      ],
+    });
+  });
 </script>
 
 @stack('scripts')

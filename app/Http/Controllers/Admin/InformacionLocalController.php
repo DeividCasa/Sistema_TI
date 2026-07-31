@@ -20,6 +20,8 @@ class InformacionLocalController extends Controller
             'nombre_local'              => 'nullable|string|max:255',
             'descripcion'               => 'nullable|string',
             'direccion'                 => 'nullable|string|max:255',
+            'mapa_lat'                  => 'nullable|numeric|between:-90,90',
+            'mapa_lng'                  => 'nullable|numeric|between:-180,180',
             'horario'                   => 'nullable|string|max:255',
             'telefono'                  => 'nullable|string|max:50',
             'email_contacto'            => 'nullable|email|max:255',
@@ -39,7 +41,7 @@ class InformacionLocalController extends Controller
 
         $info = InformacionLocal::actual();
         $info->fill($request->only([
-            'nombre_local', 'descripcion', 'direccion', 'horario', 'telefono', 'email_contacto',
+            'nombre_local', 'descripcion', 'direccion', 'mapa_lat', 'mapa_lng', 'horario', 'telefono', 'email_contacto',
             'banner_titulo', 'banner_subtitulo',
             'whatsapp_numero', 'whatsapp_mensaje', 'whatsapp_direccion', 'whatsapp_horario',
             'visitanos_titulo', 'visitanos_texto',

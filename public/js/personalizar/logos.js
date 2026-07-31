@@ -49,7 +49,7 @@ function agregarImagenLogoACanvas(url, offsetIndex = null) {
     canvas.setActiveObject(img);
     if (esMain) { limitarObjetoZona(img); actualizarTextura3D(); }
     else if (typeof limitarObjZonaPant === 'function') {
-      limitarObjZonaPant(img, {x:14,y:22,w:120,h:76});
+      limitarObjZonaPant(img, ZONA_PANT_ORIGEN);
       canvas.renderAll();
       if (typeof actualizarTexturaPantaloneta3D==='function') actualizarTexturaPantaloneta3D();
     }

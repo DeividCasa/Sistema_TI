@@ -4,11 +4,6 @@
 
 @section('contenido')
 
-@if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    {{ session('success') }}
-  </div>
-@endif
 
 <style>
 .product-image {
@@ -99,10 +94,13 @@
       {{-- Tallas --}}
       @if(!empty($plantilla->tallas))
         <div style="margin-bottom:20px;">
-          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);
-            text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
-            Talla
-          </label>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+            <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);
+              text-transform:uppercase;letter-spacing:0.03em;margin:0;">
+              Talla
+            </label>
+            @include('cliente.componentes.guia-tallas')
+          </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             @foreach($plantilla->tallas as $i => $talla)
               <label style="cursor:pointer;">

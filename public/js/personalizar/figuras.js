@@ -33,7 +33,13 @@ function agregarFigura(tipo) {
   if(!vistaPermiteDiseno()){ toast('El cuello solo permite cambiar color','error'); return; }
   const color = getFiguraColor();
   let obj;
-  const p = puntoInicialDiseno();
+  // getPuntoDiseno() (si existe) devuelve el centro correcto según el
+  // destino activo (camiseta o pantaloneta); puntoInicialDiseno() a solas
+  // siempre calcula en el sistema de coordenadas del canvas grande de la
+  // camiseta, muy fuera del canvas de 148x148 de la pantaloneta — la figura
+  // nacía forzada contra el borde de la zona por el clamp de abajo, sin
+  // espacio para arrastrarla (ver mismo criterio en logos.js).
+  const p = (typeof getPuntoDiseno === 'function') ? getPuntoDiseno() : puntoInicialDiseno();
   const base = { left:p.x, top:p.y, originX:'center', originY:'center', fill:color, id:'figura-'+Date.now(), tipo:'figura' };
 
   if(tipo === 'rect') obj = new fabric.Rect({ ...base, width:120, height:80, rx:6, ry:6 });
@@ -49,11 +55,20 @@ function agregarFigura(tipo) {
 
   if(!obj) return;
   const cvF = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  if (cvF !== fabricCanvas) {
+    // La zona editable de la pantaloneta (128x78) es mucho más chica que la
+    // de la camiseta: con el tamaño de siempre, la figura casi llenaba toda
+    // la zona y el clamp de abajo la dejaba sin espacio para arrastrarla
+    // (cualquier movimiento se revertía al toque). Misma proporción que ya
+    // usan los logos (ver maxSize en logos.js) para que quede espacio real.
+    obj.scaleX = (obj.scaleX || 1) * 0.5;
+    obj.scaleY = (obj.scaleY || 1) * 0.5;
+  }
   cvF.add(obj);
   cvF.setActiveObject(obj);
   if (cvF===fabricCanvas) { limitarObjetoZona(obj); actualizarTextura3D(); }
   else if (typeof limitarObjZonaPant==='function') {
-    limitarObjZonaPant(obj,{x:14,y:22,w:120,h:76});
+    limitarObjZonaPant(obj, ZONA_PANT_ORIGEN);
     cvF.renderAll();
     if (typeof actualizarTexturaPantaloneta3D==='function') actualizarTexturaPantaloneta3D();
   }

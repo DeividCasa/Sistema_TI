@@ -11,6 +11,7 @@ class Cliente extends Authenticatable
     protected $fillable = [
         'nombre',
         'apellido',
+        'cedula',
         'email',
         'password',
         'telefono',
@@ -23,6 +24,21 @@ class Cliente extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = $value === null ? $value : mb_strtoupper(trim($value));
+    }
+
+    public function setApellidoAttribute($value)
+    {
+        $this->attributes['apellido'] = $value === null ? $value : mb_strtoupper(trim($value));
+    }
+
+    public function setCiudadAttribute($value)
+    {
+        $this->attributes['ciudad'] = $value === null ? $value : mb_strtoupper(trim($value));
+    }
 
     public function disenios()
     {

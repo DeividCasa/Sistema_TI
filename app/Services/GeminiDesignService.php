@@ -24,20 +24,30 @@ class GeminiDesignService
 
     // Espejo exacto de las claves key3d de PRENDAS.*.vistas en
     // public/js/personalizar/prendas.js — si esas claves cambian, actualizar aquí también.
+    //
+    // Un "conjunto" incluye siempre la prenda principal MÁS su accesorio de
+    // abajo (pantalón para la chompa, pantaloneta y medias para la camiseta):
+    // el cliente pide "un conjunto de Brasil" esperando ver todo el uniforme,
+    // no solo la prenda de arriba. El front se encarga de activar esos
+    // accesorios si el cliente aún no los había mostrado (ver aplicarColorIA
+    // en ia.js); si solo quiere la prenda de arriba, puede desactivarlos él
+    // mismo después.
     public function zonasPorPrenda(string $tipoPrenda): array
     {
         return $tipoPrenda === 'chompa'
             ? [
                 'chompaColorFrente', 'chompaColorAtras', 'chompaColorMangas', 'chompaColorMangaIzq',
                 'chompaColorCierre', 'chompaColorBolsillo', 'chompaColorCapucha', 'chompaColorParteAbajo',
+                'chompaColorPantalon',
             ]
             : [
                 'colorFrente', 'colorAtras', 'colorMangas', 'colorParteAbajoMangas',
                 'colorCuello', 'colorParteAbajoCamiseta',
+                'colorPantaloneta', 'colorParteAbajoPant', 'colorMedias', 'colorPartearribaMedias',
             ];
     }
 
-    public function interpretarPrompt(string $prompt, array $zonasValidas): array
+    public function interpretarPrompt(string $prompt, array $zonasValidas, string $tipoPrenda): array
     {
         $apiKey = config('services.gemini.key');
 
@@ -88,12 +98,23 @@ class GeminiDesignService
             'required' => ['colores', 'rayas', 'figuras', 'elementos_sugeridos'],
         ];
 
+        $notaAccesorios = $tipoPrenda === 'chompa'
+            ? "La zona 'chompaColorPantalon' es el color del pantalón deportivo que acompaña la chompa "
+            . "(parte de abajo del conjunto) — inclúyela siempre como parte del mismo conjunto/uniforme, "
+            . "coherente con los colores de la chompa. "
+            : "Las zonas 'colorPantaloneta' (color principal) y 'colorParteAbajoPant' (banda inferior) son "
+            . "la pantaloneta del conjunto; 'colorMedias' (color principal) y 'colorPartearribaMedias' "
+            . "(banda superior) son las medias. Son la parte de abajo del mismo uniforme que la camiseta — "
+            . "inclúyelas siempre, coherentes con los colores de la camiseta (ej. un conjunto de un país o "
+            . "equipo real usa los mismos colores en camiseta, pantaloneta y medias). ";
+
         $instrucciones = "Eres un asistente que traduce la descripción en texto de un cliente sobre "
-            . "cómo quiere personalizar una prenda deportiva, en datos estructurados para un editor "
-            . "de diseño. Debes devolver colores en formato hexadecimal (#rrggbb) para cada una de "
-            . "estas zonas exactas de la prenda: " . implode(', ', $zonasValidas) . ". Si el cliente "
-            . "no menciona una zona específica, usa un color coherente con el diseño general (o el "
-            . "mismo color base). Si el diseño incluye rayas, marca rayas.activo=true, indica el color, "
+            . "cómo quiere personalizar un conjunto/uniforme deportivo completo, en datos estructurados "
+            . "para un editor de diseño. Debes devolver colores en formato hexadecimal (#rrggbb) para "
+            . "cada una de estas zonas exactas de la prenda: " . implode(', ', $zonasValidas) . ". "
+            . $notaAccesorios
+            . "Si el cliente no menciona una zona específica, usa un color coherente con el diseño "
+            . "general (o el mismo color base). Si el diseño incluye rayas, marca rayas.activo=true, indica el color, "
             . "la 'cantidad' exacta de rayas que pidió el cliente (si no la menciona, usa 4), la "
             . "'direccion' ('horizontal' u 'vertical' — respeta literalmente lo que el cliente pida; "
             . "si no lo aclara, usa 'horizontal' salvo que el diseño sea claramente de un equipo/estilo "

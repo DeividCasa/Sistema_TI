@@ -33,19 +33,6 @@
     <p style="color:var(--text-2);font-size:0.9rem;">Tu experiencia ayuda a otros clientes a confiar en nosotros.</p>
   </div>
 
-  @if(session('success'))
-    <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;text-align:center;">
-      {{ session('success') }}
-    </div>
-  @endif
-
-  @if($errors->any())
-    <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-      @foreach($errors->all() as $error)
-        <div>{{ $error }}</div>
-      @endforeach
-    </div>
-  @endif
 
   @if($yaOpino)
     <div class="card card-pad reveal" style="text-align:center;">

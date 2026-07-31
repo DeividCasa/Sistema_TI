@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\PedidoTiendaController;
 use App\Http\Controllers\Admin\PedidoPlantillaController;
 use App\Http\Controllers\Admin\InformacionLocalController;
 use App\Http\Controllers\Admin\TestimonioController;
+use App\Http\Controllers\Admin\NotificacionesController;
 
 use App\Models\Pedido;
 use App\Models\Cliente;
@@ -40,6 +41,7 @@ use App\Models\Plantilla;
 Route::get('/', [InicioController::class, 'index'])->name('inicio');
 Route::get('/registro', [RegistroController::class, 'show'])->name('registro');
 Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store')->middleware('throttle:10,1');
+Route::post('/registro/consultar-cedula', [RegistroController::class, 'consultarCedula'])->name('registro.consultar-cedula')->middleware('throttle:15,1');
 Route::get('/login', [LoginController::class, 'showCorreo'])->name('login.paso1');
 Route::post('/login/verificar-correo', [LoginController::class, 'verificarCorreo'])->name('login.verificar-correo')->middleware('throttle:10,1');
 Route::get('/login/contrasena', [LoginController::class, 'showContrasena'])->name('login.paso2');
@@ -188,6 +190,9 @@ Route::middleware('sesion:cliente')->group(function () {
 });
 
 Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/notificaciones/contador', [NotificacionesController::class, 'contador'])
+        ->name('notificaciones.contador');
 
     Route::get('/dashboard', function () {
 

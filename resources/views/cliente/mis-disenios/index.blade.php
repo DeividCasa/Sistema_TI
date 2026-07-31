@@ -138,20 +138,57 @@
         text-align: center;
     }
     .empty-card svg { width: 56px; height: 56px; stroke: var(--text-3); margin-bottom: 1rem; }
+
+    /* Visor 3D — modal con el modelo del diseño girando */
+    .visor3d-overlay {
+        display: none; position: fixed; inset: 0; background: rgba(15,23,42,.75);
+        align-items: center; justify-content: center; z-index: 1000; padding: 30px;
+    }
+    .visor3d-overlay.visible { display: flex; }
+    .visor3d-modal {
+        width: min(92vw, 460px); height: min(80vh, 620px);
+        background: linear-gradient(135deg, #1e2d45 0%, #0f172a 100%);
+        border-radius: 14px; overflow: hidden;
+        display: flex; flex-direction: column;
+    }
+    .visor3d-titulo {
+        padding: 10px 16px; font-size: .78rem; font-weight: 600;
+        color: rgba(255,255,255,.6); letter-spacing: .03em;
+        border-bottom: 1px solid rgba(255,255,255,.08); flex-shrink: 0;
+    }
+    .visor3d-canvas-wrap { flex: 1; position: relative; min-height: 0; overflow: hidden; }
+    .visor3d-canvas-wrap canvas {
+        position: absolute; top: 0; left: 0;
+        width: 100% !important; height: 100% !important;
+        cursor: grab; display: block;
+    }
+    .visor3d-canvas-wrap canvas:active { cursor: grabbing; }
+    .visor3d-hint {
+        position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,.38); backdrop-filter: blur(6px);
+        color: rgba(255,255,255,.55); font-size: .62rem; font-weight: 500;
+        padding: 3px 10px; border-radius: 20px; white-space: nowrap; pointer-events: none;
+    }
+    .visor3d-loading, .visor3d-error {
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 10px;
+        color: rgba(255,255,255,.75); font-size: .82rem; text-align: center; padding: 0 20px;
+        background: rgba(15,23,42,.55);
+    }
+    .visor3d-spinner {
+        width: 34px; height: 34px; border-radius: 50%;
+        border: 3px solid rgba(255,255,255,.2); border-top-color: #fff;
+        animation: visor3d-girar 0.8s linear infinite;
+    }
+    @keyframes visor3d-girar { to { transform: rotate(360deg); } }
+    .visor3d-error a { color: #93c5fd; font-weight: 600; }
+    .visor3d-cerrar {
+        position: absolute; top: 20px; right: 30px; background: transparent;
+        border: none; color: #fff; font-size: 2rem; line-height: 1; cursor: pointer;
+    }
 </style>
 
 <div class="disenios-container">
-    @if(session('success'))
-        <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div style="background:#FFE4E2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="disenios-header">
         <h1 class="disenios-titulo">Mis diseños</h1>
         <span class="sec-badge">{{ $disenios->count() }} en total</span>
@@ -178,14 +215,39 @@
                             && !empty($disenio->configuracion['pantalon_chompa_activo']));
 
                     $etiquetaTipo = $esConjuntoCompleto ? 'Conjunto completo' : ($tipoPrenda ? ucfirst($tipoPrenda) : null);
+
+                    // Solo se puede reconstruir el visor 3D si el diseño trae
+                    // tipo de prenda + el JSON de Fabric de sus vistas (todo diseño
+                    // guardado desde el editor lo trae; filas viejas/incompletas
+                    // caen de vuelta al lightbox de foto plana de siempre).
+                    $puede3D = !empty($tipoPrenda) && !empty($disenio->configuracion['canvas_json'] ?? null);
+                    $imagenFrenteUrl = $disenio->imagen_generada ? asset('storage/'.$disenio->imagen_generada) : null;
                 @endphp
                 <div class="disenio-card">
+                    @if($puede3D)
+                        <script type="application/json" id="datos3d-{{ $disenio->id }}">
+                            {!! json_encode([
+                                'tipoPrenda' => $tipoPrenda,
+                                'colores' => $disenio->configuracion['colores'] ?? [],
+                                'coloresAccesorios' => $disenio->configuracion['colores_accesorios'] ?? [],
+                                'pantalonetaActiva' => (bool) ($disenio->configuracion['pantaloneta_activa'] ?? false),
+                                'mediasActivas' => (bool) ($disenio->configuracion['medias_activas'] ?? false),
+                                'pantalonChompaActivo' => (bool) ($disenio->configuracion['pantalon_chompa_activo'] ?? false),
+                                'canvasJson' => $disenio->configuracion['canvas_json'] ?? null,
+                            ], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) !!}
+                        </script>
+                    @endif
                     <div class="disenio-imagenes">
                         <div class="disenio-imagen-col">
                             <div class="disenio-imagen">
                                 @if($disenio->imagen_generada)
-                                    <img src="{{ asset('storage/'.$disenio->imagen_generada) }}" alt="{{ $disenio->nombre }} - frente"
-                                         onclick="abrirLightbox('{{ asset('storage/'.$disenio->imagen_generada) }}')">
+                                    @if($puede3D)
+                                        <img src="{{ $imagenFrenteUrl }}" alt="{{ $disenio->nombre }} - frente"
+                                             onclick="abrirVisor3D({{ $disenio->id }}, @js($disenio->nombre), @js($imagenFrenteUrl))">
+                                    @else
+                                        <img src="{{ $imagenFrenteUrl }}" alt="{{ $disenio->nombre }} - frente"
+                                             onclick="abrirLightbox('{{ $imagenFrenteUrl }}')">
+                                    @endif
                                 @else
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
@@ -197,8 +259,13 @@
                         <div class="disenio-imagen-col">
                             <div class="disenio-imagen">
                                 @if($disenio->imagen_atras)
-                                    <img src="{{ asset('storage/'.$disenio->imagen_atras) }}" alt="{{ $disenio->nombre }} - atrás"
-                                         onclick="abrirLightbox('{{ asset('storage/'.$disenio->imagen_atras) }}')">
+                                    @if($puede3D)
+                                        <img src="{{ asset('storage/'.$disenio->imagen_atras) }}" alt="{{ $disenio->nombre }} - atrás"
+                                             onclick="abrirVisor3D({{ $disenio->id }}, @js($disenio->nombre), @js($imagenFrenteUrl))">
+                                    @else
+                                        <img src="{{ asset('storage/'.$disenio->imagen_atras) }}" alt="{{ $disenio->nombre }} - atrás"
+                                             onclick="abrirLightbox('{{ asset('storage/'.$disenio->imagen_atras) }}')">
+                                    @endif
                                 @else
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
@@ -253,7 +320,7 @@
 
                         @if(!$solicitud || $solicitud->estado !== 'aceptado')
                             <form action="{{ route('disenios.destroy', $disenio->id) }}" method="POST"
-                                  style="margin-top:0.7rem;" onsubmit="return confirm('¿Eliminar este diseño? Esta acción no se puede deshacer.')">
+                                  style="margin-top:0.7rem;" data-confirm="¿Eliminar este diseño? Esta acción no se puede deshacer.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-eliminar">Eliminar</button>
@@ -271,6 +338,25 @@
     <img id="lightbox-img" src="" alt="Vista ampliada del diseño">
 </div>
 
+<div class="visor3d-overlay" id="visor3d-overlay" onclick="if(event.target===this) cerrarVisor3D()">
+    <button type="button" class="visor3d-cerrar" onclick="cerrarVisor3D()">&times;</button>
+    <div class="visor3d-modal">
+        <div class="visor3d-titulo" id="visor3d-titulo">Mi diseño</div>
+        <div id="visor-3d" class="visor3d-canvas-wrap">
+            <canvas id="canvas-3d"></canvas>
+            <div class="visor3d-hint">Arrastra para girar</div>
+            <div class="visor3d-loading" id="visor3d-loading">
+                <div class="visor3d-spinner"></div>
+                Cargando modelo 3D…
+            </div>
+            <div class="visor3d-error" id="visor3d-error" style="display:none;">
+                No se pudo cargar el modelo 3D.
+                <a href="#" id="visor3d-error-link">Ver foto</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -283,5 +369,22 @@
         if (e.target.id === 'lightbox-img') return;
         document.getElementById('lightbox-overlay').classList.remove('visible');
     }
+
+    // Constantes que prendas.js/three-viewer.js esperan como globales
+    // (normalmente las define canvas2d.js, que aquí no hace falta cargar
+    // porque esta página no tiene editor 2D interactivo).
+    const CANVAS_W = 480, CANVAS_H = 520;
+    const RUTAS_MODELO = {
+        camiseta   : "{{ asset('modelos/camiseta1.glb') }}",
+        chompa     : "{{ asset('modelos/chompa.glb') }}",
+        completo   : "{{ asset('modelos/modeloCompleto.glb') }}",
+        pantaloneta: "{{ asset('modelos/shorts.glb') }}",
+        medias     : "{{ asset('modelos/medias.glb') }}",
+        pantalon   : "{{ asset('modelos/pantalonDeportivo.glb') }}",
+    };
 </script>
+<script src="{{ asset('js/personalizar/prendas.js') }}"></script>
+<script src="{{ asset('js/personalizar/three-viewer.js') }}"></script>
+<script src="{{ asset('js/personalizar/accesorios.js') }}"></script>
+<script src="{{ asset('js/mis-disenios/visor3d.js') }}"></script>
 @endpush

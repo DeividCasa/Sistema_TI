@@ -65,18 +65,32 @@
         .filters-card { flex-direction: column; align-items: stretch; }
         .filter-group { justify-content: space-between; }
     }
+    .cliente-nombre, .cliente-email {
+        max-width: 120px; overflow: hidden; text-overflow: ellipsis;
+        white-space: nowrap; display: block;
+    }
+    .celda-codigo { white-space: nowrap; }
+    .badge-nuevo {
+        background: var(--accent-soft); color: var(--accent);
+        border: 1px solid var(--accent-border); padding: 1px 7px;
+        border-radius: 20px; font-size: 0.62rem; font-weight: 700;
+        margin-left: 6px; white-space: nowrap; display: inline-block;
+    }
+    #tablaPedidos { table-layout: fixed; }
+    #tablaPedidos .col-codigo   { width: 175px; }
+    #tablaPedidos .col-tipo     { width: 80px; }
+    #tablaPedidos .col-cliente  { width: 150px; }
+    #tablaPedidos .col-total    { width: 65px; }
+    #tablaPedidos .col-adelanto { width: 75px; }
+    #tablaPedidos .col-estado   { width: 120px; }
+    #tablaPedidos .col-verdetalle { width: 85px; }
+    #tablaPedidos .col-pagocompleto { width: 105px; }
 </style>
 @endpush
 
 @section('contenido')
 
 <div class="pedidos-container">
-  @if(session('success'))
-    <div class="badge-success" style="display:block;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-      {{ session('success') }}
-    </div>
-  @endif
-
   <div class="sec-header reveal">
     <div class="sec-title">Pedidos</div>
   </div>
@@ -127,7 +141,17 @@
     </div>
   @else
     <div class="card reveal" style="overflow:auto;">
-      <table class="admin-table" id="tablaPedidos" style="min-width:950px;">
+      <table class="admin-table" id="tablaPedidos" style="min-width:1050px;">
+        <colgroup>
+          <col class="col-codigo">
+          <col class="col-tipo">
+          <col class="col-cliente">
+          <col class="col-total">
+          <col class="col-adelanto">
+          <col class="col-estado">
+          <col class="col-verdetalle">
+          <col class="col-pagocompleto">
+        </colgroup>
         <thead>
           <tr>
             <th>Código</th>
@@ -136,7 +160,7 @@
             <th>Total</th>
             <th>Adelanto (50%)</th>
             <th>Estado pago</th>
-            <th></th>
+            <th>Informacion</th>
             <th>Pago completo</th>
           </tr>
         </thead>
@@ -180,10 +204,10 @@
                 data-pago="{{ $pedido->estado_pago }}"
                 data-codigo="{{ strtolower($pedido->codigo) }}"
                 data-cliente="{{ strtolower($pedido->cliente->nombre . ' ' . $pedido->cliente->apellido . ' ' . $pedido->cliente->email) }}">
-              <td class="cell-strong" style="color:var(--blue);">
+              <td class="cell-strong celda-codigo" style="color:var(--blue);">
                 {{ $pedido->codigo }}
                 @if($entrada['nuevo'])
-                  <span style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:700;margin-left:6px;vertical-align:middle;">🆕 Nuevo</span>
+                  <span class="badge-nuevo">Nuevo</span>
                 @endif
               </td>
               <td>
@@ -192,8 +216,8 @@
                 </span>
               </td>
               <td>
-                <div class="cell-strong">{{ $pedido->cliente->nombre }} {{ $pedido->cliente->apellido }}</div>
-                <div class="cell-muted">{{ $pedido->cliente->email }}</div>
+                <div class="cell-strong cliente-nombre" title="{{ $pedido->cliente->nombre }} {{ $pedido->cliente->apellido }}">{{ $pedido->cliente->nombre }} {{ $pedido->cliente->apellido }}</div>
+                <div class="cell-muted cliente-email" title="{{ $pedido->cliente->email }}">{{ $pedido->cliente->email }}</div>
               </td>
               <td class="cell-strong">${{ number_format($pedido->precio_total, 2) }}</td>
               <td>${{ number_format($pedido->precio_adelanto, 2) }}</td>
@@ -205,7 +229,7 @@
               </td>
               <td class="cell-actions">
                 @if($pedido->estado_pago !== 'pagado_completo')
-                  <form action="{{ route($rutaPagoCompleto, $pedido->id) }}" method="POST" onsubmit="return confirm('¿Marcar este pedido como pagado por completo?');">
+                  <form action="{{ route($rutaPagoCompleto, $pedido->id) }}" method="POST" data-confirm="¿Marcar este pedido como pagado por completo?">
                     @csrf
                     <button type="submit" class="btn-marcar-pagado">Marcar pagado</button>
                   </form>

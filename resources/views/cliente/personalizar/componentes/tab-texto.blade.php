@@ -5,7 +5,7 @@
       <div class="p-label">Texto</div>
       <input class="p-input" id="input-texto" type="text" placeholder="Ej: REAL MADRID" maxlength="24" oninput="actualizarTextoLive()">
 
-      <div class="p-label">NÃºmero</div>
+      <div class="p-label">Número</div>
       <input class="p-input" id="input-numero" type="number" placeholder="10" min="1" max="99" oninput="actualizarNumeroLive()">
 
       <div class="p-label">Tipo de letra</div>
@@ -19,7 +19,7 @@
         <option value="'Brush Script MT', cursive">Brush Script</option>
       </select>
 
-      <div class="p-label">Color del texto o nÃºmero</div>
+      <div class="p-label">Color del texto o número</div>
       <div class="color-grid" id="swatches-texto"></div>
       <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
         <input type="color" id="texto-color-custom" value="#000000"
@@ -32,14 +32,14 @@
         </div>
       </div>
 
-      <div class="p-label">TamaÃ±o de fuente</div>
+      <div class="p-label">Tamaño de fuente</div>
       <input type="range" id="texto-size" min="14" max="80" value="32" style="width:100%" oninput="cambiarTamanoTexto(this.value)">
 
       <div class="p-sep"></div>
       <button class="p-btn p-btn-primary" onclick="agregarTexto()">
-        <i class="fas fa-plus"></i> Agregar texto al diseÃ±o
+        <i class="fas fa-plus"></i> Agregar texto al diseño
       </button>
       <button class="p-btn p-btn-ghost" onclick="agregarNumero()">
-        <i class="fas fa-hashtag"></i> Agregar nÃºmero al diseÃ±o
+        <i class="fas fa-hashtag"></i> Agregar número al diseño
       </button>
     </div>

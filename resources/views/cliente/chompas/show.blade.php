@@ -4,13 +4,6 @@
 
 @section('contenido')
 
-@if($errors->any())
-  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    @foreach($errors->all() as $error)
-      <div>{{ $error }}</div>
-    @endforeach
-  </div>
-@endif
 
 <div class="sec-header reveal">
   <div class="sec-title">{{ $chompa->nombre }}</div>
@@ -48,9 +41,12 @@
       <input type="hidden" name="chompa_id" value="{{ $chompa->id }}">
 
       {{-- Tallas con su precio --}}
-      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
-        Elige tu talla (el precio depende de la talla)
-      </label>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin:0;">
+          Elige tu talla (el precio depende de la talla)
+        </label>
+        @include('cliente.componentes.guia-tallas')
+      </div>
 
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
         @foreach($chompa->tallas as $talla)

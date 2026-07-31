@@ -895,6 +895,8 @@
 
     @stack('estilos')
   </style>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
 </head>
 <body>
 
@@ -1040,6 +1042,53 @@
       if (area) area.style.display = 'flex';
     }
   }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+<script>
+  // ── Notificaciones flash (éxito / error / validación) vía iziToast
+  document.addEventListener('DOMContentLoaded', function () {
+    @if(session('success'))
+      iziToast.success({ title: 'Listo', message: @json(session('success')), position: 'topRight', timeout: 5000, close: true });
+    @endif
+    @if(session('error'))
+      iziToast.error({ title: 'Error', message: @json(session('error')), position: 'topRight', timeout: 6000, close: true });
+    @endif
+    @if($errors->any())
+      iziToast.error({ title: 'Revisa lo siguiente', message: @json(implode(' · ', $errors->all())), position: 'topRight', timeout: 7000, close: true });
+    @endif
+  });
+
+  // ── Confirmaciones vía iziToast en vez de confirm() nativo.
+  // Cualquier <form data-confirm="mensaje"> pide confirmación antes de enviarse.
+  document.addEventListener('submit', function (event) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-confirm') || form.dataset.confirmado) {
+      return;
+    }
+    event.preventDefault();
+    iziToast.question({
+      timeout: false,
+      close: false,
+      overlay: true,
+      displayMode: 'once',
+      id: 'confirmacion',
+      zindex: 999,
+      title: 'Confirmar',
+      message: form.getAttribute('data-confirm'),
+      position: 'center',
+      buttons: [
+        ['<button><b>Sí, continuar</b></button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+          form.dataset.confirmado = '1';
+          form.submit();
+        }, true],
+        ['<button>Cancelar</button>', function (instance, toast) {
+          instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+        }],
+      ],
+    });
+  });
 </script>
 
 @stack('scripts')

@@ -74,12 +74,12 @@ class PasswordResetController extends Controller
 
         $request->validate([
             'codigo'   => 'required|digits:6',
-            'password' => 'required|min:6|confirmed',
+            'password' => ['required', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/'],
         ], [
             'codigo.required'     => 'El código es obligatorio.',
             'codigo.digits'       => 'El código debe tener 6 dígitos.',
             'password.required'   => 'La contraseña es obligatoria.',
-            'password.min'        => 'Mínimo 6 caracteres.',
+            'password.regex'      => 'Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Deivid21$).',
             'password.confirmed'  => 'Las contraseñas no coinciden.',
         ]);
 

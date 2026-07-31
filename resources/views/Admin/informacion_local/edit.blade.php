@@ -24,19 +24,6 @@
   }
 </style>
 
-@if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    {{ session('success') }}
-  </div>
-@endif
-
-@if($errors->any())
-  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    @foreach($errors->all() as $error)
-      <div>{{ $error }}</div>
-    @endforeach
-  </div>
-@endif
 
 <div class="sec-header reveal">
   <div class="sec-title">Información del local</div>
@@ -187,9 +174,85 @@
     </div>
   </div>
 
+  {{-- ── UBICACIÓN EN EL MAPA ────────────────────────────────────── --}}
+  <div class="card card-pad reveal">
+    <div style="font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:6px;">Ubicación en el mapa</div>
+
+    @if(config('services.google_maps.key'))
+      <p style="font-size:0.82rem;color:var(--text-3);margin-bottom:16px;">
+        Haz clic en el mapa o arrastra el marcador para elegir dónde aparece tu local en la página de inicio de los clientes.
+      </p>
+
+      <div id="mapa-local" style="width:100%;height:320px;border-radius:10px;border:1px solid var(--border);"></div>
+
+      <div style="text-align:right;margin-top:10px;">
+        <button type="button" id="btn-zoom-in" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;margin-right:6px;">
+          + Acercar
+        </button>
+        <button type="button" id="btn-zoom-out" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;">
+          − Alejar
+        </button>
+      </div>
+    @else
+      <p style="font-size:0.82rem;color:var(--text-3);">
+        Falta configurar la clave de Google Maps (<code>GOOGLE_MAPS_API_KEY</code> en el archivo <code>.env</code>) para mostrar el mapa aquí.
+      </p>
+    @endif
+
+    <input type="hidden" id="mapa_lat" name="mapa_lat" value="{{ old('mapa_lat', $info->mapa_lat ?? -0.9346) }}">
+    <input type="hidden" id="mapa_lng" name="mapa_lng" value="{{ old('mapa_lng', $info->mapa_lng ?? -78.6157) }}">
+  </div>
+
   <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
     Guardar cambios
   </button>
 </form>
+
+@if(config('services.google_maps.key'))
+  @push('scripts')
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMapaAdminLeoJose" async defer></script>
+  <script>
+    function initMapaAdminLeoJose() {
+      const latInput = document.getElementById('mapa_lat');
+      const lngInput = document.getElementById('mapa_lng');
+      const centro = { lat: parseFloat(latInput.value), lng: parseFloat(lngInput.value) };
+
+      const mapa = new google.maps.Map(document.getElementById('mapa-local'), {
+        center: centro,
+        zoom: 15,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+      });
+
+      const marcador = new google.maps.Marker({
+        position: centro,
+        map: mapa,
+        draggable: true,
+        title: 'Arrastra para ajustar la ubicación',
+      });
+
+      function actualizarCoords(posicion) {
+        latInput.value = posicion.lat().toFixed(7);
+        lngInput.value = posicion.lng().toFixed(7);
+      }
+
+      google.maps.event.addListener(marcador, 'dragend', function () {
+        actualizarCoords(marcador.getPosition());
+      });
+
+      mapa.addListener('click', function (e) {
+        marcador.setPosition(e.latLng);
+        actualizarCoords(e.latLng);
+      });
+
+      document.getElementById('btn-zoom-in').addEventListener('click', function () {
+        mapa.setZoom(mapa.getZoom() + 1);
+      });
+      document.getElementById('btn-zoom-out').addEventListener('click', function () {
+        mapa.setZoom(mapa.getZoom() - 1);
+      });
+    }
+  </script>
+  @endpush
+@endif
 
 @endsection

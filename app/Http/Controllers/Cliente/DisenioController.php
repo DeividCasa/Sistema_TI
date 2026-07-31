@@ -34,11 +34,22 @@ class DisenioController extends Controller
             'color_atras'            => 'required|string|max:20',
             'color_manga_izquierda'  => 'required|string|max:20',
             'color_manga_derecha'    => 'required|string|max:20',
-            'color_cuello'           => 'required|string|max:20',
+            // "Cuello" es una zona exclusiva de la camiseta — la chompa no la
+            // tiene (usa "capucha" en su lugar), así que ya no puede ser
+            // obligatoria ahora que el front envía vacío para chompa en vez
+            // del valor de camiseta que quedaba pegado por error.
+            'color_cuello'           => 'nullable|string|max:20',
             'color_cierre'           => 'nullable|string|max:20',
             'color_bolsillo'         => 'nullable|string|max:20',
             'color_capucha'          => 'nullable|string|max:20',
             'color_parte_abajo'      => 'nullable|string|max:20',
+            'color_parte_abajo_mangas'   => 'nullable|string|max:20',
+            'color_parte_abajo_camiseta' => 'nullable|string|max:20',
+            'color_pantaloneta'      => 'nullable|string|max:20',
+            'color_parte_abajo_pant' => 'nullable|string|max:20',
+            'color_medias'           => 'nullable|string|max:20',
+            'color_partearriba_med'  => 'nullable|string|max:20',
+            'color_pantalon_chompa'  => 'nullable|string|max:20',
             'canvas_json'            => 'nullable|string',
             'texto'           => 'nullable|string|max:40',
             'texto_color'     => 'nullable|string|max:20',
@@ -88,6 +99,16 @@ class DisenioController extends Controller
                     'bolsillo' => $request->color_bolsillo,
                     'capucha' => $request->color_capucha,
                     'parte_abajo' => $request->color_parte_abajo,
+                    'parte_abajo_mangas' => $request->color_parte_abajo_mangas,
+                    'parte_abajo_camiseta' => $request->color_parte_abajo_camiseta,
+                ],
+
+                'colores_accesorios' => [
+                    'pantaloneta' => $request->color_pantaloneta,
+                    'parte_abajo_pant' => $request->color_parte_abajo_pant,
+                    'medias' => $request->color_medias,
+                    'partearriba_med' => $request->color_partearriba_med,
+                    'pantalon_chompa' => $request->color_pantalon_chompa,
                 ],
 
                 // Indican si el cliente agregó el conjunto completo (camiseta +
@@ -212,7 +233,7 @@ class DisenioController extends Controller
 
         try {
             $zonasValidas = $gemini->zonasPorPrenda($request->tipo_prenda);
-            $datos = $gemini->interpretarPrompt($request->prompt, $zonasValidas);
+            $datos = $gemini->interpretarPrompt($request->prompt, $zonasValidas, $request->tipo_prenda);
 
             // No se crea un Disenio aquí: esto solo devuelve la sugerencia
             // para aplicarla en el editor. El diseño recién se guarda de

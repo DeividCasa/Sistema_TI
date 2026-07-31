@@ -220,13 +220,6 @@
     }
 </style>
 
-{{-- Mensaje de éxito --}}
-@if(session('success'))
-  <div class="badge-success" style="display:block;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;border-radius:8px;">
-    {{ session('success') }}
-  </div>
-@endif
-
 {{-- Header --}}
 <div class="admin-header">
     <div class="admin-title">
@@ -296,7 +289,7 @@
                     <div class="acciones">
                         <a href="{{ route('admin.uniformes.edit', $uniforme->id) }}" class="btn-edit">Editar</a>
                         <form action="{{ route('admin.uniformes.destroy', $uniforme->id) }}" method="POST"
-                              onsubmit="return confirm('¿Seguro que deseas eliminar este uniforme?');" style="display: inline-block;">
+                              data-confirm="¿Seguro que deseas eliminar este uniforme?" style="display: inline-block;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-delete">Eliminar</button>

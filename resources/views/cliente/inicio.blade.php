@@ -162,7 +162,51 @@
         @endif
       </div>
     </div>
+
+    @if(config('services.google_maps.key'))
+      <div class="reveal" style="margin-top:24px;">
+        <div id="mapa-local-cliente" style="width:100%;height:320px;border-radius:var(--radius);overflow:hidden;border:1px solid rgba(255,255,255,0.14);"></div>
+        <div style="text-align:right;margin-top:10px;">
+          <button type="button" id="btn-zoom-in-cliente" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;margin-right:6px;">
+            + Acercar
+          </button>
+          <button type="button" id="btn-zoom-out-cliente" class="btn-secondary" style="padding:6px 14px;font-size:0.8rem;">
+            − Alejar
+          </button>
+        </div>
+      </div>
+    @endif
   </div>
 </div>
+
+@if(config('services.google_maps.key'))
+  @push('scripts')
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMapaClienteLeoJose" async defer></script>
+  <script>
+    function initMapaClienteLeoJose() {
+      const centro = { lat: {{ $info->mapa_lat ?? -0.9346 }}, lng: {{ $info->mapa_lng ?? -78.6157 }} };
+
+      const mapa = new google.maps.Map(document.getElementById('mapa-local-cliente'), {
+        center: centro,
+        zoom: 15,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+      });
+
+      new google.maps.Marker({
+        position: centro,
+        map: mapa,
+        title: @json($info->nombre_local ?: 'Leo José'),
+      });
+
+      document.getElementById('btn-zoom-in-cliente').addEventListener('click', function () {
+        mapa.setZoom(mapa.getZoom() + 1);
+      });
+      document.getElementById('btn-zoom-out-cliente').addEventListener('click', function () {
+        mapa.setZoom(mapa.getZoom() - 1);
+      });
+    }
+  </script>
+  @endpush
+@endif
 
 @endsection

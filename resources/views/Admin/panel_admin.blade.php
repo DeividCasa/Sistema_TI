@@ -90,7 +90,7 @@
     Uniformes escolares
     </a>
 
-    <a href="{{ route('admin.pedidos-tienda.index') }}" class="nav-item">
+    <a href="{{ route('admin.pedidos-tienda.index') }}" class="nav-item" data-badge-key="pedidos">
         <svg viewBox="0 0 24 24">
             <path d="M3 7h18M5 7v11a2 2 0 002 2h10a2 2 0 002-2V7M9 11h6M9 15h6"/>
         </svg>
@@ -100,7 +100,7 @@
         @endif
     </a>
 
-    <a href="{{ route('admin.disenios3d.index') }}" class="nav-item">
+    <a href="{{ route('admin.disenios3d.index') }}" class="nav-item" data-badge-key="disenios3d">
         <svg viewBox="0 0 24 24"><path d="M12 2l9 4.9v10.2L12 22l-9-4.9V6.9L12 2z"/><path d="M12 22V12M21 6.9L12 12 3 6.9"/></svg>
         Diseños 3D
         @if(($disenios3dNuevosCount ?? 0) > 0)
@@ -108,7 +108,7 @@
         @endif
     </a>
 
-    <a href="{{ route('admin.clientes.index') }}" class="nav-item">
+    <a href="{{ route('admin.clientes.index') }}" class="nav-item" data-badge-key="clientes">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
         Clientes
         @if(($clientesNuevosCount ?? 0) > 0)
@@ -121,7 +121,7 @@
         Información del local
     </a>
 
-    <a href="{{ route('admin.testimonios.index') }}" class="nav-item">
+    <a href="{{ route('admin.testimonios.index') }}" class="nav-item" data-badge-key="testimonios">
         <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
         Testimonios
         @if(($testimoniosPendientesCount ?? 0) > 0)
@@ -129,6 +129,48 @@
         @endif
     </a>
 </div>
+
+<script>
+(function () {
+    var URL_CONTADOR = @json(route('admin.notificaciones.contador'));
+    var INTERVALO_MS = 20000;
+
+    function actualizarBadge(key, valor) {
+        var item = document.querySelector('.nav-item[data-badge-key="' + key + '"]');
+        if (!item) return;
+
+        var badge = item.querySelector('.nav-badge');
+
+        if (!valor || valor <= 0) {
+            if (badge) badge.remove();
+            return;
+        }
+
+        var texto = valor > 99 ? '99+' : String(valor);
+
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'nav-badge';
+            item.appendChild(badge);
+        }
+        badge.textContent = texto;
+    }
+
+    function consultarNotificaciones() {
+        fetch(URL_CONTADOR, { headers: { 'Accept': 'application/json' } })
+            .then(function (res) { return res.ok ? res.json() : Promise.reject(res.status); })
+            .then(function (data) {
+                actualizarBadge('pedidos', data.pedidos);
+                actualizarBadge('clientes', data.clientes);
+                actualizarBadge('disenios3d', data.disenios3d);
+                actualizarBadge('testimonios', data.testimonios);
+            })
+            .catch(function () { /* silencioso: se reintenta en el siguiente intervalo */ });
+    }
+
+    setInterval(consultarNotificaciones, INTERVALO_MS);
+})();
+</script>
 
 @endpush
 

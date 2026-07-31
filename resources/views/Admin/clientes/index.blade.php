@@ -79,12 +79,6 @@
 @section('contenido')
 
 <div class="customers-container">
-    @if(session('success'))
-        <div class="badge-success" style="display:block;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:8px;">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <div class="summary-card">
         <div class="summary-stats">
             <span class="summary-number">{{ $clientes->count() }}</span>

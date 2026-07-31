@@ -12,6 +12,8 @@ class InformacionLocal extends Model
         'nombre_local',
         'descripcion',
         'direccion',
+        'mapa_lat',
+        'mapa_lng',
         'horario',
         'telefono',
         'email_contacto',

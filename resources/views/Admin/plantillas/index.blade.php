@@ -205,13 +205,6 @@
     }
 </style>
 
-{{-- Mensaje de éxito --}}
-@if(session('success'))
-  <div class="badge-success" style="display:block;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;border-radius:8px;">
-    {{ session('success') }}
-  </div>
-@endif
-
 {{-- Header --}}
 <div class="admin-header">
     <div class="admin-title">
@@ -274,7 +267,7 @@
                     <div class="acciones">
                         <a href="{{ route('admin.plantillas.edit', $plantilla->id) }}" class="btn-edit">Editar</a>
                         <form action="{{ route('admin.plantillas.destroy', $plantilla->id) }}" method="POST"
-                              onsubmit="return confirm('¿Eliminar esta prenda?')" style="display: inline-block;">
+                              data-confirm="¿Eliminar esta prenda?" style="display: inline-block;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-delete">Eliminar</button>

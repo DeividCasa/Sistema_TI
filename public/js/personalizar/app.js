@@ -17,26 +17,37 @@ async function guardarDiseno() {
 
   const acc = getColoresAccesorios();
 
+  // estado.colorFrente/colorCierre/etc. son claves SOLO de la camiseta —
+  // la chompa usa sus propias claves (chompaColorFrente, chompaColorCierre,
+  // ...). Antes se leían siempre las de camiseta sin importar la prenda
+  // activa, así que para una chompa se guardaba "undefined" (o un color
+  // viejo de camiseta) en vez del color real elegido.
+  const esChompa = tipoPrendaActual === 'chompa';
+
   const body = new URLSearchParams({
     plantilla_id          : PLANTILLA_ID ?? '',
     nombre                : document.getElementById('nombre-diseno').value,
     genero                : document.getElementById('genero-diseno').value,
     tipo_prenda           : tipoPrendaActual,
-    color_frente          : estado.colorFrente,
-    color_atras           : estado.colorAtras,
-    color_manga_izquierda : estado.colorMangaIzquierda,
-    color_manga_derecha   : estado.colorMangaDerecha,
-    color_cuello          : estado.colorCuello,
-    color_cierre          : estado.colorCierre,
-    color_bolsillo        : estado.colorBolsillo,
-    color_capucha         : estado.colorCapucha,
-    color_parte_abajo     : estado.colorParteAbajo,
+    color_frente          : esChompa ? estado.chompaColorFrente     : estado.colorFrente,
+    color_atras           : esChompa ? estado.chompaColorAtras      : estado.colorAtras,
+    color_manga_izquierda : esChompa ? estado.chompaColorMangaIzq   : estado.colorMangas,
+    color_manga_derecha   : esChompa ? estado.chompaColorMangas     : estado.colorMangas,
+    color_cuello          : esChompa ? ''                           : estado.colorCuello,
+    color_cierre          : esChompa ? estado.chompaColorCierre     : '',
+    color_bolsillo        : esChompa ? estado.chompaColorBolsillo   : '',
+    color_capucha         : esChompa ? estado.chompaColorCapucha    : '',
+    color_parte_abajo     : esChompa ? estado.chompaColorParteAbajo : '',
+    color_parte_abajo_mangas   : esChompa ? '' : estado.colorParteAbajoMangas,
+    color_parte_abajo_camiseta : esChompa ? '' : estado.colorParteAbajoCamiseta,
     color_pantaloneta      : acc.color_pantaloneta,
     color_parte_abajo_pant : acc.color_parte_abajo_pant,
     color_medias           : acc.color_medias,
     color_partearriba_med  : acc.color_partearriba_med,
+    color_pantalon_chompa  : acc.color_pantalon_chompa,
     pantaloneta_activa     : acc.pantaloneta_activa,
     medias_activas         : acc.medias_activas,
+    pantalon_chompa_activo : acc.pantalon_chompa_activo,
     color_short           : '#ffffff',
     color_texto           : estado.colorTexto,
     canvas_json           : JSON.stringify(canvasData),

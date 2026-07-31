@@ -4,18 +4,24 @@ function agregarTexto() {
   if(!val){ toast('Escribe el texto primero','error'); return; }
   const size = parseInt(document.getElementById('texto-size').value);
   const font = document.getElementById('texto-font').value;
-  const p = puntoInicialDiseno();
+  // Ver nota equivalente en figuras.js: usar el punto correcto según el
+  // destino activo, no siempre el del canvas grande de la camiseta.
+  const p = (typeof getPuntoDiseno === 'function') ? getPuntoDiseno() : puntoInicialDiseno();
   const t = new fabric.Text(val.toUpperCase(), {
     left:p.x, top:p.y, originX:'center', originY:'center',
     fontFamily:font, fontSize:size, fontWeight:'bold',
     fill:estado.colorTexto, textBaseline:'alphabetic', id:'texto-'+Date.now(), tipo:'texto',
   });
   const cv1 = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  // Igual que en agregarFigura(): reducir el tamaño por defecto en la
+  // pantaloneta, cuya zona editable es mucho más chica que la de la
+  // camiseta, para dejar espacio real donde poder arrastrar el texto.
+  if (cv1 !== fabricCanvas) { t.scaleX = 0.5; t.scaleY = 0.5; }
   cv1.add(t);
   cv1.setActiveObject(t);
   if (cv1===fabricCanvas) { limitarObjetoZona(t); actualizarTextura3D(); }
   else if (typeof limitarObjZonaPant==='function') {
-    limitarObjZonaPant(t,{x:14,y:22,w:120,h:76});
+    limitarObjZonaPant(t, ZONA_PANT_ORIGEN);
     cv1.renderAll();
     if (typeof actualizarTexturaPantaloneta3D==='function') actualizarTexturaPantaloneta3D();
   }
@@ -29,20 +35,21 @@ function agregarTexto() {
 function agregarNumero() {
   if(!vistaPermiteDiseno()){ toast('El cuello solo permite cambiar color','error'); return; }
   const val = document.getElementById('input-numero').value.trim();
-  if(!val){ toast('Escribe el nÃºmero primero','error'); return; }
+  if(!val){ toast('Escribe el número primero','error'); return; }
   const font = document.getElementById('texto-font').value;
-  const p = puntoInicialDiseno();
+  const p = (typeof getPuntoDiseno === 'function') ? getPuntoDiseno() : puntoInicialDiseno();
   const t = new fabric.Text(val, {
     left:p.x, top:p.y, originX:'center', originY:'center',
     fontFamily:font, fontSize:80, fontWeight:'800',
     fill:estado.colorTexto, textBaseline:'alphabetic', id:'numero-'+Date.now(), tipo:'texto',
   });
   const cv2 = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  if (cv2 !== fabricCanvas) { t.scaleX = 0.5; t.scaleY = 0.5; }
   cv2.add(t);
   cv2.setActiveObject(t);
   if (cv2===fabricCanvas) { limitarObjetoZona(t); actualizarTextura3D(); }
   else if (typeof limitarObjZonaPant==='function') {
-    limitarObjZonaPant(t,{x:14,y:22,w:120,h:76});
+    limitarObjZonaPant(t, ZONA_PANT_ORIGEN);
     cv2.renderAll();
     if (typeof actualizarTexturaPantaloneta3D==='function') actualizarTexturaPantaloneta3D();
   }

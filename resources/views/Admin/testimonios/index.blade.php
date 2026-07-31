@@ -70,19 +70,6 @@
     .empty-card { background: var(--bg-2); border: 1px solid var(--border); padding: 3rem; text-align: center; }
 </style>
 
-@if(session('success'))
-  <div class="badge-success" style="display:block;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;border-radius:8px;">
-    {{ session('success') }}
-  </div>
-@endif
-
-@if($errors->any())
-  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;border-radius:8px;">
-    @foreach($errors->all() as $error)
-      <div>{{ $error }}</div>
-    @endforeach
-  </div>
-@endif
 
 <div class="admin-header">
     <div class="admin-title">
@@ -155,7 +142,7 @@
                     @endif
                 </div>
                 <form action="{{ route('admin.testimonios.destroy', $testimonio->id) }}" method="POST"
-                      onsubmit="return confirm('¿Seguro que deseas eliminar este testimonio?');">
+                      data-confirm="¿Seguro que deseas eliminar este testimonio?">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn-delete">Eliminar</button>

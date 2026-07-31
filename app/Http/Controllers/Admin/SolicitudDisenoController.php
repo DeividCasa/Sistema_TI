@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CotizacionDisenoMail;
 use App\Models\SolicitudDiseno;
 use App\Support\Notificaciones;
+use App\Support\WhatsappHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SolicitudDisenoController extends Controller
 {
@@ -32,7 +35,7 @@ class SolicitudDisenoController extends Controller
     // ── FIJAR/ACTUALIZAR PRECIO Y MENSAJE PARA EL CLIENTE
     public function cotizar(Request $request, $id)
     {
-        $solicitud = SolicitudDiseno::findOrFail($id);
+        $solicitud = SolicitudDiseno::with(['cliente', 'disenio'])->findOrFail($id);
 
         $request->validate([
             'precio'        => 'required|numeric|min:0|max:250',
@@ -45,7 +48,33 @@ class SolicitudDisenoController extends Controller
             'estado'        => $solicitud->estado === 'pendiente' ? 'cotizado' : $solicitud->estado,
         ]);
 
+        if ($request->boolean('notificar_email') && $solicitud->cliente?->email) {
+            $imagenPath = $solicitud->disenio?->imagen_generada
+                ? \Illuminate\Support\Facades\Storage::disk('public')->path($solicitud->disenio->imagen_generada)
+                : null;
+
+            Mail::to($solicitud->cliente->email)->send(new CotizacionDisenoMail(
+                $solicitud->cliente->nombre,
+                $solicitud->disenio->nombre,
+                $solicitud->precio,
+                $solicitud->mensaje_admin,
+                $imagenPath,
+            ));
+        }
+
+        $whatsappUrl = null;
+        if ($request->boolean('notificar_whatsapp')) {
+            $mensaje = "Hola {$solicitud->cliente->nombre}, tu diseño '{$solicitud->disenio->nombre}' ya tiene precio: \${$solicitud->precio}.";
+            if ($solicitud->mensaje_admin) {
+                $mensaje .= " {$solicitud->mensaje_admin}";
+            }
+            $whatsappUrl = WhatsappHelper::link($solicitud->cliente?->telefono, $mensaje);
+        }
+
         return redirect()->route('admin.disenios3d.show', $solicitud->id)
-                         ->with('success', 'Cotización enviada al cliente.');
+                         ->with([
+                             'success' => 'Cotización enviada al cliente.',
+                             'whatsapp_url' => $whatsappUrl,
+                         ]);
     }
 }

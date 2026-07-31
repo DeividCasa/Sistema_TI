@@ -1,6 +1,6 @@
     <div id="tab-figuras" class="tab-content">
       <div class="p-title">Agregar figuras</div>
-      <div class="p-sub">Inserta figuras y acomÃ³dalas encima de la prenda.</div>
+      <div class="p-sub">Inserta figuras y acomódalas encima de la prenda.</div>
 
       <div class="p-label">Color de figura</div>
       <div class="color-grid" id="swatches-figura"></div>
@@ -18,11 +18,11 @@
 
       <div class="p-label">Formas</div>
       <div class="shape-grid">
-        <button class="shape-btn" onclick="agregarFigura('rect')" title="RectÃ¡ngulo"><i class="fas fa-square"></i><span>Cuadro</span></button>
-        <button class="shape-btn" onclick="agregarFigura('circle')" title="CÃ­rculo"><i class="fas fa-circle"></i><span>CÃ­rculo</span></button>
-        <button class="shape-btn" onclick="agregarFigura('triangle')" title="TriÃ¡ngulo"><i class="fas fa-play"></i><span>TriÃ¡ngulo</span></button>
+        <button class="shape-btn" onclick="agregarFigura('rect')" title="Rectángulo"><i class="fas fa-square"></i><span>Cuadro</span></button>
+        <button class="shape-btn" onclick="agregarFigura('circle')" title="Círculo"><i class="fas fa-circle"></i><span>Círculo</span></button>
+        <button class="shape-btn" onclick="agregarFigura('triangle')" title="Triángulo"><i class="fas fa-play"></i><span>Triángulo</span></button>
         <button class="shape-btn" onclick="agregarFigura('star')" title="Estrella"><i class="fas fa-star"></i><span>Estrella</span></button>
-        <button class="shape-btn" onclick="agregarFigura('line')" title="LÃ­nea"><i class="fas fa-minus"></i><span>LÃ­nea</span></button>
-        <button class="shape-btn" onclick="agregarFigura('heart')" title="CorazÃ³n"><i class="fas fa-heart"></i><span>CorazÃ³n</span></button>
+        <button class="shape-btn" onclick="agregarFigura('line')" title="Línea"><i class="fas fa-minus"></i><span>Línea</span></button>
+        <button class="shape-btn" onclick="agregarFigura('heart')" title="Corazón"><i class="fas fa-heart"></i><span>Corazón</span></button>
       </div>
     </div>

@@ -32,10 +32,38 @@ async function generarIA() {
   }
 }
 
+/* Un "conjunto" generado por IA incluye siempre camiseta+pantaloneta+medias
+   (o chompa+pantalón): estas claves de color no pertenecen al mesh
+   principal sino a un accesorio aparte (ver ACCESORIOS en accesorios.js),
+   que usa su propio material y su propio canvas/SVG — actualizarColor3D()
+   no los toca. Sin este mapeo el color llegaba al estado global pero el
+   accesorio (si estaba inactivo, o incluso ya activo) seguía mostrando el
+   color anterior. */
+const MAPA_ACCESORIO_IA = {
+  colorPantaloneta      : 'pantaloneta',
+  colorParteAbajoPant   : 'pantaloneta',
+  colorMedias           : 'medias',
+  colorPartearribaMedias: 'medias',
+  chompaColorPantalon   : 'pantalon',
+};
+
+function aplicarColorIA(key3d, hex) {
+  const accId = MAPA_ACCESORIO_IA[key3d];
+  if (!accId) { actualizarColor3D(key3d, hex); return; }
+
+  const acc = (typeof ACCESORIOS !== 'undefined') ? ACCESORIOS[accId] : null;
+  if (!acc) return;
+  // El cliente pidió "un conjunto": mostrar el accesorio aunque todavía
+  // no lo haya activado manualmente. Si ya no lo quiere, puede
+  // desactivarlo él mismo desde el panel después.
+  if (!acc.activo && typeof toggleAccesorio === 'function') toggleAccesorio(accId);
+  if (typeof aplicarColorAccesorio === 'function') aplicarColorAccesorio(accId, key3d, hex);
+}
+
 function aplicarResultadoIA(data) {
   if (data.colores) {
     Object.entries(data.colores).forEach(([key3d, hex]) => {
-      if (hex) actualizarColor3D(key3d, hex);
+      if (hex) aplicarColorIA(key3d, hex);
     });
     refrescarSilueta();
     guardarHistorial();

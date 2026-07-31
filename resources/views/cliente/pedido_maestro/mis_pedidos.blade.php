@@ -24,12 +24,6 @@
 </style>
 
 <div class="pedidos-container">
-    @if(session('success'))
-        <div style="background:var(--success-bg, #ecfdf5); border-left:4px solid var(--success, #10b981); color:var(--success-text, #065f46); padding:0.75rem 1rem; margin-bottom:1.5rem; font-size:0.85rem; border-radius:6px;">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <div class="header-actions">
         <div class="title-section">
             <h1 class="page-title">Mis pedidos</h1>

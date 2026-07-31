@@ -47,19 +47,6 @@
     }
 @endphp
 
-@if(session('success'))
-  <div style="background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    {{ session('success') }}
-  </div>
-@endif
-
-@if($errors->any())
-  <div style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.85rem;font-weight:500;">
-    @foreach($errors->all() as $error)
-      <div>{{ $error }}</div>
-    @endforeach
-  </div>
-@endif
 
 <div class="sec-header reveal">
   <div class="sec-title">Pago del pedido {{ $pedido->codigo }} <span style="font-size:0.7rem;font-weight:700;color:var(--blue);background:var(--blue-soft);padding:3px 10px;border-radius:6px;text-transform:uppercase;margin-left:8px;">{{ $etiquetaTipo }}</span></div>

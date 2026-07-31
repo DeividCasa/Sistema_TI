@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\EstadoPedidoMail;
 use App\Models\Pedido;
 use App\Support\PedidoEstados;
+use App\Support\WhatsappHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -53,7 +54,7 @@ class PedidoController extends Controller
         }
         $pedido->save();
 
-        if ($pedido->cliente?->email) {
+        if ($request->boolean('notificar_email') && $pedido->cliente?->email) {
             $imagenPath = $pedido->disenio?->imagen_generada
                 ? \Illuminate\Support\Facades\Storage::disk('public')->path($pedido->disenio->imagen_generada)
                 : null;
@@ -68,8 +69,27 @@ class PedidoController extends Controller
             ));
         }
 
+        $whatsappUrl = null;
+        if ($request->boolean('notificar_whatsapp')) {
+            $mensaje = "Hola {$pedido->cliente->nombre}, tu pedido {$pedido->codigo} ahora está: {$this->mensajeEstado($pedido)}";
+            $whatsappUrl = WhatsappHelper::link($pedido->cliente?->telefono, $mensaje);
+        }
+
         return redirect()->route('admin.pedidos.show', $pedido->id)
-                         ->with('success', 'Estado actualizado correctamente.');
+                         ->with([
+                             'success' => 'Estado actualizado correctamente.',
+                             'whatsapp_url' => $whatsappUrl,
+                         ]);
+    }
+
+    private function mensajeEstado(Pedido $pedido): string
+    {
+        $mensaje = PedidoEstados::label($pedido->estado) . '.';
+        if ($pedido->tiempo_estimado) {
+            $mensaje .= " Tiempo estimado de entrega: {$pedido->tiempo_estimado}.";
+        }
+
+        return $mensaje;
     }
 
     // ── MARCAR PAGO COMO COMPLETADO (override manual del admin)

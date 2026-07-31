@@ -53,10 +53,11 @@ function initFabricPantaloneta() {
 
   refrescarSiluetaPant();
 
-  // Eventos: limitar objetos a la zona imprimible (cuerpo de la pantaloneta)
-  const ZONA_PANT = { x: 10, y: 22, w: 128, h: 78 };
-  fabricPant.on('object:moving',  e => limitarObjZonaPant(e.target, ZONA_PANT));
-  fabricPant.on('object:scaling', e => limitarObjZonaPant(e.target, ZONA_PANT));
+  // Eventos: limitar objetos a la zona imprimible (cuerpo de la pantaloneta).
+  // Misma zona que usan agregarTexto/agregarFigura/agregarImagenLogoACanvas
+  // al insertar el objeto (ver ZONA_PANT_ORIGEN más abajo en este archivo).
+  fabricPant.on('object:moving',  e => limitarObjZonaPant(e.target, ZONA_PANT_ORIGEN));
+  fabricPant.on('object:scaling', e => limitarObjZonaPant(e.target, ZONA_PANT_ORIGEN));
   fabricPant.on('object:modified', () => { guardarHistorial(); actualizarTexturaPantaloneta3D(); });
   fabricPant.on('object:added',   e => { if (!esObjetoSistemaPant(e.target)) { guardarHistorial(); actualizarTexturaPantaloneta3D(); } });
   fabricPant.on('object:removed', e => { if (!esObjetoSistemaPant(e.target)) { guardarHistorial(); actualizarTexturaPantaloneta3D(); } });
@@ -117,6 +118,18 @@ function limitarObjZonaPant(obj, zona) {
   if (!obj || esObjetoSistemaPant(obj)) return;
   obj.setCoords();
   let r = obj.getBoundingRect(true, true);
+  // Los objetos por defecto (figuras, texto/número) se dimensionan pensando
+  // en el canvas grande de la camiseta (480x520): sin este ajuste, casi
+  // siempre son más grandes que la zona editable de la pantaloneta
+  // (148x148) y el clamp de posición de abajo los deja prácticamente
+  // pegados en un punto — el usuario sentía que "no se podían mover".
+  if (r.width > zona.w || r.height > zona.h) {
+    const factor = Math.min(zona.w / r.width, zona.h / r.height, 1);
+    obj.scaleX *= factor;
+    obj.scaleY *= factor;
+    obj.setCoords();
+    r = obj.getBoundingRect(true, true);
+  }
   let dx = 0, dy = 0;
   if (r.left < zona.x) dx = zona.x - r.left;
   if (r.top  < zona.y) dy = zona.y - r.top;
