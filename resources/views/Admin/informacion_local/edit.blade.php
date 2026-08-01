@@ -11,6 +11,9 @@
   .info-local-form { display: flex; flex-direction: column; gap: 20px; max-width: 1100px; }
   .info-local-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .info-local-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  /* Evita que una imagen/preview con nombre de archivo largo empuje la columna
+     de la grilla más allá de su ancho (comportamiento por defecto de CSS Grid). */
+  .info-local-2col > *, .info-local-3col > * { min-width: 0; }
   @media (max-width: 820px) {
     .info-local-2col, .info-local-3col { grid-template-columns: 1fr; }
   }

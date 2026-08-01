@@ -1,0 +1,91 @@
+/* ============================================================
+   LeoJoMa — override de color de marca sobre la plantilla base
+   CozaStore (Colorlib / ThemeWagon). El acento original
+   #717fe0 (lila) se reemplaza por el verde de marca LeoJoMa.
+   No tocar main.css/util.css: todo el ajuste de color vive aquí,
+   cargado después de esos dos archivos.
+   ============================================================ */
+
+:root {
+  --lj-accent:      #16A34A;
+  --lj-accent-dark: #15803D;
+  --lj-accent-soft: #E9F8EF;
+  --lj-ink:         #14171A;
+}
+
+.cl1,
+.hov-cl1:hover,
+.hov-tag1:hover {
+  color: var(--lj-accent) !important;
+}
+
+.bg1,
+.hov-bg1:hover,
+.header-cart-item-name:hover {
+  background-color: var(--lj-accent) !important;
+}
+
+.hov-btn2:hover {
+  color: var(--lj-accent) !important;
+}
+
+.hov-btn3:hover,
+.hov-btn3:hover i,
+.show-search:hover:after,
+.show-filter:hover:after {
+  background-color: var(--lj-accent) !important;
+  border-color: var(--lj-accent) !important;
+}
+
+.loader05 { border-color: var(--lj-accent) !important; }
+
+.btn-back-to-top,
+.btn-back-to-top:hover,
+.main-menu-m,
+.header-cart-item-noti,
+.swal-button {
+  background-color: var(--lj-accent) !important;
+}
+
+.swal-button:hover { background-color: var(--lj-accent-dark) !important; }
+
+/* Botón principal (Shop Now / Ver catálogo / Comprar): verde de marca,
+   se oscurece a negro en hover — mismo patrón que la plantilla original. */
+.hov-btn1:hover {
+  border-color: var(--lj-ink) !important;
+  background-color: var(--lj-ink) !important;
+}
+
+/* Precio activo / elementos "activos" de filtros y menú */
+.filter-link-active,
+.how-active1 {
+  color: var(--lj-accent) !important;
+  border-color: var(--lj-accent) !important;
+}
+
+.active-menu > a,
+.main-menu > li:hover > a {
+  color: var(--lj-accent) !important;
+}
+
+/* ============================================================
+   Inicio: el menú flota transparente sobre la foto del banner.
+   Mientras está transparente (antes de hacer scroll) las letras
+   se ven blancas para leerse sobre la foto; en cuanto el usuario
+   baja y el header se vuelve fijo con fondo blanco (clase
+   .fix-menu-desktop, agregada por main.js), vuelven a los colores
+   oscuros normales de la plantilla.
+   ============================================================ */
+body.pagina-inicio .container-menu-desktop:not(.fix-menu-desktop) .main-menu > li > a,
+body.pagina-inicio .container-menu-desktop:not(.fix-menu-desktop) .icon-header-item,
+body.pagina-inicio .container-menu-desktop:not(.fix-menu-desktop) .icon-header-item i,
+body.pagina-inicio .container-menu-desktop:not(.fix-menu-desktop) .icon-header-item span {
+  color: #fff !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+
+body.pagina-inicio .container-menu-desktop:not(.fix-menu-desktop) .main-menu > li.active-menu > a,
+body.pagina-inicio .container-menu-desktop:not(.fix-menu-desktop) .main-menu > li:hover > a {
+  color: var(--lj-accent) !important;
+  text-shadow: none;
+}

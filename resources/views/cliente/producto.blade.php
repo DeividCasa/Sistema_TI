@@ -4,155 +4,126 @@
 
 @section('contenido')
 
-
-<style>
-.product-image {
-        background: var(--bg-3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        border-radius: 4px;
-    }
-
-    .product-image img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        display: block;
-    }
-</style>
-<div class="sec-header reveal">
-  <div class="sec-title">{{ $plantilla->nombre }}</div>
-  <a href="{{ session('catalogo_url', route('cliente.catalogo.index')) }}" class="btn-secondary">← Volver al catálogo</a>
-</div>
-
-<div class="grid-2col" style="--cols:1fr 1fr;gap:24px;">
-
-  {{-- IMAGEN SIN BORDE --}}
-        <div class="product-image">
-            @if($plantilla->imagen_preview)
-                <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}" alt="{{ $plantilla->nombre }}">
-            @else
-                <div style="padding: 3rem; text-align: center; color: var(--text-3);">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <p>Sin imagen</p>
-                </div>
-            @endif
-        </div>
-
-  {{-- INFO Y COMPRA --}}
-  <div class="card card-pad reveal">
-    <div style="font-size:0.78rem;font-weight:600;color:var(--blue);text-transform:capitalize;
-      background:var(--blue-soft);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px;">
-      {{ $plantilla->tipo_prenda }}
-    </div>
-    <div style="font-size:0.78rem;font-weight:600;color:var(--blue);
-      background:var(--blue-soft);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px;margin-left:6px;">
-      {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$plantilla->genero] ?? 'Unisex' }}
-    </div>
-
-    <h2 style="font-family:var(--font-d);font-size:1.6rem;font-weight:800;color:var(--text-1);margin-bottom:8px;">
-      {{ $plantilla->nombre }}
-    </h2>
-
-    <div style="font-family:var(--font-d);font-size:1.8rem;font-weight:800;color:var(--blue);margin-bottom:16px;">
-      ${{ number_format($plantilla->precio, 2) }}
-      <span style="font-size:0.8rem;font-weight:500;color:var(--text-3);">/ unidad</span>
-    </div>
-
-    @if($plantilla->descripcion)
-      <p style="font-size:0.9rem;color:var(--text-2);line-height:1.7;margin-bottom:24px;">
-        {{ $plantilla->descripcion }}
-      </p>
-    @endif
-
-    <form action="{{ route('cliente.plantillas.agregar') }}" method="POST">
-      @csrf
-      <input type="hidden" name="plantilla_id" value="{{ $plantilla->id }}">
-
-      {{-- Colores --}}
-      @if(!empty($plantilla->colores))
-        <div style="margin-bottom:20px;">
-          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);
-            text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
-            Color
-          </label>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            @foreach($plantilla->colores as $i => $color)
-              <label style="cursor:pointer;">
-                <input type="radio" name="color" value="{{ $color }}" {{ $i == 0 ? 'checked' : '' }} style="display:none;" onchange="marcarColor(this)">
-                <span class="color-opcion" style="width:32px;height:32px;border-radius:50%;background:{{ $color }};
-                  border:3px solid {{ $i == 0 ? 'var(--blue)' : 'var(--border)' }};display:inline-block;
-                  transition:border-color var(--tr);"></span>
-              </label>
-            @endforeach
-          </div>
-        </div>
-      @endif
-
-      {{-- Tallas --}}
-      @if(!empty($plantilla->tallas))
-        <div style="margin-bottom:20px;">
-          <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
-            <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);
-              text-transform:uppercase;letter-spacing:0.03em;margin:0;">
-              Talla
-            </label>
-            @include('cliente.componentes.guia-tallas')
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            @foreach($plantilla->tallas as $i => $talla)
-              <label style="cursor:pointer;">
-                <input type="radio" name="talla" value="{{ $talla }}" {{ $i == 0 ? 'checked' : '' }} style="display:none;" onchange="marcarTalla(this)">
-                <span class="talla-opcion" style="padding:10px 18px;border:1.5px solid {{ $i == 0 ? 'var(--blue)' : 'var(--border)' }};
-                  border-radius:10px;background:{{ $i == 0 ? 'var(--blue-soft)' : 'var(--bg-2)' }};
-                  color:{{ $i == 0 ? 'var(--blue)' : 'var(--text-1)' }};font-weight:600;font-size:0.85rem;
-                  display:inline-block;transition:all var(--tr);">{{ $talla }}</span>
-              </label>
-            @endforeach
-          </div>
-        </div>
-      @else
-        <input type="hidden" name="talla" value="M">
-      @endif
-
-      {{-- Cantidad --}}
-      <div style="margin-bottom:24px;">
-        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);
-          text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
-          Cantidad
-        </label>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <button type="button" onclick="cambiarCantidad(-1)"
-            style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);
-            background:var(--bg-2);color:var(--text-1);font-size:1.1rem;cursor:pointer;">−</button>
-          <input type="number" name="cantidad" id="cantidad" value="1" min="1" readonly
-            style="width:60px;text-align:center;padding:8px;border:1.5px solid var(--border);
-            border-radius:8px;font-family:var(--font-b);font-size:0.95rem;color:var(--text-1);background:var(--bg-2);">
-          <button type="button" onclick="cambiarCantidad(1)"
-            style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);
-            background:var(--bg-2);color:var(--text-1);font-size:1.1rem;cursor:pointer;">+</button>
-        </div>
-      </div>
-
-      {{-- Subtotal estimado --}}
-      <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:10px;
-        padding:14px 16px;margin-bottom:24px;">
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-2);">
-          <span>Subtotal</span>
-          <span id="total-precio" style="font-weight:700;color:var(--text-1);">${{ number_format($plantilla->precio, 2) }}</span>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
-        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-        Agregar al carrito
-      </button>
-    </form>
-
+<!-- breadcrumb -->
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ route('inicio') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Inicio <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <a href="{{ session('catalogo_url', route('cliente.catalogo.index')) }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Catálogo <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">{{ $plantilla->nombre }}</span>
   </div>
 </div>
+
+<!-- Product Detail -->
+<section class="sec-product-detail bg0 p-t-45 p-b-60">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-lg-7 p-b-30">
+        <div class="p-l-25 p-r-30 p-lr-0-lg">
+          <div class="wrap-pic-w pos-relative gallery-lb">
+            @if($plantilla->imagen_preview)
+              <img src="{{ asset('storage/'.$plantilla->imagen_preview) }}" alt="{{ $plantilla->nombre }}" style="border-radius:8px;">
+              <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ asset('storage/'.$plantilla->imagen_preview) }}">
+                <i class="fa fa-expand"></i>
+              </a>
+            @else
+              <img src="{{ asset('images/fondo.png') }}" alt="{{ $plantilla->nombre }}" style="border-radius:8px;">
+            @endif
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-5 p-b-30">
+        <div class="p-r-50 p-t-5 p-lr-0-lg">
+          <h4 class="mtext-105 cl2 p-b-14">{{ $plantilla->nombre }}</h4>
+
+          <span class="stext-107" style="color:var(--blue);background:var(--blue-soft);padding:4px 12px;border-radius:20px;text-transform:capitalize;margin-right:6px;">
+            {{ $plantilla->tipo_prenda }}
+          </span>
+          <span class="stext-107" style="color:var(--blue);background:var(--blue-soft);padding:4px 12px;border-radius:20px;">
+            {{ ['hombre' => 'Para Hombre', 'mujer' => 'Para Mujer'][$plantilla->genero] ?? 'Unisex' }}
+          </span>
+
+          <div class="mtext-106 cl2 p-t-20">
+            ${{ number_format($plantilla->precio, 2) }}
+            <span class="stext-107 cl6">/ unidad</span>
+          </div>
+
+          @if($plantilla->descripcion)
+            <p class="stext-102 cl6 p-t-15">{{ $plantilla->descripcion }}</p>
+          @endif
+
+          <form action="{{ route('cliente.plantillas.agregar') }}" method="POST">
+            @csrf
+            <input type="hidden" name="plantilla_id" value="{{ $plantilla->id }}">
+
+            <div class="p-t-30">
+              @if(!empty($plantilla->colores))
+                <div class="p-b-20">
+                  <span class="mtext-102 cl2 p-b-10" style="display:block;">Color</span>
+                  <div class="flex-w" style="gap:10px;">
+                    @foreach($plantilla->colores as $i => $color)
+                      <label style="cursor:pointer;">
+                        <input type="radio" name="color" value="{{ $color }}" {{ $i == 0 ? 'checked' : '' }} style="display:none;" onchange="marcarColor(this)">
+                        <span class="color-opcion" style="width:32px;height:32px;border-radius:50%;background:{{ $color }};
+                          border:3px solid {{ $i == 0 ? 'var(--blue)' : '#ebebeb' }};display:inline-block;transition:border-color 0.2s;"></span>
+                      </label>
+                    @endforeach
+                  </div>
+                </div>
+              @endif
+
+              @if(!empty($plantilla->tallas))
+                <div class="p-b-10">
+                  <span class="mtext-102 cl2 p-b-10" style="display:block;">Talla</span>
+                  <div class="flex-w" style="gap:10px;">
+                    @foreach($plantilla->tallas as $i => $talla)
+                      <label style="cursor:pointer;">
+                        <input type="radio" name="talla" value="{{ $talla }}" {{ $i == 0 ? 'checked' : '' }} style="display:none;" onchange="marcarTalla(this)">
+                        <span class="talla-opcion" style="padding:10px 18px;border:1.5px solid {{ $i == 0 ? 'var(--blue)' : '#ebebeb' }};
+                          border-radius:8px;background:{{ $i == 0 ? 'var(--blue-soft)' : '#fff' }};
+                          color:{{ $i == 0 ? 'var(--blue)' : '#222' }};font-weight:700;font-size:0.85rem;
+                          display:inline-block;transition:all 0.2s;">{{ $talla }}</span>
+                      </label>
+                    @endforeach
+                  </div>
+                </div>
+              @else
+                <input type="hidden" name="talla" value="M">
+              @endif
+
+              <div class="flex-w flex-r-m p-t-20">
+                <div class="wrap-num-product flex-w m-r-20 m-tb-10">
+                  <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" onclick="cambiarCantidad(-1)">
+                    <i class="fs-16 zmdi zmdi-minus"></i>
+                  </div>
+                  <input class="mtext-104 cl3 txt-center num-product" type="number" name="cantidad" id="cantidad" value="1" min="1" readonly>
+                  <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" onclick="cambiarCantidad(1)">
+                    <i class="fs-16 zmdi zmdi-plus"></i>
+                  </div>
+                </div>
+
+                <button type="submit" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+                  Agregar al carrito
+                </button>
+              </div>
+
+              <div style="background:#f8f8f8;border-radius:8px;padding:14px 18px;margin-top:20px;">
+                <div class="flex-w flex-sb-m stext-102 cl6">
+                  <span>Subtotal</span>
+                  <strong id="total-precio" style="color:#222;">${{ number_format($plantilla->precio, 2) }}</strong>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 @endsection
 
@@ -175,15 +146,15 @@
   }
 
   function marcarColor(radio) {
-    document.querySelectorAll('.color-opcion').forEach(s => s.style.borderColor = 'var(--border)');
+    document.querySelectorAll('.color-opcion').forEach(s => s.style.borderColor = '#ebebeb');
     radio.nextElementSibling.style.borderColor = 'var(--blue)';
   }
 
   function marcarTalla(radio) {
     document.querySelectorAll('.talla-opcion').forEach(s => {
-      s.style.borderColor = 'var(--border)';
-      s.style.background = 'var(--bg-2)';
-      s.style.color = 'var(--text-1)';
+      s.style.borderColor = '#ebebeb';
+      s.style.background = '#fff';
+      s.style.color = '#222';
     });
     const span = radio.nextElementSibling;
     span.style.borderColor = 'var(--blue)';

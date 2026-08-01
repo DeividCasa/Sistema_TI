@@ -4,6 +4,7 @@
 
 @section('contenido')
 
+<div class="main-content-compat">
 @php
     $etiquetaTipo = match($tipo) {
         'maestro'  => 'Pedido combinado',
@@ -212,5 +213,6 @@ function marcarOpcion(radio) {
   caja.style.background = 'var(--blue-soft)';
 }
 </script>
+</div>
 
 @endsection

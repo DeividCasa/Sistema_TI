@@ -14,7 +14,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('titulo', 'Leo José')</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('vendor/cozastore/css/leojoma-overrides.css') }}">
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,36 +24,36 @@
        VARIABLES MODO CLARO
     ══════════════════════ */
     :root {
-      --bg:           #FAF8F5;
+      --bg:           #F7F7F3;
       --bg-2:         #FFFFFF;
-      --bg-3:         #F3F0EA;
-      --border:       #E7E2D9;
-      --border-2:     #D2CBBC;
-      --text-1:       #1C1A17;
-      --text-2:       #5B564D;
-      --text-3:       #948E80;
-      --blue:         #0E6B4F;
-      --blue-h:       #0A5540;
-      --blue-soft:    #E4F1EC;
-      --blue-border:  #BFE1D2;
-      --blue-light:   #2F9271;
-      --blue-shadow:  rgba(14,107,79,0.22);
-      --accent:       #1D4ED8;
-      --accent-soft:  #DBEAFE;
-      --accent-border:#93C5FD;
-      --ink:          #1B1721;
-      --sidebar-bg:   #1B1721;
+      --bg-3:         #F0F1EB;
+      --border:       #E4E4DD;
+      --border-2:     #D2D2C6;
+      --text-1:       #16181A;
+      --text-2:       #53565B;
+      --text-3:       #90928C;
+      --blue:         #16A34A;
+      --blue-h:       #12813B;
+      --blue-soft:    #E7F8ED;
+      --blue-border:  #B8E9C6;
+      --blue-light:   #34C468;
+      --blue-shadow:  rgba(22,163,74,0.22);
+      --accent:       #FF5A3C;
+      --accent-soft:  #FFE9E3;
+      --accent-border:#FFC3B2;
+      --ink:          #14161A;
+      --sidebar-bg:   #14161A;
       --sidebar-txt:  rgba(255,255,255,0.62);
       --sidebar-act:  #FFFFFF;
       --sidebar-hover:rgba(255,255,255,0.08);
-      --sidebar-actbg:rgba(29,78,216,0.28);
-      --shadow-sm:    0 1px 3px rgba(28,26,23,0.08);
-      --shadow-md:    0 4px 16px rgba(28,26,23,0.1);
-      --shadow-lg:    0 12px 40px rgba(28,26,23,0.14);
+      --sidebar-actbg:rgba(22,163,74,0.28);
+      --shadow-sm:    0 1px 3px rgba(20,22,26,0.08);
+      --shadow-md:    0 8px 24px rgba(20,22,26,0.1);
+      --shadow-lg:    0 20px 50px rgba(20,22,26,0.16);
       --radius:       14px;
       --radius-sm:    10px;
-      --font-d:       'Fraunces', serif;
-      --font-b:       'Inter', sans-serif;
+      --font-d:       'Playfair Display', serif;
+      --font-b:       'Poppins', sans-serif;
       --nav-h:        60px;
       --sidebar-w:    240px;
       --tr:           0.22s cubic-bezier(.4,0,.2,1);
@@ -62,25 +63,25 @@
        VARIABLES MODO OSCURO
     ══════════════════════ */
     [data-theme="dark"] {
-      --bg:           #15130F;
-      --bg-2:         #1E1B23;
-      --bg-3:         #262330;
-      --border:       #363047;
-      --border-2:     #453E5C;
-      --text-1:       #F3F0FF;
-      --text-2:       #B6AFC9;
-      --text-3:       #837B99;
-      --blue:         #34D399;
-      --blue-h:       #6EE7B7;
-      --blue-soft:    rgba(52,211,153,0.14);
-      --blue-border:  rgba(52,211,153,0.32);
-      --blue-shadow:  rgba(52,211,153,0.35);
-      --accent:       #60A5FA;
-      --accent-soft:  rgba(96,165,250,0.16);
-      --accent-border:rgba(96,165,250,0.35);
-      --ink:          #0E0B14;
-      --sidebar-bg:   #0E0B14;
-      --sidebar-actbg:rgba(96,165,250,0.22);
+      --bg:           #121314;
+      --bg-2:         #1B1C1F;
+      --bg-3:         #232427;
+      --border:       #333438;
+      --border-2:     #45464B;
+      --text-1:       #F5F6F3;
+      --text-2:       #B8BAB6;
+      --text-3:       #85878A;
+      --blue:         #34C468;
+      --blue-h:       #4ADE80;
+      --blue-soft:    rgba(52,196,104,0.14);
+      --blue-border:  rgba(52,196,104,0.32);
+      --blue-shadow:  rgba(52,196,104,0.35);
+      --accent:       #FF7A5C;
+      --accent-soft:  rgba(255,90,60,0.16);
+      --accent-border:rgba(255,90,60,0.35);
+      --ink:          #0B0C0D;
+      --sidebar-bg:   #0B0C0D;
+      --sidebar-actbg:rgba(52,196,104,0.22);
       --shadow-sm:    0 1px 3px rgba(0,0,0,0.35);
       --shadow-md:    0 4px 18px rgba(0,0,0,0.45);
       --shadow-lg:    0 14px 44px rgba(0,0,0,0.55);
@@ -451,7 +452,7 @@
 
     const renderizar = (miniaturaHtml) => {
       box.innerHTML = `
-        <div style="display:flex;gap:16px;align-items:center;padding:16px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg-3);">
+        <div style="display:flex;gap:16px;align-items:center;padding:16px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg-3);max-width:100%;box-sizing:border-box;overflow:hidden;">
           ${miniaturaHtml}
           <div style="flex:1;min-width:0;">
             <div style="font-weight:700;font-size:0.9rem;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${file.name}</div>

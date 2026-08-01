@@ -75,9 +75,13 @@ class CatalogoGeneralController extends Controller
     }
 
     // ── PRODUCTOS DESTACADOS PARA LA PÁGINA DE INICIO
+    // Si el admin no marcó ningún producto como destacado, mostramos los más
+    // recientes para que la sección "Product Overview" del inicio nunca quede vacía.
     public function destacados(int $limite = 8): Collection
     {
-        return $this->obtenerTodosLosProductos(true)->take($limite);
+        $destacados = $this->obtenerTodosLosProductos(true)->take($limite);
+
+        return $destacados->isNotEmpty() ? $destacados : $this->obtenerTodosLosProductos()->take($limite);
     }
 
     private function obtenerTodosLosProductos(bool $soloDestacados = false): Collection

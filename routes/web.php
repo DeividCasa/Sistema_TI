@@ -330,8 +330,8 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     Route::get('/pedidos-tienda/{id}', [PedidoTiendaController::class, 'show'])->name('pedidos-tienda.show');
     Route::post('/pedidos-tienda/{id}/pago-completo', [PedidoTiendaController::class, 'marcarPagoCompleto'])
         ->name('pedidos-tienda.pago-completo');
-    Route::post('/pedidos-tienda/{id}/tiempo-estimado', [PedidoTiendaController::class, 'actualizarTiempoEstimado'])
-        ->name('pedidos-tienda.tiempo-estimado');
+    Route::put('/pedidos-tienda/{id}/estado', [PedidoTiendaController::class, 'actualizarEstado'])
+        ->name('pedidos-tienda.actualizar-estado');
     Route::post('/comprobantes-maestro/{id}/verificar', [PedidoTiendaController::class, 'verificarComprobante'])
         ->name('comprobantes-maestro.verificar');
     Route::post('/comprobantes-maestro/{id}/rechazar', [PedidoTiendaController::class, 'rechazarComprobante'])

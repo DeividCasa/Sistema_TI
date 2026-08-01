@@ -22,6 +22,10 @@
     }
     .empty-svg { width: 64px; height: 64px; stroke: var(--text-3); margin-bottom: 1rem; }
 </style>
+<br />
+<br />
+<br />
+<br />
 
 <div class="pedidos-container">
     <div class="header-actions">

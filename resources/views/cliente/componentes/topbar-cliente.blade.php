@@ -1,137 +1,214 @@
 @php
     $nombreUsuario = session('usuario_nombre', 'Mi cuenta');
-    $iniciales = collect(explode(' ', trim($nombreUsuario)))
-        ->filter()
-        ->take(2)
-        ->map(fn($parte) => mb_substr($parte, 0, 1))
-        ->implode('');
-    $iniciales = $iniciales ?: 'LJ';
     $usuarioLogueado = session('usuario_id') && session('usuario_rol') === 'cliente';
     $cantidadCarrito = count(session('carrito_uniformes', []))
         + count(session('carrito_chompas', []))
         + count(session('carrito_plantillas', []));
+    $categoriaNav = request()->routeIs('cliente.catalogo.*') ? request()->query('categoria', 'todos') : null;
 @endphp
 
-<header class="topbar">
-    @hasSection('sidebar-filtros')
-        <div class="filtros-wrap" id="filtros-wrap">
-            <button type="button" class="btn-filtros" onclick="toggleFiltros()" aria-label="Mostrar filtros">
-                <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-                <span>Filtros</span>
-            </button>
-            <div class="filtros-panel" id="filtros-panel">
-                <div class="filtros-panel-head">Filtros</div>
-                @yield('sidebar-filtros')
+<!-- Header -->
+<header>
+    <!-- Header desktop -->
+    <div class="container-menu-desktop">
+        <!-- Topbar -->
+        <div class="top-bar">
+            <div class="content-topbar flex-sb-m h-full container">
+                <div class="left-top-bar">
+                    🚚 Retiro en tienda o envío a todo Salcedo &nbsp;·&nbsp; Diseña tu propio uniforme en 3D
+                </div>
+
+                <div class="right-top-bar flex-w h-full">
+                    <a href="https://wa.me/{{ \App\Models\InformacionLocal::actual()->whatsapp_numero ?: '593992502749' }}" target="_blank" rel="noopener" class="flex-c-m trans-04 p-lr-25">
+                        Ayuda
+                    </a>
+
+                    @if($usuarioLogueado)
+                        <a href="{{ route('logout') }}" class="flex-c-m trans-04 p-lr-25">
+                            Salir
+                        </a>
+                    @else
+                        <a href="{{ route('login.paso1') }}" class="flex-c-m trans-04 p-lr-25">
+                            Mi cuenta
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
 
-    @endif
+        <div class="wrap-menu-desktop">
+            <nav class="limiter-menu-desktop container">
 
-    <a class="topbar-brand" href="{{ route('cliente.catalogo.index') }}">
-        <img src="{{ asset('images/logo.png') }}" alt="Leo José">
-    </a>
+                <!-- Logo desktop -->
+                <a href="{{ route('inicio') }}" class="logo">
+                    <img src="{{ asset('images/logo.png') }}" alt="Leo José">
+                </a>
 
-    @hasSection('sidebar-filtros')
-        <div class="search-box">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="buscador" placeholder="Buscar productos..." oninput="filtrarProductos()">
+                <!-- Menu desktop -->
+                <div class="menu-desktop">
+                    <ul class="main-menu">
+                        <li class="{{ $categoriaNav === 'todos' ? 'active-menu' : '' }}">
+                            <a href="{{ route('cliente.catalogo.index') }}">Catálogo</a>
+                            <ul class="sub-menu">
+                                <li><a href="{{ route('cliente.catalogo.index') }}">Toda la ropa</a></li>
+                                <li><a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}">Uniformes escolares</a></li>
+                                <li><a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}">Chompas</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="{{ $categoriaNav === 'uniforme' ? 'active-menu' : '' }}">
+                            <a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}">Uniformes</a>
+                        </li>
+
+                        <li class="{{ $categoriaNav === 'chompa' ? 'active-menu' : '' }}">
+                            <a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}">Chompas</a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('cliente.mis-pedidos') }}">Mis pedidos</a>
+                        </li>
+
+                        @if($usuarioLogueado)
+                            <li>
+                                <a href="{{ route('cliente.disenios.index') }}">Mis diseños</a>
+                            </li>
+                        @endif
+                    </ul>
+                </div>
+
+                <!-- Icon header -->
+                <div class="wrap-icon-header flex-w flex-r-m">
+                    @if($usuarioLogueado)
+                        <a href="{{ route('cliente.mis-pedidos') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11" style="display:inline-flex;align-items:center;gap:6px;font-size:22px;" title="{{ $nombreUsuario }}">
+                            <i class="zmdi zmdi-account"></i>
+                            <span class="stext-107 cl2">{{ explode(' ', $nombreUsuario)[0] }}</span>
+                        </a>
+                        <a href="{{ route('cliente.testimonios.create') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11" title="Danos tu opinión">
+                            <i class="zmdi zmdi-star"></i>
+                        </a>
+                        <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="{{ $cantidadCarrito }}">
+                            <i class="zmdi zmdi-shopping-cart"></i>
+                        </div>
+                    @else
+                        <a href="{{ route('login.paso1') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11">
+                            <i class="zmdi zmdi-account"></i>
+                        </a>
+                    @endif
+                </div>
+            </nav>
         </div>
-    @endif
+    </div>
 
-    @php
-        $categoriaNav = request()->routeIs('cliente.catalogo.*') ? request()->query('categoria', 'todos') : null;
-    @endphp
-    <div class="topbar-right">
-        <button type="button" class="btn-menu-movil" onclick="toggleNavMovil()" aria-label="Menú">
-            <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-        </button>
-        <div class="nav-links-wrap" id="nav-links-wrap">
-            <a href="{{ route('cliente.catalogo.index') }}" class="topbar-link @if($categoriaNav === 'todos') active @endif">Toda la ropa</a>
-            <a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}" class="topbar-link @if($categoriaNav === 'uniforme') active @endif">Uniformes escolares</a>
-            <a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}" class="topbar-link @if($categoriaNav === 'chompa') active @endif">Chompas</a>
+    <!-- Header Mobile -->
+    <div class="wrap-header-mobile">
+        <!-- Logo moblie -->
+        <div class="logo-mobile">
+            <a href="{{ route('inicio') }}"><img src="{{ asset('images/logo.png') }}" alt="Leo José"></a>
+        </div>
+
+        <!-- Icon header -->
+        <div class="wrap-icon-header flex-w flex-r-m m-r-15">
             @if($usuarioLogueado)
-                <a href="{{ route('cliente.disenios.index') }}" class="topbar-link @if(request()->routeIs('cliente.disenios.index')) active @endif">Mis diseños</a>
-                <a href="@yield('mis-pedidos-route', route('cliente.mis-pedidos'))" class="topbar-link">Mis pedidos</a>
+                <a href="{{ route('cliente.mis-pedidos') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10" style="display:inline-flex;align-items:center;gap:5px;font-size:20px;" title="{{ $nombreUsuario }}">
+                    <i class="zmdi zmdi-account"></i>
+                </a>
+                <a href="{{ route('cliente.testimonios.create') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10" title="Danos tu opinión">
+                    <i class="zmdi zmdi-star"></i>
+                </a>
+                <div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart" data-notify="{{ $cantidadCarrito }}">
+                    <i class="zmdi zmdi-shopping-cart"></i>
+                </div>
+            @else
+                <a href="{{ route('login.paso1') }}" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10">
+                    <i class="zmdi zmdi-account"></i>
+                </a>
             @endif
         </div>
 
-        <div class="topbar-divider"></div>
+        <!-- Button show menu -->
+        <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+            <span class="hamburger-box">
+                <span class="hamburger-inner"></span>
+            </span>
+        </div>
+    </div>
 
-        @if($usuarioLogueado)
-            <div class="carrito-wrap" id="carrito-wrap">
-                <button type="button" class="btn-cart" onclick="toggleCarrito()" aria-label="Carrito">
-                    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-                    <span class="cart-badge" id="cart-badge" style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">{{ $cantidadCarrito }}</span>
-                </button>
-                <div id="carrito-dropdown-container">
-                    @include('cliente.componentes.carrito-dropdown')
+
+    <!-- Menu Mobile -->
+    <div class="menu-mobile">
+        <ul class="topbar-mobile">
+            <li>
+                <div class="left-top-bar">
+                    🚚 Envíos a todo Salcedo
+                </div>
+            </li>
+
+            <li>
+                <div class="right-top-bar flex-w h-full">
+                    @if($usuarioLogueado)
+                        <a href="{{ route('logout') }}" class="flex-c-m p-lr-10 trans-04">Salir</a>
+                    @else
+                        <a href="{{ route('login.paso1') }}" class="flex-c-m p-lr-10 trans-04">Mi cuenta</a>
+                    @endif
+                </div>
+            </li>
+        </ul>
+
+        <ul class="main-menu-m">
+            <li>
+                <a href="{{ route('cliente.catalogo.index') }}">Catálogo</a>
+                <ul class="sub-menu-m">
+                    <li><a href="{{ route('cliente.catalogo.index') }}">Toda la ropa</a></li>
+                    <li><a href="{{ route('cliente.catalogo.index', ['categoria' => 'uniforme']) }}">Uniformes escolares</a></li>
+                    <li><a href="{{ route('cliente.catalogo.index', ['categoria' => 'chompa']) }}">Chompas</a></li>
+                </ul>
+                <span class="arrow-main-menu-m">
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </span>
+            </li>
+
+            <li>
+                <a href="{{ route('cliente.mis-pedidos') }}">Mis pedidos</a>
+            </li>
+
+            @if($usuarioLogueado)
+                <li><a href="{{ route('cliente.disenios.index') }}">Mis diseños</a></li>
+            @endif
+
+            <li>
+                <a href="{{ route('cliente.testimonios.create') }}">Danos tu opinión</a>
+            </li>
+        </ul>
+    </div>
+
+</header>
+
+@if($usuarioLogueado)
+    <!-- Cart -->
+    <div class="wrap-header-cart js-panel-cart">
+        <div class="s-full js-hide-cart"></div>
+
+        <div class="header-cart flex-col-l p-l-65 p-r-25">
+            <div class="header-cart-title flex-w flex-sb-m p-b-8">
+                <span class="mtext-103 cl2">
+                    Mi carrito
+                </span>
+
+                <div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-cart">
+                    <i class="zmdi zmdi-close"></i>
                 </div>
             </div>
-        @endif
 
-        <button class="btn-theme" onclick="toggleTheme()" title="Cambiar tema">
-            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-            <svg class="icon-sun"  viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </button>
-        <div class="account-menu-wrap" id="account-menu-wrap">
-            <button type="button" class="nav-avatar" onclick="toggleAccountMenu()" aria-label="Cuenta">
-                {{ strtoupper($iniciales) }}
-            </button>
-            <div class="account-menu" id="account-menu">
-                @if($usuarioLogueado)
-                    <div class="account-head">
-                        <div class="account-name">{{ $nombreUsuario }}</div>
-                        <div class="account-role">Mi cuenta</div>
-                    </div>
-                    <a href="{{ route('cliente.testimonios.create') }}" class="account-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                        Danos tu opinión
-                    </a>
-                    <a href="{{ route('logout') }}" class="account-link danger">
-                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Salir
-                    </a>
-                @else
-                    <a href="{{ route('login.paso1') }}" class="account-link">
-                        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                        Iniciar sesión
-                    </a>
-                @endif
+            <div class="header-cart-content flex-w js-pscroll" id="carrito-dropdown-container">
+                @include('cliente.componentes.carrito-dropdown')
             </div>
         </div>
     </div>
-</header>
+@endif
 
 @once
     @push('scripts')
     <script>
-        function toggleFiltros() {
-            document.getElementById('filtros-wrap')?.classList.toggle('open');
-        }
-        function toggleCarrito() {
-            document.getElementById('carrito-wrap')?.classList.toggle('open');
-        }
-        function toggleNavMovil() {
-            document.getElementById('nav-links-wrap')?.classList.toggle('open');
-            document.querySelector('.btn-menu-movil')?.classList.toggle('open');
-        }
-        document.addEventListener('click', function (event) {
-            const filtrosWrap = document.getElementById('filtros-wrap');
-            if (filtrosWrap && !filtrosWrap.contains(event.target)) {
-                filtrosWrap.classList.remove('open');
-            }
-            const carritoWrap = document.getElementById('carrito-wrap');
-            if (carritoWrap && !carritoWrap.contains(event.target)) {
-                carritoWrap.classList.remove('open');
-            }
-            const navLinksWrap = document.getElementById('nav-links-wrap');
-            const btnMenuMovil = document.querySelector('.btn-menu-movil');
-            if (navLinksWrap && !navLinksWrap.contains(event.target) && btnMenuMovil && !btnMenuMovil.contains(event.target)) {
-                navLinksWrap.classList.remove('open');
-                btnMenuMovil.classList.remove('open');
-            }
-        });
-
         // Quitar un producto del carrito sin recargar la página (mantiene la
         // ventanita abierta y refresca su contenido + el contador del ícono).
         document.addEventListener('submit', function (event) {
@@ -150,11 +227,9 @@
                     const container = document.getElementById('carrito-dropdown-container');
                     if (container) container.innerHTML = data.html;
 
-                    const badge = document.getElementById('cart-badge');
-                    if (badge) {
-                        badge.textContent = data.count;
-                        badge.style.display = data.count > 0 ? '' : 'none';
-                    }
+                    document.querySelectorAll('.js-show-cart').forEach(function (el) {
+                        el.setAttribute('data-notify', data.count);
+                    });
                 })
                 .catch(() => { form.submit(); });
         });

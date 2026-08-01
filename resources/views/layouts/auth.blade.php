@@ -5,35 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('titulo', 'Leo José')</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('vendor/cozastore/css/leojoma-overrides.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg:           #FAF8F5;
+      --bg:           #F7F7F3;
       --bg-2:         #FFFFFF;
-      --bg-3:         #F3F0EA;
-      --border:       #E7E2D9;
-      --border-2:     #D2CBBC;
-      --text-1:       #1C1A17;
-      --text-2:       #5B564D;
-      --text-3:       #948E80;
-      --blue:         #0E6B4F;
-      --blue-h:       #0A5540;
-      --blue-soft:    #E4F1EC;
-      --blue-border:  #BFE1D2;
-      --blue-light:   #2F9271;
+      --bg-3:         #F0F1EB;
+      --border:       #E4E4DD;
+      --border-2:     #D2D2C6;
+      --text-1:       #16181A;
+      --text-2:       #53565B;
+      --text-3:       #90928C;
+      --blue:         #16A34A;
+      --blue-h:       #12813B;
+      --blue-soft:    #E7F8ED;
+      --blue-border:  #B8E9C6;
+      --blue-light:   #34C468;
       --red-50:       #FEF2F2;
       --red-400:      #F87171;
       --red-500:      #EF4444;
-      --ink:          #1B1721;
-      --shadow-sm:    0 1px 3px rgba(28,26,23,0.08);
-      --shadow-md:    0 4px 16px rgba(28,26,23,0.1);
-      --shadow-lg:    0 12px 40px rgba(28,26,23,0.14);
+      --ink:          #14161A;
+      --shadow-sm:    0 1px 3px rgba(20,22,26,0.08);
+      --shadow-md:    0 8px 24px rgba(20,22,26,0.1);
+      --shadow-lg:    0 20px 50px rgba(20,22,26,0.16);
       --radius:       14px;
-      --font-d:       'Fraunces', serif;
-      --font-b:       'Inter', sans-serif;
+      --font-d:       'Playfair Display', serif;
+      --font-b:       'Poppins', sans-serif;
     }
     html, body { height: 100%; }
     body {
@@ -57,8 +58,8 @@
       content: '';
       position: absolute; inset: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 110% 110%, rgba(14,107,79,0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at -10% -10%, rgba(47,146,113,0.25) 0%, transparent 55%);
+        radial-gradient(ellipse 80% 60% at 110% 110%, rgba(22,163,74,0.28) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at -10% -10%, rgba(52,196,104,0.12) 0%, transparent 55%);
     }
     .left::after {
       content: '';
@@ -136,7 +137,7 @@
       background: var(--bg-2); outline: none;
       transition: border-color 0.18s, box-shadow 0.18s;
     }
-    .field input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px var(--blue-soft); }
+    .field input:focus { border-color: var(--border-2); box-shadow: 0 0 0 3px rgba(20,22,26,0.05); }
     .field input.is-error { border-color: var(--red-400); background: var(--red-50); }
     .field-error { font-size: 0.76rem; color: var(--red-500); margin-top: 5px; font-weight: 500; }
     .field-hint { font-size: 0.76rem; color: var(--text-3); margin-top: 5px; }
@@ -165,7 +166,7 @@
       background: var(--blue); color: white; border: none; border-radius: 10px;
       font-family: var(--font-d); font-size: 0.95rem; font-weight: 700;
       cursor: pointer; transition: all 0.2s;
-      box-shadow: 0 4px 14px var(--blue-shadow, rgba(14,107,79,0.3));
+      box-shadow: 0 4px 14px var(--blue-shadow, rgba(22,163,74,0.3));
       display: flex; align-items: center; justify-content: center; gap: 8px;
       margin-top: 8px;
     }
@@ -201,7 +202,7 @@
       transition: border-color 0.18s, box-shadow 0.18s;
     }
     .codigo-input::placeholder { color: var(--border-2); letter-spacing: 0.5em; }
-    .codigo-input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px var(--blue-soft); }
+    .codigo-input:focus { border-color: var(--border-2); box-shadow: 0 0 0 3px rgba(20,22,26,0.05); }
     .codigo-input.is-error { border-color: var(--red-400); background: var(--red-50); }
 
     /* recordarme */
@@ -255,8 +256,9 @@
       .right { padding: 32px 20px; }
     }
 
-    @stack('estilos')
   </style>
+
+  @stack('estilos')
 </head>
 <body>
 
@@ -285,6 +287,8 @@
     @yield('card')
   </div>
 </div>
+
+@yield('modales')
 
 <script>
   function togglePass(inputId, btn) {

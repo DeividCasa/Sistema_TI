@@ -4,7 +4,7 @@
 
 @section('contenido')
 
-
+<div class="main-content-compat">
 <div class="sec-header reveal">
   <div class="sec-title">Comprobante de pago — Pedido {{ $pedido->codigo }}</div>
   <a href="{{ route('cliente.mis-pedidos') }}" class="btn-secondary">← Mis pedidos</a>
@@ -133,6 +133,7 @@
     </form>
   </div>
 
+</div>
 </div>
 
 @endsection

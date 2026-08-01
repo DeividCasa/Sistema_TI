@@ -1,73 +1,66 @@
 @php
   $categoriasGenerales = [
-    'camiseta' => ['label' => 'Camisetas', 'icon' => 'fa-tshirt'],
-    'short'    => ['label' => 'Shorts', 'icon' => 'fa-socks'],
-    'conjunto' => ['label' => 'Conjuntos', 'icon' => 'fa-vest'],
-    'uniforme' => ['label' => 'Uniformes Escolares', 'icon' => 'fa-graduation-cap'],
-    'chompa'   => ['label' => 'Chompas', 'icon' => 'fa-mitten'],
-    'otro'     => ['label' => 'Otros', 'icon' => 'fa-ellipsis-h'],
+    'camiseta' => 'Camisetas',
+    'short'    => 'Shorts',
+    'conjunto' => 'Conjuntos',
+    'uniforme' => 'Uniformes Escolares',
+    'chompa'   => 'Chompas',
+    'otro'     => 'Otros',
   ];
 @endphp
 
-<div class="filter-group">
-  <h6><i class="fas fa-layer-group"></i> Categorías</h6>
-  <ul id="filtros-categoria-gen">
-    <li data-tipo="todos" class="{{ $categoriaActiva === 'todos' ? 'filtro-activo' : '' }}" onclick="filtrarCategoriaGeneral('todos', this)">
-      <i class="fas fa-th-large"></i> Todas
-    </li>
-    @foreach($categoriasGenerales as $tipo => $info)
-      <li data-tipo="{{ $tipo }}" class="{{ $categoriaActiva === $tipo ? 'filtro-activo' : '' }}" onclick="filtrarCategoriaGeneral('{{ $tipo }}', this)">
-        <i class="fas {{ $info['icon'] }}"></i> {{ $info['label'] }}
+<div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+  <div class="filter-col1 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Categoría</div>
+    <ul id="filtros-categoria-gen">
+      <li class="p-b-6">
+        <a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $categoriaActiva === 'todos' ? 'filter-link-active' : '' }}" data-tipo="todos" onclick="filtrarCategoriaGeneral('todos', this)">Todas</a>
       </li>
-    @endforeach
-  </ul>
-</div>
-
-<div class="filter-group">
-  <h6><i class="fas fa-venus-mars"></i> Género</h6>
-  <ul id="filtros-genero-gen">
-    <li data-genero="todos" class="{{ $generoActivo === 'todos' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('todos', this)">
-      <i class="fas fa-th-large"></i> Todos
-    </li>
-    <li data-genero="hombre" class="{{ $generoActivo === 'hombre' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('hombre', this)">
-      <i class="fas fa-mars"></i> Para Hombre
-    </li>
-    <li data-genero="mujer" class="{{ $generoActivo === 'mujer' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('mujer', this)">
-      <i class="fas fa-venus"></i> Para Mujer
-    </li>
-    <li data-genero="unisex" class="{{ $generoActivo === 'unisex' ? 'filtro-activo' : '' }}" onclick="filtrarGeneroGeneral('unisex', this)">
-      <i class="fas fa-genderless"></i> Unisex
-    </li>
-  </ul>
-</div>
-
-<div class="filter-group">
-  <h6><i class="fas fa-chart-simple"></i> Tallas</h6>
-  <ul id="filtros-talla-gen">
-    <li data-talla="todos" class="{{ $tallaActiva === 'todos' ? 'filtro-activo' : '' }}" onclick="filtrarTallaGeneral('todos', this)">
-      <i class="fas fa-ruler"></i> Todas
-    </li>
-    @foreach($tallasDisponibles as $talla)
-      <li data-talla="{{ $talla }}" class="{{ $tallaActiva === $talla ? 'filtro-activo' : '' }}" onclick="filtrarTallaGeneral('{{ $talla }}', this)">
-        <i class="fas fa-tag"></i> {{ strtoupper($talla) }}
-      </li>
-    @endforeach
-  </ul>
-</div>
-
-<div class="filter-group">
-  <h6><i class="fas fa-dollar-sign"></i> Precio</h6>
-  <div class="price-range-label">
-    <span id="precio-label-min-gen">${{ (int) $precioMinActivo }}</span>
-    <span id="precio-label-max-gen">${{ (int) $precioMaxActivo }}</span>
+      @foreach($categoriasGenerales as $tipo => $label)
+        <li class="p-b-6">
+          <a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $categoriaActiva === $tipo ? 'filter-link-active' : '' }}" data-tipo="{{ $tipo }}" onclick="filtrarCategoriaGeneral('{{ $tipo }}', this)">{{ $label }}</a>
+        </li>
+      @endforeach
+    </ul>
   </div>
-  <div class="price-slider">
-    <div class="price-track"></div>
-    <div class="price-track-fill" id="price-track-fill-gen"></div>
-    <input type="range" id="precio-min-gen" min="{{ (int) $precioGlobalMin }}" max="{{ (int) $precioGlobalMax }}" value="{{ (int) $precioMinActivo }}" step="1" oninput="onPrecioGeneralInput()">
-    <input type="range" id="precio-max-gen" min="{{ (int) $precioGlobalMin }}" max="{{ (int) $precioGlobalMax }}" value="{{ (int) $precioMaxActivo }}" step="1" oninput="onPrecioGeneralInput()">
+
+  <div class="filter-col2 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Género</div>
+    <ul id="filtros-genero-gen">
+      <li class="p-b-6"><a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $generoActivo === 'todos' ? 'filter-link-active' : '' }}" data-genero="todos" onclick="filtrarGeneroGeneral('todos', this)">Todos</a></li>
+      <li class="p-b-6"><a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $generoActivo === 'hombre' ? 'filter-link-active' : '' }}" data-genero="hombre" onclick="filtrarGeneroGeneral('hombre', this)">Para Hombre</a></li>
+      <li class="p-b-6"><a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $generoActivo === 'mujer' ? 'filter-link-active' : '' }}" data-genero="mujer" onclick="filtrarGeneroGeneral('mujer', this)">Para Mujer</a></li>
+      <li class="p-b-6"><a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $generoActivo === 'unisex' ? 'filter-link-active' : '' }}" data-genero="unisex" onclick="filtrarGeneroGeneral('unisex', this)">Unisex</a></li>
+    </ul>
+  </div>
+
+  <div class="filter-col3 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Talla</div>
+    <ul id="filtros-talla-gen">
+      <li class="p-b-6"><a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $tallaActiva === 'todos' ? 'filter-link-active' : '' }}" data-talla="todos" onclick="filtrarTallaGeneral('todos', this)">Todas</a></li>
+      @foreach($tallasDisponibles as $talla)
+        <li class="p-b-6"><a href="javascript:void(0)" class="filter-link stext-106 trans-04 {{ $tallaActiva === $talla ? 'filter-link-active' : '' }}" data-talla="{{ $talla }}" onclick="filtrarTallaGeneral('{{ $talla }}', this)">{{ strtoupper($talla) }}</a></li>
+      @endforeach
+    </ul>
+  </div>
+
+  <div class="filter-col4 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">
+      Precio: <span id="precio-label-min-gen">${{ (int) $precioMinActivo }}</span> — <span id="precio-label-max-gen">${{ (int) $precioMaxActivo }}</span>
+    </div>
+    <div class="price-slider" style="position:relative;height:20px;margin:14px 2px 4px;">
+      <div class="price-track" style="position:absolute;top:8px;left:0;right:0;height:4px;background:#ebebeb;border-radius:4px;"></div>
+      <div class="price-track-fill" id="price-track-fill-gen" style="position:absolute;top:8px;height:4px;background:var(--blue);border-radius:4px;"></div>
+      <input type="range" id="precio-min-gen" min="{{ (int) $precioGlobalMin }}" max="{{ (int) $precioGlobalMax }}" value="{{ (int) $precioMinActivo }}" step="1" oninput="onPrecioGeneralInput()" style="position:absolute;top:0;left:0;width:100%;height:20px;margin:0;background:transparent;pointer-events:none;-webkit-appearance:none;appearance:none;">
+      <input type="range" id="precio-max-gen" min="{{ (int) $precioGlobalMin }}" max="{{ (int) $precioGlobalMax }}" value="{{ (int) $precioMaxActivo }}" step="1" oninput="onPrecioGeneralInput()" style="position:absolute;top:0;left:0;width:100%;height:20px;margin:0;background:transparent;pointer-events:none;-webkit-appearance:none;appearance:none;">
+    </div>
   </div>
 </div>
+
+<style>
+  .price-slider input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; pointer-events:auto; width:16px; height:16px; border-radius:50%; background:var(--blue); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.3); cursor:pointer; margin-top:2px; }
+  .price-slider input[type="range"]::-moz-range-thumb { pointer-events:auto; width:14px; height:14px; border-radius:50%; background:var(--blue); border:2px solid #fff; cursor:pointer; }
+</style>
 
 @push('scripts')
 <script>
@@ -94,22 +87,26 @@
 
   function filtrarCategoriaGeneral(tipo, el) {
     catGenActual = tipo;
-    document.querySelectorAll('#filtros-categoria-gen li').forEach(li => li.classList.remove('filtro-activo'));
-    el.classList.add('filtro-activo');
+    document.querySelectorAll('#filtros-categoria-gen a, .filter-tope-group button').forEach(n => n.classList.remove('filter-link-active', 'how-active1'));
+    if (el.tagName === 'BUTTON') el.classList.add('how-active1'); else el.classList.add('filter-link-active');
+    // Sincroniza el otro selector de categoría (tabs arriba <-> panel de filtros)
+    document.querySelectorAll('.filter-tope-group button[data-tipo="' + tipo + '"]').forEach(b => b.classList.add('how-active1'));
+    const linkPanel = document.querySelector('#filtros-categoria-gen a[data-tipo="' + tipo + '"]');
+    if (linkPanel) linkPanel.classList.add('filter-link-active');
     recargarCatalogoGeneral();
   }
 
   function filtrarTallaGeneral(talla, el) {
     tallaGenActual = talla;
-    document.querySelectorAll('#filtros-talla-gen li').forEach(li => li.classList.remove('filtro-activo'));
-    el.classList.add('filtro-activo');
+    document.querySelectorAll('#filtros-talla-gen a').forEach(a => a.classList.remove('filter-link-active'));
+    el.classList.add('filter-link-active');
     recargarCatalogoGeneral();
   }
 
   function filtrarGeneroGeneral(genero, el) {
     generoGenActual = genero;
-    document.querySelectorAll('#filtros-genero-gen li').forEach(li => li.classList.remove('filtro-activo'));
-    el.classList.add('filtro-activo');
+    document.querySelectorAll('#filtros-genero-gen a').forEach(a => a.classList.remove('filter-link-active'));
+    el.classList.add('filter-link-active');
     recargarCatalogoGeneral();
   }
 
@@ -136,7 +133,7 @@
     debounceGenTimer = setTimeout(recargarCatalogoGeneral, 300);
   }
 
-  // Llamada por el buscador del topbar (oninput="filtrarProductos()")
+  // Buscador (panel "Search" de la plantilla)
   function filtrarProductos() {
     clearTimeout(debounceGenTimer);
     debounceGenTimer = setTimeout(recargarCatalogoGeneral, 300);

@@ -14,90 +14,69 @@
 
     $carritoVacio = empty($carritoPlantillas) && empty($carritoUniformes) && empty($carritoChompas);
     $totalGeneral = $totalPlantillas + $totalUniformes + $totalChompas;
+
+    $filas = [];
+    foreach ($carritoPlantillas as $key => $item) {
+        $filas[] = ['key' => $key, 'item' => $item, 'ruta' => route('cliente.plantillas.quitar', $key)];
+    }
+    foreach ($carritoUniformes as $key => $item) {
+        $filas[] = ['key' => $key, 'item' => $item, 'ruta' => route('cliente.carrito.quitar', $key)];
+    }
+    foreach ($carritoChompas as $key => $item) {
+        $filas[] = ['key' => $key, 'item' => $item, 'ruta' => route('cliente.chompas.quitar', $key)];
+    }
 @endphp
 
-<div class="carrito-dropdown" id="carrito-dropdown">
-    <div class="carrito-dropdown-titulo">Mi carrito</div>
+@if($carritoVacio)
+    <div class="w-full p-t-20 p-b-40 txt-center">
+        <i class="zmdi zmdi-shopping-cart" style="font-size:40px;color:#ccc;"></i>
+        <p class="stext-107 cl6 p-t-15">Tu carrito está vacío.</p>
+    </div>
+@else
+    <ul class="header-cart-wrapitem w-full">
+        @foreach($filas as $fila)
+            <li class="header-cart-item flex-w flex-t m-b-12">
+                <div class="header-cart-item-img">
+                    @if(!empty($fila['item']['imagen']))
+                        <img src="{{ asset('storage/' . $fila['item']['imagen']) }}" alt="{{ $fila['item']['nombre'] }}">
+                    @endif
+                </div>
 
-    @if($carritoVacio)
-        <div class="carrito-vacio">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-            Tu carrito está vacío.
+                <div class="header-cart-item-txt p-t-8">
+                    <span class="header-cart-item-name m-b-18">
+                        {{ $fila['item']['nombre'] }}
+                    </span>
+
+                    <span class="header-cart-item-info">
+                        @if(!empty($fila['item']['talla'])) Talla {{ $fila['item']['talla'] }} &middot; @endif
+                        {{ $fila['item']['cantidad'] }} x ${{ number_format($fila['item']['precio'], 2) }}
+                    </span>
+
+                    <form action="{{ $fila['ruta'] }}" method="POST" class="p-t-4">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="stext-107" style="background:none;border:none;color:#F1592A;cursor:pointer;padding:0;">
+                            Quitar
+                        </button>
+                    </form>
+                </div>
+            </li>
+        @endforeach
+    </ul>
+
+    <div class="w-full">
+        <div class="header-cart-total w-full p-tb-40">
+            Total: ${{ number_format($totalGeneral, 2) }}
         </div>
-    @else
-        <div class="carrito-seccion">
 
-            @if(!empty($carritoPlantillas))
-                <div class="carrito-seccion-titulo">Ropa</div>
-                @foreach($carritoPlantillas as $key => $item)
-                    <div class="carrito-item">
-                        @if($item['imagen'])
-                            <img src="{{ asset('storage/' . $item['imagen']) }}" alt="{{ $item['nombre'] }}">
-                        @endif
-                        <div class="carrito-item-info">
-                            <div class="carrito-item-nombre">{{ $item['nombre'] }}</div>
-                            <div class="carrito-item-detalle">
-                                @if($item['talla']) Talla {{ $item['talla'] }} &times; @endif{{ $item['cantidad'] }}
-                            </div>
-                        </div>
-                        <div class="carrito-item-precio">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</div>
-                        <form action="{{ route('cliente.plantillas.quitar', $key) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="carrito-item-quitar" aria-label="Quitar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            </button>
-                        </form>
-                    </div>
-                @endforeach
-            @endif
+        <div class="header-cart-buttons flex-w w-full">
+            <a href="{{ route('cliente.carrito.index') }}" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
+                Ver carrito
+            </a>
 
-            @if(!empty($carritoUniformes))
-                <div class="carrito-seccion-titulo" style="margin-top:10px;">Uniformes escolares</div>
-                @foreach($carritoUniformes as $key => $item)
-                    <div class="carrito-item">
-                        <img src="{{ asset('storage/' . $item['imagen']) }}" alt="{{ $item['nombre'] }}">
-                        <div class="carrito-item-info">
-                            <div class="carrito-item-nombre">{{ $item['nombre'] }}</div>
-                            <div class="carrito-item-detalle">Talla {{ $item['talla'] }} &times; {{ $item['cantidad'] }}</div>
-                        </div>
-                        <div class="carrito-item-precio">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</div>
-                        <form action="{{ route('cliente.carrito.quitar', $key) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="carrito-item-quitar" aria-label="Quitar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            </button>
-                        </form>
-                    </div>
-                @endforeach
-            @endif
-
-            @if(!empty($carritoChompas))
-                <div class="carrito-seccion-titulo" style="margin-top:10px;">Chompas</div>
-                @foreach($carritoChompas as $key => $item)
-                    <div class="carrito-item">
-                        <img src="{{ asset('storage/' . $item['imagen']) }}" alt="{{ $item['nombre'] }}">
-                        <div class="carrito-item-info">
-                            <div class="carrito-item-nombre">{{ $item['nombre'] }}</div>
-                            <div class="carrito-item-detalle">Talla {{ $item['talla'] }} &times; {{ $item['cantidad'] }}</div>
-                        </div>
-                        <div class="carrito-item-precio">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</div>
-                        <form action="{{ route('cliente.chompas.quitar', $key) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="carrito-item-quitar" aria-label="Quitar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            </button>
-                        </form>
-                    </div>
-                @endforeach
-            @endif
-
-            <div class="carrito-seccion-footer">
-                <div class="carrito-seccion-total">Total: <strong>${{ number_format($totalGeneral, 2) }}</strong></div>
-                <a href="{{ route('cliente.carrito.index') }}" class="carrito-btn-pagar">Ver carrito completo</a>
-            </div>
+            <a href="{{ route('cliente.carrito.index') }}" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                Pagar
+            </a>
         </div>
-    @endif
-</div>
+    </div>
+@endif

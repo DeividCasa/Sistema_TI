@@ -188,6 +188,11 @@
     }
 </style>
 
+<br />
+<br />
+<br />
+<br />
+
 <div class="disenios-container">
     <div class="disenios-header">
         <h1 class="disenios-titulo">Mis diseños</h1>

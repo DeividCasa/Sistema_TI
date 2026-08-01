@@ -1,14 +1,6 @@
-/* ═══════════════════════════════════════════════════════════════
-   VISOR 3D SOLO LECTURA — "Mis diseños"
-   Reutiliza prendas.js / three-viewer.js / accesorios.js (los mismos
-   que usa el editor) sin modificarlos: solo hay que poblar sus
-   variables globales (estado, tipoPrendaActual, canvasData, ACCESORIOS)
-   con los datos guardados de un diseño antes de llamar a sus funciones.
-   ═══════════════════════════════════════════════════════════════ */
-
-// three-viewer.js consulta esta variable en crearCanvasTextura() para
-// decidir si usa el canvas EN VIVO del editor o el canvasData guardado;
-// aquí no hay editor interactivo, así que se deja siempre en null.
+// three-viewer consulta esta variable en crearCanvasTextura() para
+// decidir si usa el canvas EN VIVO del editor o el canvasData guardado
+// aquí no hay editor interactivo así que se deja siempre en null
 let fabricCanvas = null;
 
 let visor3DInicializado = false;

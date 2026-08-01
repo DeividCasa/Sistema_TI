@@ -34,6 +34,7 @@ class RegistroController extends Controller
             'telefono' => 'nullable|string|max:20',
             'ciudad'   => 'nullable|string|max:100',
             'password' => ['required', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/'],
+            'terminos' => ['accepted'],
         ], [
             'nombre.required'   => 'El nombre es obligatorio.',
             'nombre.regex'      => 'El nombre solo puede contener letras.',
@@ -48,6 +49,7 @@ class RegistroController extends Controller
             'password.required' => 'La contraseña es obligatoria.',
             'password.regex'    => 'Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Deivid21$).',
             'password.confirmed' => 'Las contraseñas no coinciden.',
+            'terminos.accepted' => 'Debes aceptar los términos y condiciones para continuar.',
         ]);
 
         Cliente::create([

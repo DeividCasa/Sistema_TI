@@ -10,7 +10,7 @@ function init3D() {
   const canvas3d = document.getElementById('canvas-3d');
   const visor    = document.getElementById('visor-3d');
 
-  renderer3d = new THREE.WebGLRenderer({ canvas:canvas3d, antialias:true, preserveDrawingBuffer:true });
+  renderer3d = new THREE.WebGLRenderer({ canvas:canvas3d, antialias:true, preserveDrawingBuffer:true, alpha:true });
   renderer3d.setPixelRatio(window.devicePixelRatio);
   renderer3d.shadowMap.enabled = true;
   renderer3d.shadowMap.type    = THREE.PCFSoftShadowMap;
@@ -153,6 +153,13 @@ function capturarVistas3D() {
   const targetOriginal = controls3d ? controls3d.target.clone() : new THREE.Vector3(0,0,0);
   const distancia      = distanciaCamara3D || camera3d.position.distanceTo(targetOriginal) || 2.4;
 
+  // El fondo azul oscuro (scene3d.background) es solo para que el visor se
+  // vea bien en pantalla — al capturar la miniatura para "Mis diseños" se
+  // quita temporalmente para que la imagen quede con fondo transparente.
+  const fondoOriginal = scene3d.background;
+  scene3d.background = null;
+  renderer3d.setClearColor(0x000000, 0);
+
   camera3d.position.set(targetOriginal.x, targetOriginal.y, targetOriginal.z + distancia);
   camera3d.lookAt(targetOriginal);
   renderer3d.render(scene3d, camera3d);
@@ -163,6 +170,7 @@ function capturarVistas3D() {
   renderer3d.render(scene3d, camera3d);
   const atras = renderer3d.domElement.toDataURL('image/png');
 
+  scene3d.background = fondoOriginal;
   camera3d.position.copy(posOriginal);
   camera3d.lookAt(targetOriginal);
   renderer3d.render(scene3d, camera3d);
