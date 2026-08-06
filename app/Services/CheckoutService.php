@@ -87,8 +87,8 @@ class CheckoutService
             PedidoPlantillaItem::create([
                 'pedido_plantilla_id' => $pedido->id,
                 'plantilla_id'        => $item['plantilla_id'],
+                'plantilla_talla_id'  => $item['talla_id'] ?? null,
                 'talla'               => $item['talla'],
-                'color'               => $item['color'],
                 'precio_unitario'     => $item['precio'],
                 'cantidad'            => $item['cantidad'],
                 'subtotal'            => $item['precio'] * $item['cantidad'],

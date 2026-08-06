@@ -26,8 +26,9 @@ class PedidoTiendaController extends Controller
         return view('Admin.pedidos_tienda.index', compact('pedidos'));
     }
 
-    // ── Colección unificada de TODOS los tipos de pedido (usada también por el dashboard)
-    public static function pedidosUnificados()
+    // ── Colección unificada de TODOS los tipos de pedido (usada también por el dashboard
+    //    y por la ficha del cliente en admin, pasando $clienteId para filtrar solo los suyos)
+    public static function pedidosUnificados(?int $clienteId = null)
     {
         $maestros = PedidoMaestro::with([
                 'cliente',
@@ -36,6 +37,7 @@ class PedidoTiendaController extends Controller
                 'pedidoPlantilla.items.plantilla',
                 'comprobantes',
             ])
+            ->when($clienteId, fn ($q) => $q->where('cliente_id', $clienteId))
             ->get()
             ->map(function ($p) {
                 $nuevo = collect([$p->pedidoUniforme, $p->pedidoChompa, $p->pedidoPlantilla])
@@ -46,20 +48,24 @@ class PedidoTiendaController extends Controller
 
         $soloUniformes = PedidoUniforme::with(['cliente', 'items.uniforme', 'comprobantes'])
             ->whereNull('pedido_maestro_id')
+            ->when($clienteId, fn ($q) => $q->where('cliente_id', $clienteId))
             ->get()
             ->map(fn ($p) => ['tipo' => 'Uniforme', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $soloChompas = PedidoChompa::with(['cliente', 'items.chompa', 'comprobantes'])
             ->whereNull('pedido_maestro_id')
+            ->when($clienteId, fn ($q) => $q->where('cliente_id', $clienteId))
             ->get()
             ->map(fn ($p) => ['tipo' => 'Chompa', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $soloPlantillas = PedidoPlantilla::with(['cliente', 'items.plantilla', 'comprobantes'])
             ->whereNull('pedido_maestro_id')
+            ->when($clienteId, fn ($q) => $q->where('cliente_id', $clienteId))
             ->get()
             ->map(fn ($p) => ['tipo' => 'Ropa', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
         $camisetas = Pedido::with(['cliente', 'disenio'])
+            ->when($clienteId, fn ($q) => $q->where('cliente_id', $clienteId))
             ->get()
             ->map(fn ($p) => ['tipo' => 'Camiseta', 'pedido' => $p, 'fecha' => $p->created_at, 'nuevo' => is_null($p->visto_admin_at)]);
 
@@ -113,7 +119,8 @@ class PedidoTiendaController extends Controller
         }
 
         $request->validate([
-            'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'tiempo_estimado' => 'nullable|string|max:255',
         ]);
 
         foreach ($hijos as $hijo) {
@@ -139,10 +146,34 @@ class PedidoTiendaController extends Controller
                 default => null,
             })->filter()->implode(' + ');
 
-            $imagenRelativa = $pedido->pedidoPlantilla?->items->first()?->plantilla?->imagen_preview
-                ?? $pedido->pedidoUniforme?->items->first()?->uniforme?->imagen
-                ?? $pedido->pedidoChompa?->items->first()?->chompa?->imagen;
-            $imagenPath = $imagenRelativa ? Storage::disk('public')->path($imagenRelativa) : null;
+            $lineas = [];
+            if ($pedido->pedidoPlantilla) {
+                foreach ($pedido->pedidoPlantilla->items as $item) {
+                    $lineas[] = [
+                        'nombre' => $item->plantilla->nombre ?? 'Producto',
+                        'detalle' => ($item->talla ? 'Talla '.$item->talla.' × ' : '').$item->cantidad,
+                        'imagenPath' => $item->plantilla?->imagen_preview ? Storage::disk('public')->path($item->plantilla->imagen_preview) : null,
+                    ];
+                }
+            }
+            if ($pedido->pedidoUniforme) {
+                foreach ($pedido->pedidoUniforme->items as $item) {
+                    $lineas[] = [
+                        'nombre' => $item->uniforme->nombre,
+                        'detalle' => 'Talla '.$item->talla.' × '.$item->cantidad,
+                        'imagenPath' => $item->uniforme?->imagen ? Storage::disk('public')->path($item->uniforme->imagen) : null,
+                    ];
+                }
+            }
+            if ($pedido->pedidoChompa) {
+                foreach ($pedido->pedidoChompa->items as $item) {
+                    $lineas[] = [
+                        'nombre' => $item->chompa->nombre,
+                        'detalle' => 'Talla '.$item->talla.' × '.$item->cantidad,
+                        'imagenPath' => $item->chompa?->imagen ? Storage::disk('public')->path($item->chompa->imagen) : null,
+                    ];
+                }
+            }
 
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
@@ -150,7 +181,7 @@ class PedidoTiendaController extends Controller
                 $tipos ?: 'Pedido',
                 $estadoLabel,
                 $pedido->tiempo_estimado,
-                $imagenPath,
+                $lineas,
             ));
         }
 
@@ -213,6 +244,8 @@ class PedidoTiendaController extends Controller
     // ── RECHAZAR COMPROBANTE COMBINADO
     public function rechazarComprobante(Request $request, $id)
     {
+        $request->validate(['nota_admin' => 'nullable|string|max:1000']);
+
         $comprobante = ComprobanteMaestro::with('pedido')->findOrFail($id);
         $comprobante->estado = 'rechazado';
         $comprobante->nota_admin = $request->nota_admin ?? 'Comprobante no válido.';

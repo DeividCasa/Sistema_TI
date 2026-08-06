@@ -36,7 +36,9 @@ class PedidoController extends Controller
         }
 
         $request->validate([
-            'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado'
+            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'tiempo_estimado' => 'nullable|string|max:255',
+            'nota'            => 'nullable|string|max:1000',
         ]);
 
         // Guardar en historial
@@ -59,13 +61,19 @@ class PedidoController extends Controller
                 ? \Illuminate\Support\Facades\Storage::disk('public')->path($pedido->disenio->imagen_generada)
                 : null;
 
+            $lineas = [[
+                'nombre' => $pedido->disenio->nombre ?? 'Diseño personalizado',
+                'detalle' => null,
+                'imagenPath' => $imagenPath,
+            ]];
+
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
                 $pedido->codigo,
                 'Camiseta personalizada',
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
-                $imagenPath,
+                $lineas,
             ));
         }
 

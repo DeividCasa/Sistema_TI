@@ -47,6 +47,8 @@
         }
     }
 @endphp
+<br />
+<br />
 
 
 <div class="sec-header reveal">

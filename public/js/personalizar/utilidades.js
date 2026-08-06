@@ -12,16 +12,25 @@ function moverArriba() {
   const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
   const o = cv.getActiveObject(); if(!o) return;
   cv.bringToFront(o); cv.renderAll(); guardarHistorial();
-  if(cv===fabricCanvas) actualizarTextura3D();
+  if (typeof actualizarTextura3DSegunCanvas === 'function') actualizarTextura3DSegunCanvas(cv);
+  else if (cv===fabricCanvas) actualizarTextura3D();
 }
 function moverAtras() {
   const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
   const o = cv.getActiveObject(); if(!o) return;
   cv.sendToBack(o);
+  // La zona de diseño (rectángulo guía, invisible/casi invisible) también
+  // debe quedar por debajo de "o" — si no, "enviar atrás" deja la zona
+  // tapando el objeto en vez de la silueta, y en el canvas chico de la
+  // pantaloneta esa zona SÍ se nota (su relleno es proporcionalmente
+  // mucho más grande que en el canvas grande de la camiseta).
+  const zona = cv.getObjects().find(x=>x.id==='zona-diseno'||x.id==='zona-pant');
+  if(zona) cv.sendToBack(zona);
   const silueta = cv.getObjects().find(x=>x.id==='silueta'||x.id==='silueta-pant');
   if(silueta) cv.sendToBack(silueta);
   cv.renderAll(); guardarHistorial();
-  if(cv===fabricCanvas) actualizarTextura3D();
+  if (typeof actualizarTextura3DSegunCanvas === 'function') actualizarTextura3DSegunCanvas(cv);
+  else if (cv===fabricCanvas) actualizarTextura3D();
 }
 function esObjetoProtegido(o) {
   return !o || o.id==='silueta' || o.id==='silueta-pant' || o.id==='zona-pant' || o.id==='zona-diseno';

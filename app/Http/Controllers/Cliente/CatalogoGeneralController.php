@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 
 class CatalogoGeneralController extends Controller
 {
-    const POR_PAGINA = 16;
+    const POR_PAGINA = 12;
 
     public function index(Request $request)
     {
@@ -23,7 +23,7 @@ class CatalogoGeneralController extends Controller
         $precioMin = $request->query('precio_min');
         $precioMax = $request->query('precio_max');
         $texto     = trim((string) $request->query('q', ''));
-        $offset    = max(0, (int) $request->query('offset', 0));
+        $page      = max(1, (int) $request->query('page', 1));
 
         $filtrados = $todos->filter(function ($item) use ($categoria, $talla, $genero, $precioMin, $precioMax, $texto) {
             if ($categoria !== 'todos' && $item['tipo'] !== $categoria) return false;
@@ -35,20 +35,23 @@ class CatalogoGeneralController extends Controller
             return true;
         })->values();
 
-        $total  = $filtrados->count();
-        $pagina = $filtrados->slice($offset, self::POR_PAGINA)->values();
-        $mostrados = min($offset + self::POR_PAGINA, $total);
+        $total       = $filtrados->count();
+        $totalPaginas = max(1, (int) ceil($total / self::POR_PAGINA));
+        $page        = min($page, $totalPaginas);
+        $pagina      = $filtrados->forPage($page, self::POR_PAGINA)->values();
+        $mostrados   = $pagina->count();
 
         // Recordamos la última vista del catálogo (con sus filtros) para que los
         // botones "Volver al catálogo" / "Seguir comprando" regresen aquí, incluso
         // después de pasar por un agregar-al-carrito (POST) o un cambio de filtro (AJAX).
-        session(['catalogo_url' => route('cliente.catalogo.index', $request->except(['fragmento', 'offset']))]);
+        session(['catalogo_url' => route('cliente.catalogo.index', $request->except(['fragmento', 'page']))]);
 
         if ($request->query('fragmento')) {
             return response()->json([
-                'html'      => view('cliente.catalogo_general._grid', ['productos' => $pagina])->render(),
-                'total'     => $total,
-                'mostrados' => $mostrados,
+                'html'       => view('cliente.catalogo_general._grid', ['productos' => $pagina])->render(),
+                'paginacion' => view('cliente.catalogo_general._paginacion', ['page' => $page, 'totalPaginas' => $totalPaginas])->render(),
+                'total'      => $total,
+                'mostrados'  => $mostrados,
             ]);
         }
 
@@ -63,6 +66,8 @@ class CatalogoGeneralController extends Controller
             'productos'         => $pagina,
             'total'             => $total,
             'mostrados'         => $mostrados,
+            'page'              => $page,
+            'totalPaginas'      => $totalPaginas,
             'tallasDisponibles' => $tallasDisponibles,
             'precioGlobalMin'   => $precioGlobalMin,
             'precioGlobalMax'   => $precioGlobalMax,
@@ -88,14 +93,16 @@ class CatalogoGeneralController extends Controller
     {
         $plantillas = Plantilla::where('activa', 1)
             ->when($soloDestacados, fn ($q) => $q->where('destacado', 1))
-            ->get()->map(function ($p) {
+            ->with('tallas')->get()->map(function ($p) {
+            $tallasDisp = $p->tallas->where('disponible', 1);
+            $precio = $tallasDisp->pluck('precio')->min();
             return [
                 'id'     => 'plantilla-' . $p->id,
                 'tipo'   => $p->tipo_prenda,
                 'genero' => $p->genero,
                 'nombre' => $p->nombre,
-                'precio' => (float) $p->precio,
-                'tallas' => collect($p->tallas ?? [])->map(fn ($t) => strtolower($t))->values()->all(),
+                'precio' => $precio !== null ? (float) $precio : 0.0,
+                'tallas' => $tallasDisp->pluck('talla')->map(fn ($t) => strtolower($t))->values()->all(),
                 'imagen' => $p->imagen_preview ? asset('storage/' . $p->imagen_preview) : null,
                 'url'    => route('producto.ver', $p->id),
                 'badge'  => ucfirst($p->tipo_prenda),

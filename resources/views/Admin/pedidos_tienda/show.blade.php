@@ -13,17 +13,6 @@
   <a href="{{ route('admin.pedidos-tienda.index') }}" class="btn-secondary">← Volver</a>
 </div>
 
-@if(session('success'))
-  <div class="reveal" style="background:#DCFCE7;border:1px solid #86EFAC;color:#15803D;padding:12px 16px;border-radius:10px;margin-bottom:18px;font-size:0.86rem;font-weight:600;">
-    ✅ {{ session('success') }}
-  </div>
-@endif
-@if($errors->any())
-  <div class="reveal" style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:12px 16px;border-radius:10px;margin-bottom:18px;font-size:0.86rem;font-weight:600;">
-    ⚠️ {{ $errors->first() }}
-  </div>
-@endif
-
 @php
   $hijosPedido = collect([$pedido->pedidoPlantilla, $pedido->pedidoUniforme, $pedido->pedidoChompa])->filter();
   $estadoActual = $hijosPedido->first()?->estado ?? 'recibido';
@@ -97,7 +86,7 @@
             <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
               <form action="{{ route('admin.comprobantes-maestro.verificar', $comprobante->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn-primary" style="padding:9px 20px;width:100%;">Verificar</button>
+                <button type="submit" class="btn-verificar">Verificar</button>
               </form>
               <form action="{{ route('admin.comprobantes-maestro.rechazar', $comprobante->id) }}" method="POST"
                     data-confirm="¿Rechazar este comprobante?">

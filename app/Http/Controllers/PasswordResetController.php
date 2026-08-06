@@ -79,7 +79,7 @@ class PasswordResetController extends Controller
             'codigo.required'     => 'El código es obligatorio.',
             'codigo.digits'       => 'El código debe tener 6 dígitos.',
             'password.required'   => 'La contraseña es obligatoria.',
-            'password.regex'      => 'Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Deivid21$).',
+            'password.regex'      => 'Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Ejemplo123$).',
             'password.confirmed'  => 'Las contraseñas no coinciden.',
         ]);
 

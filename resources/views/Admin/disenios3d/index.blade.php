@@ -19,7 +19,7 @@
   </div>
 @else
   <div class="card reveal" style="overflow-x:auto;">
-    <table class="admin-table">
+    <table class="admin-table" id="tablaDisenios3d">
       <thead>
         <tr>
           <th>Diseño</th>
@@ -63,5 +63,11 @@
     </table>
   </div>
 @endif
+
+@push('scripts')
+<script>
+  crearDataTable('#tablaDisenios3d');
+</script>
+@endpush
 
 @endsection

@@ -72,7 +72,7 @@
   let precioGenMax = {{ (float) $precioMaxActivo }};
   const precioGenGlobalMin = {{ (int) $precioGlobalMin }};
   const precioGenGlobalMax = {{ (int) $precioGlobalMax }};
-  let offsetGen = {{ (int) $mostrados }};
+  let paginaGenActual = {{ (int) ($page ?? 1) }};
   let debounceGenTimer = null;
 
   (function inicializarBarraPrecioGeneral() {
@@ -87,6 +87,7 @@
 
   function filtrarCategoriaGeneral(tipo, el) {
     catGenActual = tipo;
+    paginaGenActual = 1;
     document.querySelectorAll('#filtros-categoria-gen a, .filter-tope-group button').forEach(n => n.classList.remove('filter-link-active', 'how-active1'));
     if (el.tagName === 'BUTTON') el.classList.add('how-active1'); else el.classList.add('filter-link-active');
     // Sincroniza el otro selector de categoría (tabs arriba <-> panel de filtros)
@@ -98,6 +99,7 @@
 
   function filtrarTallaGeneral(talla, el) {
     tallaGenActual = talla;
+    paginaGenActual = 1;
     document.querySelectorAll('#filtros-talla-gen a').forEach(a => a.classList.remove('filter-link-active'));
     el.classList.add('filter-link-active');
     recargarCatalogoGeneral();
@@ -105,6 +107,7 @@
 
   function filtrarGeneroGeneral(genero, el) {
     generoGenActual = genero;
+    paginaGenActual = 1;
     document.querySelectorAll('#filtros-genero-gen a').forEach(a => a.classList.remove('filter-link-active'));
     el.classList.add('filter-link-active');
     recargarCatalogoGeneral();
@@ -129,17 +132,25 @@
       fill.style.right = (100 - pctMax) + '%';
     }
 
+    paginaGenActual = 1;
     clearTimeout(debounceGenTimer);
     debounceGenTimer = setTimeout(recargarCatalogoGeneral, 300);
   }
 
   // Buscador (panel "Search" de la plantilla)
   function filtrarProductos() {
+    paginaGenActual = 1;
     clearTimeout(debounceGenTimer);
     debounceGenTimer = setTimeout(recargarCatalogoGeneral, 300);
   }
 
-  function construirParametrosGeneral(offset) {
+  function irAPaginaGeneral(n) {
+    paginaGenActual = n;
+    recargarCatalogoGeneral();
+    document.getElementById('grid-productos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function construirParametrosGeneral() {
     const buscador = document.getElementById('buscador');
     const params = new URLSearchParams();
     params.set('categoria', catGenActual);
@@ -148,66 +159,38 @@
     params.set('precio_min', precioGenMin);
     params.set('precio_max', precioGenMax);
     if (buscador && buscador.value.trim() !== '') params.set('q', buscador.value.trim());
-    params.set('offset', offset);
+    params.set('page', paginaGenActual);
     params.set('fragmento', 1);
     return params;
   }
 
   function recargarCatalogoGeneral() {
     const grid = document.getElementById('grid-productos');
+    const paginacion = document.getElementById('paginacion-productos');
     if (!grid) return;
     grid.style.opacity = '0.5';
 
-    fetch(CATALOGO_GENERAL_URL + '?' + construirParametrosGeneral(0).toString(), {
+    fetch(CATALOGO_GENERAL_URL + '?' + construirParametrosGeneral().toString(), {
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
     })
       .then(r => r.json())
       .then(data => {
         grid.innerHTML = data.html;
         grid.style.opacity = '1';
-        offsetGen = data.mostrados;
-        actualizarContadorYBotonGeneral(data.total, data.mostrados);
+        if (paginacion) paginacion.innerHTML = data.paginacion;
+        actualizarContadorGeneral(data.total, data.mostrados);
       })
       .catch(() => { grid.style.opacity = '1'; });
   }
 
-  function cargarMasGeneral() {
-    const boton = document.getElementById('btn-cargar-mas');
-    const textoOriginal = boton ? boton.textContent : '';
-    if (boton) { boton.disabled = true; boton.textContent = 'Cargando…'; }
-
-    fetch(CATALOGO_GENERAL_URL + '?' + construirParametrosGeneral(offsetGen).toString(), {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-    })
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById('grid-productos').insertAdjacentHTML('beforeend', data.html);
-        offsetGen = data.mostrados;
-        actualizarContadorYBotonGeneral(data.total, data.mostrados);
-      })
-      .finally(() => {
-        if (boton) { boton.disabled = false; boton.textContent = textoOriginal; }
-      });
-  }
-
-  function actualizarContadorYBotonGeneral(total, mostrados) {
+  function actualizarContadorGeneral(total, mostrados) {
     const totalEl = document.getElementById('cantidad-total');
     const mostradoEl = document.getElementById('cantidad-mostrada');
     if (totalEl) totalEl.textContent = total;
     if (mostradoEl) mostradoEl.textContent = mostrados;
 
-    const wrap = document.getElementById('cargar-mas-wrap');
-    const boton = document.getElementById('btn-cargar-mas');
     const sinResultados = document.getElementById('sin-resultados-filtro');
-
     if (sinResultados) sinResultados.style.display = total === 0 ? 'block' : 'none';
-
-    if (mostrados >= total) {
-      if (wrap) wrap.style.display = 'none';
-    } else {
-      if (wrap) wrap.style.display = '';
-      if (boton) boton.textContent = 'Ver más (quedan ' + (total - mostrados) + ')';
-    }
   }
 </script>
 @endpush

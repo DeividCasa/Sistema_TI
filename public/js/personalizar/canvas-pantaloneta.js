@@ -47,7 +47,13 @@ function initFabricPantaloneta() {
     width: PANT_W,
     height: PANT_H,
     backgroundColor: '#f8fafc',
-    selection: true,
+    // selection:false — sin esto, arrastrar el mouse sobre el cuadro (incluso
+    // sobre la silueta, que es fija) dibuja el rectángulo de selección
+    // múltiple de Fabric.js. En un cuadro de solo 148x148, casi tapado por
+    // el dibujo del short, ese rectángulo azul moviéndose se ve como si el
+    // short mismo se arrastrara. No afecta poder seleccionar el número/logo
+    // con un clic — solo desactiva el "lazo" de selección por arrastre.
+    selection: false,
     preserveDrawingBuffer: true,
   });
 

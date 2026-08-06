@@ -97,11 +97,9 @@
       <p class="stext-107 cl6">No se encontraron productos con esos filtros.</p>
     </div>
 
-    <!-- Load more -->
-    <div class="flex-c-m flex-w w-full p-t-45" id="cargar-mas-wrap" style="{{ $mostrados >= $total ? 'display:none;' : '' }}">
-      <button type="button" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04" id="btn-cargar-mas" onclick="cargarMasGeneral()">
-        Ver más (quedan {{ $total - $mostrados }})
-      </button>
+    <!-- Paginación -->
+    <div class="flex-c-m flex-w w-full p-t-45" id="paginacion-productos" style="gap:8px;">
+      @include('cliente.catalogo_general._paginacion', ['page' => $page, 'totalPaginas' => $totalPaginas])
     </div>
   </div>
 </section>

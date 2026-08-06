@@ -107,6 +107,13 @@ function terminarRestauracionBorrador(datos) {
       setTimeout(() => {
         if (fabricPant && datos.pantaloneta.canvasJSON) {
           fabricPant.loadFromJSON(datos.pantaloneta.canvasJSON, () => {
+            // getPantalonetaJSON() no guarda selectable/evented (Fabric.js no
+            // los serializa por defecto), así que la silueta y la zona de
+            // diseño vuelven del JSON con sus valores por defecto (true) —
+            // es decir, arrastrables. refrescarSiluetaPant() las reemplaza
+            // por unas nuevas, bloqueadas, igual que ya hace refrescarSilueta()
+            // para la camiseta al restaurar cada vista (ver prendas.js).
+            if (typeof refrescarSiluetaPant === 'function') refrescarSiluetaPant();
             fabricPant.renderAll();
             if (typeof actualizarTexturaPantaloneta3D === 'function') actualizarTexturaPantaloneta3D();
           });

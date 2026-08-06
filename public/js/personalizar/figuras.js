@@ -89,11 +89,13 @@ function cambiarColorFigura(color) {
     sw.classList.toggle('sel', sw.dataset.color === clean);
   });
 
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if(!obj || obj.id === 'silueta' || (obj.tipo !== 'figura')) return;
   if(obj.type === 'line') obj.set('stroke', clean);
   else obj.set('fill', clean);
-  fabricCanvas.renderAll();
+  cv.renderAll();
   guardarHistorial();
-  actualizarTextura3D();
+  if (typeof actualizarTextura3DSegunCanvas === 'function') actualizarTextura3DSegunCanvas(cv);
+  else actualizarTextura3D();
 }

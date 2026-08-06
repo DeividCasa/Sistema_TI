@@ -37,7 +37,9 @@ class PedidoChompaController extends Controller
         }
 
         $request->validate([
-            'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'observaciones'   => 'nullable|string|max:1000',
+            'tiempo_estimado' => 'nullable|string|max:255',
         ]);
 
         $pedido->estado = $request->estado;
@@ -50,10 +52,13 @@ class PedidoChompaController extends Controller
         $pedido->save();
 
         if ($request->boolean('notificar_email') && $pedido->cliente?->email) {
-            $imagenRelativa = $pedido->items()->with('chompa')->first()?->chompa?->imagen;
-            $imagenPath = $imagenRelativa
-                ? \Illuminate\Support\Facades\Storage::disk('public')->path($imagenRelativa)
-                : null;
+            $lineas = $pedido->items()->with('chompa')->get()->map(fn ($item) => [
+                'nombre' => $item->chompa->nombre,
+                'detalle' => 'Talla '.$item->talla.' × '.$item->cantidad,
+                'imagenPath' => $item->chompa?->imagen
+                    ? \Illuminate\Support\Facades\Storage::disk('public')->path($item->chompa->imagen)
+                    : null,
+            ])->all();
 
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
@@ -61,7 +66,7 @@ class PedidoChompaController extends Controller
                 'Chompa',
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
-                $imagenPath,
+                $lineas,
             ));
         }
 
@@ -124,6 +129,8 @@ class PedidoChompaController extends Controller
     // ── RECHAZAR COMPROBANTE
     public function rechazarComprobante(Request $request, $id)
     {
+        $request->validate(['nota_admin' => 'nullable|string|max:1000']);
+
         $comprobante = ComprobanteChompa::with('pedido')->findOrFail($id);
         $comprobante->estado    = 'rechazado';
         $comprobante->nota_admin = $request->nota_admin ?? 'Comprobante no válido.';

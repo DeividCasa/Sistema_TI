@@ -19,12 +19,8 @@
 @endpush
 
 @section('contenido')
-<br />
-<br />
-<br />
-<br />
-
-<div style="max-width:560px;margin:0 auto;">
+<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;padding:140px 16px 40px;">
+<div style="max-width:560px;width:100%;margin:0 auto;">
 
   <div class="card card-pad reveal" style="text-align:center;margin-bottom:20px;">
     <div style="width:56px;height:56px;border-radius:50%;background:var(--accent-soft);border:1.5px solid var(--accent-border);
@@ -43,7 +39,7 @@
     <div class="card card-pad reveal" style="text-align:center;">
       <p style="color:var(--text-1);font-weight:700;margin-bottom:6px;">¡Ya nos dejaste tu opinión!</p>
       <p style="color:var(--text-2);font-size:0.88rem;">Gracias por tu tiempo — nuestro equipo la está revisando.</p>
-      <a href="{{ route('cliente.catalogo.index') }}" class="btn-primary" style="margin-top:16px;">&nbsp;&nbsp;Volver al catálogo</a>
+      <a href="{{ route('cliente.catalogo.index') }}" class="btn-primary" style="margin-top:16px;">Volver al catálogo</a>
     </div>
   @else
     <div class="card card-pad reveal">
@@ -79,8 +75,7 @@
   @endif
 
 </div>
-<br />
-<br />
+</div>
 @endsection
 
 @push('scripts')

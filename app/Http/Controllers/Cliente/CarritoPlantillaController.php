@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cliente;
 use App\Http\Controllers\Controller;
 use App\Models\ComprobantePlantilla;
 use App\Models\Plantilla;
+use App\Models\PlantillaTalla;
 use App\Models\PedidoPlantilla;
 use Illuminate\Http\Request;
 
@@ -15,40 +16,31 @@ class CarritoPlantillaController extends Controller
     {
         $request->validate([
             'plantilla_id' => 'required|exists:plantillas,id',
-            'talla'        => 'nullable|string',
-            'color'        => 'nullable|string',
+            'talla_id'     => 'required|exists:plantilla_tallas,id',
             'cantidad'     => 'required|integer|min:1|max:100',
+        ], [
+            'talla_id.required' => 'Debes seleccionar una talla.',
+            'cantidad.min'      => 'La cantidad mínima es 1.',
         ]);
 
         $plantilla = Plantilla::findOrFail($request->plantilla_id);
-
-        $talla = $request->talla;
-        if (empty($talla) && !empty($plantilla->tallas)) {
-            $talla = $plantilla->tallas[0];
-        }
-
-        $color = $request->color;
-        if (empty($color) && !empty($plantilla->colores)) {
-            $color = $plantilla->colores[0];
-        }
+        $talla = PlantillaTalla::where('plantilla_id', $plantilla->id)
+                               ->where('disponible', 1)
+                               ->findOrFail($request->talla_id);
 
         $carrito = session('carrito_plantillas', []);
-        // El color viene como hex (#2563EB); el '#' rompe las URLs generadas por
-        // route() (Laravel no lo escapa y el navegador lo trata como fragmento),
-        // así que para la key usamos el hex sin el símbolo.
-        $colorKey = $color ? ltrim($color, '#') : 'sin-color';
-        $key = $plantilla->id . '-' . ($talla ?: 'sin-talla') . '-' . $colorKey;
+        $key = $plantilla->id . '-' . $talla->id;
 
         if (isset($carrito[$key])) {
             $carrito[$key]['cantidad'] += $request->cantidad;
         } else {
             $carrito[$key] = [
                 'plantilla_id' => $plantilla->id,
+                'talla_id'     => $talla->id,
                 'nombre'       => $plantilla->nombre,
                 'tipo_prenda'  => $plantilla->tipo_prenda,
-                'talla'        => $talla,
-                'color'        => $color,
-                'precio'       => (float) $plantilla->precio,
+                'talla'        => $talla->talla,
+                'precio'       => (float) $talla->precio,
                 'cantidad'     => (int) $request->cantidad,
                 'imagen'       => $plantilla->imagen_preview,
             ];
@@ -108,7 +100,7 @@ class CarritoPlantillaController extends Controller
 
         $request->validate([
             'tipo'       => 'required|in:adelanto,pago_completo,saldo_final',
-            'archivo'    => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'archivo'    => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'referencia' => 'nullable|string|max:100',
         ], [
             'archivo.required' => 'Debes subir el comprobante.',

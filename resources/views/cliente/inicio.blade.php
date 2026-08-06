@@ -62,6 +62,21 @@
   </div>
 </div>
 
+@push('estilos')
+<style>
+  /* Las letras de las 3 categorías (Toda la ropa / Uniformes / Chompas) no deben
+     quedar flotando directo sobre la foto de la prenda: se deja un espacio en
+     blanco arriba de la foto para el título, en vez de texto crudo encima de
+     la imagen (sin cajas ni fondos, el texto se ve igual que antes). */
+  .sec-banner .block1 {
+    background: #fff;
+  }
+  .sec-banner .block1 > img {
+    padding-top: 92px;
+  }
+</style>
+@endpush
+
 
 {{-- ── PRODUCTOS ─────────────────────────────────────────────────── --}}
 @if($destacados->isNotEmpty())

@@ -51,7 +51,7 @@ class SolicitudDisenoController extends Controller
             'genero'            => 'required|in:hombre,mujer,unisex',
             'descripcion'       => 'nullable|string|max:1000',
             'tallas'            => 'required|array|min:1',
-            'tallas.*.talla'    => 'required|string|max:10',
+            'tallas.*.talla'    => 'required|in:XS,S,M,L,XL,XXL',
             'tallas.*.cantidad' => 'required|integer|min:1',
         ]);
 

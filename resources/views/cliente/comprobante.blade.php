@@ -109,8 +109,8 @@
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
           <span class="t-text" style="font-weight:600;font-size:0.9rem;" id="archivo-label">Haz clic para seleccionar tu archivo</span>
-          <span class="t-muted" style="font-size:0.78rem;">JPG, PNG o PDF — máximo 4MB</span>
-          <input type="file" id="archivo" name="archivo" accept=".jpg,.jpeg,.png,.pdf"
+          <span class="t-muted" style="font-size:0.78rem;">JPG, PNG, WEBP o PDF — máximo 5MB</span>
+          <input type="file" id="archivo" name="archivo" accept=".jpg,.jpeg,.png,.webp,.pdf"
             onchange="previsualizarArchivo(this, 'preview-archivo-camiseta', 'drop-area')" style="display:none;" required>
         </label>
         <div id="preview-archivo-camiseta" style="display:none;margin-top:12px;"></div>

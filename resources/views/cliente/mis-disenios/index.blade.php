@@ -5,7 +5,7 @@
 @section('contenido')
 
 <style>
-    .disenios-container { max-width: 1400px; margin: 0 auto; }
+    .disenios-container { max-width: 1400px; margin: 0 auto; padding: 0 24px 0 60px; }
     .disenios-header {
         display: flex; align-items: baseline; gap: 0.75rem;
         margin-bottom: 1.5rem; flex-wrap: wrap;
@@ -16,7 +16,8 @@
     }
     .disenios-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(270px, 340px));
+        justify-content: start;
         gap: 1.5rem;
     }
     .disenio-card {
@@ -55,7 +56,7 @@
     /* Lightbox para ver la foto en grande sin abrir otra pestaña */
     .lightbox-overlay {
         display: none; position: fixed; inset: 0; background: rgba(15,23,42,.75);
-        align-items: center; justify-content: center; z-index: 1000; padding: 30px;
+        align-items: center; justify-content: center; z-index: 2000; padding: 30px;
     }
     .lightbox-overlay.visible { display: flex; }
     .lightbox-overlay img {
@@ -142,7 +143,7 @@
     /* Visor 3D — modal con el modelo del diseño girando */
     .visor3d-overlay {
         display: none; position: fixed; inset: 0; background: rgba(15,23,42,.75);
-        align-items: center; justify-content: center; z-index: 1000; padding: 30px;
+        align-items: center; justify-content: center; z-index: 2000; padding: 30px;
     }
     .visor3d-overlay.visible { display: flex; }
     .visor3d-modal {

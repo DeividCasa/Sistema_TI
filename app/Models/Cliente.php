@@ -49,4 +49,24 @@ class Cliente extends Authenticatable
     {
         return $this->hasMany(Pedido::class, 'cliente_id');
     }
+
+    public function pedidosUniforme()
+    {
+        return $this->hasMany(PedidoUniforme::class, 'cliente_id');
+    }
+
+    public function pedidosChompa()
+    {
+        return $this->hasMany(PedidoChompa::class, 'cliente_id');
+    }
+
+    public function pedidosPlantilla()
+    {
+        return $this->hasMany(PedidoPlantilla::class, 'cliente_id');
+    }
+
+    public function pedidosMaestro()
+    {
+        return $this->hasMany(PedidoMaestro::class, 'cliente_id');
+    }
 }

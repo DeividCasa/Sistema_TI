@@ -316,6 +316,48 @@
   });
 </script>
 
+<style>
+  .global-loader-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(255,255,255,.55);
+    display: none; align-items: center; justify-content: center;
+  }
+  .global-loader-overlay.visible { display: flex; }
+  .global-loader-spinner {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 4px solid rgba(0,0,0,.12);
+    border-top-color: var(--accent, #FF5A3C);
+    animation: global-loader-spin .7s linear infinite;
+  }
+  @keyframes global-loader-spin { to { transform: rotate(360deg); } }
+  @media (prefers-color-scheme: dark) {
+    .global-loader-overlay { background: rgba(20,20,20,.55); }
+    .global-loader-spinner { border-color: rgba(255,255,255,.15); border-top-color: var(--accent, #FF7A5C); }
+  }
+</style>
+<div class="global-loader-overlay" id="global-loader"><div class="global-loader-spinner"></div></div>
+<script>
+  (function () {
+    const loader = document.getElementById('global-loader');
+    if (!loader) return;
+    function mostrarLoader() { loader.classList.add('visible'); }
+    document.addEventListener('submit', function (event) {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (form.hasAttribute('data-confirm') && !form.dataset.confirmado) return;
+      mostrarLoader();
+    });
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a[href]');
+      if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript:') || link.target === '_blank' || link.hasAttribute('download')) return;
+      mostrarLoader();
+    });
+    window.addEventListener('pageshow', function () { loader.classList.remove('visible'); });
+  })();
+</script>
+
 @stack('scripts')
 
 </body>

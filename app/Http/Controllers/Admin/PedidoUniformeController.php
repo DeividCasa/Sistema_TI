@@ -37,7 +37,9 @@ class PedidoUniformeController extends Controller
         }
 
         $request->validate([
-            'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'observaciones'   => 'nullable|string|max:1000',
+            'tiempo_estimado' => 'nullable|string|max:255',
         ]);
 
         $pedido->estado = $request->estado;
@@ -50,10 +52,13 @@ class PedidoUniformeController extends Controller
         $pedido->save();
 
         if ($request->boolean('notificar_email') && $pedido->cliente?->email) {
-            $imagenRelativa = $pedido->items()->with('uniforme')->first()?->uniforme?->imagen;
-            $imagenPath = $imagenRelativa
-                ? \Illuminate\Support\Facades\Storage::disk('public')->path($imagenRelativa)
-                : null;
+            $lineas = $pedido->items()->with('uniforme')->get()->map(fn ($item) => [
+                'nombre' => $item->uniforme->nombre,
+                'detalle' => 'Talla '.$item->talla.' × '.$item->cantidad,
+                'imagenPath' => $item->uniforme?->imagen
+                    ? \Illuminate\Support\Facades\Storage::disk('public')->path($item->uniforme->imagen)
+                    : null,
+            ])->all();
 
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
@@ -61,7 +66,7 @@ class PedidoUniformeController extends Controller
                 'Uniforme',
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
-                $imagenPath,
+                $lineas,
             ));
         }
 
@@ -127,6 +132,8 @@ class PedidoUniformeController extends Controller
     // ── RECHAZAR COMPROBANTE
     public function rechazarComprobante(Request $request, $id)
     {
+        $request->validate(['nota_admin' => 'nullable|string|max:1000']);
+
         $comprobante = ComprobanteUniforme::with('pedido')->findOrFail($id);
         $comprobante->estado = 'rechazado';
         $comprobante->nota_admin = $request->nota_admin ?? 'Comprobante no válido.';

@@ -11,8 +11,8 @@ class PedidoPlantillaItem extends Model
     protected $fillable = [
         'pedido_plantilla_id',
         'plantilla_id',
+        'plantilla_talla_id',
         'talla',
-        'color',
         'precio_unitario',
         'cantidad',
         'subtotal',
@@ -26,5 +26,10 @@ class PedidoPlantillaItem extends Model
     public function plantilla()
     {
         return $this->belongsTo(Plantilla::class, 'plantilla_id');
+    }
+
+    public function plantillaTalla()
+    {
+        return $this->belongsTo(PlantillaTalla::class, 'plantilla_talla_id');
     }
 }

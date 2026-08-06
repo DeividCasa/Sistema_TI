@@ -33,6 +33,10 @@ class ComprobanteController extends Controller
 
     public function rechazar(Request $request, $id)
     {
+        $request->validate([
+            'nota' => 'nullable|string|max:1000',
+        ]);
+
         $comprobante = ComprobantePago::findOrFail($id);
         $comprobante->estado     = 'rechazado';
         $comprobante->nota_admin = $request->nota ?? 'Comprobante rechazado.';

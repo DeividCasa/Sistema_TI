@@ -158,7 +158,7 @@ class CarritoUniformeController extends Controller
 
         $request->validate([
             'tipo'       => 'required|in:adelanto,pago_completo,saldo_final',
-            'archivo'    => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'archivo'    => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'referencia' => 'nullable|string|max:100',
         ]);
 

@@ -9,6 +9,7 @@ use App\Models\Plantilla;
 use App\Models\TallaPedido;
 use App\Models\ComprobantePago;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PedidoController extends Controller
@@ -18,53 +19,60 @@ class PedidoController extends Controller
     {
         $request->validate([
             'plantilla_id' => 'required|exists:plantillas,id',
-            'talla'        => 'required|string',
-            'color'        => 'nullable|string',
+            'talla'        => 'required|string|max:10',
+            'color'        => 'nullable|string|max:40',
             'cantidad'     => 'required|integer|min:1|max:100',
         ]);
 
         $plantilla = Plantilla::findOrFail($request->plantilla_id);
         $clienteId = session('usuario_id');
 
-        // 1. Crear el diseño base
-        $disenio = Disenio::create([
-            'cliente_id'   => $clienteId,
-            'plantilla_id' => $plantilla->id,
-            'nombre'       => $plantilla->nombre,
-            'configuracion' => [
-                'color' => $request->color,
-                'talla' => $request->talla,
-            ],
-            'origen' => 'plantilla',
-        ]);
+        $pedido = DB::transaction(function () use ($request, $plantilla, $clienteId) {
+            // 1. Crear el diseño base
+            $disenio = Disenio::create([
+                'cliente_id'   => $clienteId,
+                'plantilla_id' => $plantilla->id,
+                'nombre'       => $plantilla->nombre,
+                'configuracion' => [
+                    'color' => $request->color,
+                    'talla' => $request->talla,
+                ],
+                'origen' => 'plantilla',
+            ]);
 
-        // 2. Calcular precios
-        $precioTotal    = $plantilla->precio * $request->cantidad;
-        $precioAdelanto = round($precioTotal / 2, 2);
-        $precioSaldo    = $precioTotal - $precioAdelanto;
+            // 2. Calcular precios
+            $precioTalla    = $plantilla->tallas()->where('disponible', 1)->where('talla', $request->talla)->value('precio')
+                            ?? $plantilla->tallas()->where('disponible', 1)->min('precio')
+                            ?? 0;
+            $precioTotal    = $precioTalla * $request->cantidad;
+            $precioAdelanto = round($precioTotal / 2, 2);
+            $precioSaldo    = $precioTotal - $precioAdelanto;
 
-        // 3. Generar código único
-        $codigo = 'LJ-' . date('Y') . '-' . str_pad(Pedido::count() + 1, 3, '0', STR_PAD_LEFT);
+            // 3. Generar código único
+            $codigo = 'LJ-' . date('Y') . '-' . str_pad(Pedido::count() + 1, 3, '0', STR_PAD_LEFT);
 
-        // 4. Crear el pedido
-        $pedido = Pedido::create([
-            'cliente_id'      => $clienteId,
-            'disenio_id'      => $disenio->id,
-            'codigo'          => $codigo,
-            'cantidad_total'  => $request->cantidad,
-            'precio_total'    => $precioTotal,
-            'precio_adelanto' => $precioAdelanto,
-            'precio_saldo'    => $precioSaldo,
-            'estado'          => 'recibido',
-            'estado_pago'     => 'pendiente',
-        ]);
+            // 4. Crear el pedido
+            $pedido = Pedido::create([
+                'cliente_id'      => $clienteId,
+                'disenio_id'      => $disenio->id,
+                'codigo'          => $codigo,
+                'cantidad_total'  => $request->cantidad,
+                'precio_total'    => $precioTotal,
+                'precio_adelanto' => $precioAdelanto,
+                'precio_saldo'    => $precioSaldo,
+                'estado'          => 'recibido',
+                'estado_pago'     => 'pendiente',
+            ]);
 
-        // 5. Registrar la talla
-        TallaPedido::create([
-            'pedido_id' => $pedido->id,
-            'talla'     => $request->talla,
-            'cantidad'  => $request->cantidad,
-        ]);
+            // 5. Registrar la talla
+            TallaPedido::create([
+                'pedido_id' => $pedido->id,
+                'talla'     => $request->talla,
+                'cantidad'  => $request->cantidad,
+            ]);
+
+            return $pedido;
+        });
 
         return redirect()->route('cliente.pedidos.comprobante', $pedido->id)
                          ->with('success', '¡Pedido creado! Ahora sube tu comprobante de pago.');
@@ -86,12 +94,12 @@ class PedidoController extends Controller
         $pedido = Pedido::where('cliente_id', session('usuario_id'))->findOrFail($id);
 
         $request->validate([
-            'archivo'    => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'archivo'    => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'referencia' => 'nullable|string|max:100',
         ], [
             'archivo.required' => 'Debes subir el comprobante.',
             'archivo.mimes'    => 'Solo se aceptan imágenes o PDF.',
-            'archivo.max'      => 'El archivo no debe superar 4MB.',
+            'archivo.max'      => 'El archivo no debe superar 5MB.',
         ]);
 
         $rutaArchivo = $request->file('archivo')->store('comprobantes', 'public');

@@ -23,7 +23,7 @@
     {{-- Nombre --}}
     <div style="margin-bottom:18px;">
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-        Nombre de la camiseta
+        Nombre de la prenda
       </label>
       <input type="text" name="nombre" value="{{ old('nombre', $plantilla->nombre) }}"
         style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
@@ -42,31 +42,31 @@
         outline:none;resize:vertical;">{{ old('descripcion', $plantilla->descripcion) }}</textarea>
     </div>
 
-    {{-- Tipo de prenda + Precio --}}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
-      <div>
-        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-          Tipo de prenda
-        </label>
-        <select name="tipo_prenda"
-          style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
-          font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
-          <option value="camiseta" {{ $plantilla->tipo_prenda == 'camiseta' ? 'selected' : '' }}>Camiseta</option>
-          <option value="short"    {{ $plantilla->tipo_prenda == 'short'    ? 'selected' : '' }}>Short</option>
-          <option value="conjunto" {{ $plantilla->tipo_prenda == 'conjunto' ? 'selected' : '' }}>Conjunto</option>
-          <option value="otro"     {{ $plantilla->tipo_prenda == 'otro'     ? 'selected' : '' }}>Otro</option>
-        </select>
-      </div>
+    {{-- Tela --}}
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
+        Tipo de tela
+      </label>
+      <input type="text" name="tela" value="{{ old('tela', $plantilla->tela) }}"
+        placeholder="Ej: Algodón, Poliéster, Licra, Piqué"
+        style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
+        font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
+      @error('tela')<div style="color:#EF4444;font-size:0.78rem;margin-top:5px;">{{ $message }}</div>@enderror
+    </div>
 
-      <div>
-        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
-          Precio (USD)
-        </label>
-        <input type="number" name="precio" step="0.01" min="0" value="{{ old('precio', $plantilla->precio) }}"
-          style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
-          font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
-        @error('precio')<div style="color:#EF4444;font-size:0.78rem;margin-top:5px;">{{ $message }}</div>@enderror
-      </div>
+    {{-- Tipo de prenda --}}
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
+        Tipo de prenda
+      </label>
+      <select name="tipo_prenda"
+        style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
+        font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
+        <option value="camiseta" {{ $plantilla->tipo_prenda == 'camiseta' ? 'selected' : '' }}>Camiseta</option>
+        <option value="short"    {{ $plantilla->tipo_prenda == 'short'    ? 'selected' : '' }}>Short</option>
+        <option value="conjunto" {{ $plantilla->tipo_prenda == 'conjunto' ? 'selected' : '' }}>Conjunto</option>
+        <option value="otro"     {{ $plantilla->tipo_prenda == 'otro'     ? 'selected' : '' }}>Otro</option>
+      </select>
     </div>
 
     {{-- Género --}}
@@ -85,46 +85,28 @@
       @error('genero')<div style="color:#EF4444;font-size:0.78rem;margin-top:5px;">{{ $message }}</div>@enderror
     </div>
 
-    {{-- Tallas disponibles --}}
+    {{-- Tallas y precios --}}
     <div style="margin-bottom:18px;">
-      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
-        Tallas disponibles
+      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
+        Tallas y precios
       </label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        @php $tallasSel = $plantilla->tallas ?? []; @endphp
-        @foreach(['XS','S','M','L','XL','XXL'] as $talla)
-          <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;
-            border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:0.85rem;color:var(--text-1);">
-            <input type="checkbox" name="tallas[]" value="{{ $talla }}"
-              {{ in_array($talla, $tallasSel) ? 'checked' : '' }}
-              style="width:15px;height:15px;accent-color:var(--blue);cursor:pointer;">
-            {{ $talla }}
-          </label>
-        @endforeach
-      </div>
-    </div>
 
-    {{-- Colores disponibles --}}
-    <div style="margin-bottom:18px;">
-      <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:10px;">
-        Colores disponibles
-      </label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        @php
-          $coloresSel = $plantilla->colores ?? [];
-          $colores = ['#2563EB'=>'Azul','#DC2626'=>'Rojo','#16A34A'=>'Verde','#0F172A'=>'Negro','#FFFFFF'=>'Blanco','#D97706'=>'Dorado'];
-        @endphp
-        @foreach($colores as $hex => $nombre)
-          <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;
-            border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:0.85rem;color:var(--text-1);">
-            <input type="checkbox" name="colores[]" value="{{ $hex }}"
-              {{ in_array($hex, $coloresSel) ? 'checked' : '' }}
-              style="width:15px;height:15px;accent-color:var(--blue);cursor:pointer;">
-            <span style="width:14px;height:14px;border-radius:50%;background:{{ $hex }};border:1px solid var(--border-2);display:inline-block;"></span>
-            {{ $nombre }}
-          </label>
-        @endforeach
+      <div id="contenedor-tallas"></div>
+
+      <button type="button" onclick="agregarFilaTalla()"
+        style="margin-top:8px;background:var(--blue-soft);border:1px solid var(--blue-border);color:var(--blue);
+        padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+        + Agregar talla
+      </button>
+      <div style="font-size:0.75rem;color:var(--text-3);margin-top:6px;">
+        Si eliminas una talla que ya tiene pedidos asociados, se marcará como no disponible en lugar de eliminarse.
       </div>
+      @error('tallas')<div style="color:#EF4444;font-size:0.78rem;margin-top:5px;">{{ $message }}</div>@enderror
+      @foreach($errors->keys() as $campoError)
+        @if(str_starts_with($campoError, 'tallas.'))
+          <div style="color:#EF4444;font-size:0.78rem;margin-top:5px;">{{ $errors->first($campoError) }}</div>
+        @endif
+      @endforeach
     </div>
 
     {{-- Imagen --}}
@@ -175,11 +157,41 @@
     </div>
 
     <div style="display:flex;gap:10px;">
-      <button type="submit" class="btn-primary">Actualizar camiseta</button>
+      <button type="submit" class="btn-primary">Actualizar prenda</button>
       <a href="{{ route('admin.plantillas.index') }}" class="btn-secondary">Cancelar</a>
     </div>
 
   </form>
 </div>
+
+<script>
+let contadorTallas = 0;
+
+function agregarFilaTalla(talla = '', precio = '') {
+  const contenedor = document.getElementById('contenedor-tallas');
+  const fila = document.createElement('div');
+  fila.style.cssText = 'display:flex;gap:10px;align-items:center;margin-bottom:8px;';
+  fila.innerHTML = `
+    <input type="text" name="tallas[${contadorTallas}][talla]" value="${talla}" placeholder="Talla"
+      style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);outline:none;">
+    <div style="flex:1;display:flex;align-items:center;gap:6px;">
+      <span style="color:var(--text-3);font-weight:600;">$</span>
+      <input type="number" name="tallas[${contadorTallas}][precio]" value="${precio}" placeholder="Precio" step="0.01" min="0.01"
+        style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);outline:none;">
+    </div>
+    <button type="button" onclick="this.parentElement.remove()"
+      style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;width:36px;height:36px;border-radius:8px;font-weight:700;cursor:pointer;flex-shrink:0;">✕</button>
+  `;
+  contenedor.appendChild(fila);
+  contadorTallas++;
+}
+
+// Pre-cargar tallas existentes
+window.addEventListener('DOMContentLoaded', () => {
+  @foreach($plantilla->tallas as $t)
+    agregarFilaTalla('{{ $t->talla }}', '{{ $t->precio }}');
+  @endforeach
+});
+</script>
 
 @endsection

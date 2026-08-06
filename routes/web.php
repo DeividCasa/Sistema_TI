@@ -23,6 +23,7 @@ use App\Http\Controllers\Cliente\CarritoUniformeController;
 use App\Http\Controllers\Admin\ChompaController;
 use App\Http\Controllers\Admin\PedidoChompaController;
 use App\Http\Controllers\Cliente\ChompaClienteController;
+use App\Http\Controllers\Cliente\PlantillaClienteController;
 use App\Http\Controllers\Cliente\CarritoChompaController;
 use App\Http\Controllers\Cliente\CarritoMaestroController;
 use App\Http\Controllers\Cliente\CarritoPlantillaController;
@@ -80,10 +81,7 @@ Route::get('/uniformes-escolares/{id}', [UniformeClienteController::class, 'show
 
 Route::middleware('sesion:cliente')->group(function () {
 
-    Route::get('/producto/{id}', function ($id) {
-        $plantilla = Plantilla::findOrFail($id);
-        return view('cliente.producto', compact('plantilla'));
-    })->name('producto.ver');
+    Route::get('/producto/{id}', [PlantillaClienteController::class, 'show'])->name('producto.ver');
 
     Route::post('/pedidos', [ClientePedidoController::class, 'store'])->name('pedidos.store');
     Route::get('/pedidos/{id}/comprobante', [ClientePedidoController::class, 'comprobante'])->name('cliente.pedidos.comprobante');
@@ -238,7 +236,8 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
 
     })->name('inicio');
 
-    Route::resource('plantillas', PlantillaController::class);
+    Route::resource('plantillas', PlantillaController::class)
+        ->except(['show']);
 
     Route::resource('pedidos', PedidoController::class)
         ->only(['show', 'update']);

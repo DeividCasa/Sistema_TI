@@ -81,13 +81,28 @@
     <div class="grid-2">
       <div class="field">
         <label>Teléfono</label>
-        <input type="text" name="telefono" value="{{ old('telefono') }}"
-          placeholder="0999999999">
+        <input type="text" id="reg-telefono" name="telefono" value="{{ old('telefono') }}"
+          placeholder="0999999999" maxlength="10" inputmode="numeric"
+          class="{{ $errors->has('telefono') ? 'is-error' : '' }}">
+        @error('telefono') <div class="field-error">{{ $message }}</div> @enderror
+        <div class="field-error" id="err-telefono" style="display:none;">Debe empezar con 09 y tener 10 dígitos (ej: 0991234567).</div>
       </div>
       <div class="field">
         <label>Ciudad</label>
-        <input type="text" name="ciudad" value="{{ old('ciudad') }}"
-          placeholder="Quito">
+        @php $ciudadActual = old('ciudad'); $cantonesCotopaxi = ['Latacunga','La Maná','Pujilí','Salcedo','Saquisilí','Sigchos','Pangua']; @endphp
+        <select id="reg-ciudad" name="ciudad_select" onchange="document.getElementById('reg-ciudad-otra').style.display = this.value === 'otra' ? 'block' : 'none'; document.getElementById('reg-ciudad-hidden').value = this.value === 'otra' ? document.getElementById('reg-ciudad-otra').value : this.value;">
+          <option value="">Selecciona tu ciudad</option>
+          @foreach($cantonesCotopaxi as $canton)
+            <option value="{{ $canton }}" {{ $ciudadActual === $canton ? 'selected' : '' }}>{{ $canton }}</option>
+          @endforeach
+          <option value="otra" {{ ($ciudadActual && !in_array($ciudadActual, $cantonesCotopaxi)) ? 'selected' : '' }}>Otra ciudad</option>
+        </select>
+        <input type="text" id="reg-ciudad-otra" placeholder="Escribe tu ciudad"
+          value="{{ ($ciudadActual && !in_array($ciudadActual, $cantonesCotopaxi)) ? $ciudadActual : '' }}"
+          oninput="document.getElementById('reg-ciudad-hidden').value = this.value;"
+          style="margin-top:8px;{{ ($ciudadActual && !in_array($ciudadActual, $cantonesCotopaxi)) ? 'display:block;' : 'display:none;' }}">
+        <input type="hidden" id="reg-ciudad-hidden" name="ciudad" value="{{ $ciudadActual }}">
+        @error('ciudad') <div class="field-error">{{ $message }}</div> @enderror
       </div>
     </div>
 
@@ -102,7 +117,7 @@
           </button>
         </div>
         @error('password') <div class="field-error">{{ $message }}</div> @enderror
-        <div class="field-error" id="err-password" style="display:none;">Debe tener mayúscula, minúscula, número y símbolo (ej: Deivid21$).</div>
+        <div class="field-error" id="err-password" style="display:none;">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Ejemplo123$).</div>
       </div>
       <div class="field">
         <label>Confirmar</label>
@@ -206,6 +221,7 @@
     nombre:   document.getElementById('reg-nombre'),
     apellido: document.getElementById('reg-apellido'),
     email:    document.getElementById('reg-email'),
+    telefono: document.getElementById('reg-telefono'),
     password: document.getElementById('reg-password'),
     confirm:  document.getElementById('reg-password-confirm'),
   };
@@ -214,11 +230,13 @@
     nombre:   document.getElementById('err-nombre'),
     apellido: document.getElementById('err-apellido'),
     email:    document.getElementById('err-email'),
+    telefono: document.getElementById('err-telefono'),
     password: document.getElementById('err-password'),
     confirm:  document.getElementById('err-password-confirm'),
   };
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const nombreRegex = /^[\p{L}\s]+$/u;
+  const telefonoRegex = /^09\d{8}$/;
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
 
   function marcarError(campo, esInvalido) {
@@ -245,6 +263,13 @@
     return !invalido;
   }
 
+  function validarTelefono() {
+    const valor = campos.telefono.value.trim();
+    const invalido = valor !== '' && !telefonoRegex.test(valor);
+    marcarError('telefono', invalido);
+    return !invalido;
+  }
+
   function validarPassword() {
     const invalido = !passwordRegex.test(campos.password.value);
     marcarError('password', invalido);
@@ -268,6 +293,11 @@
     campos.cedula.value = campos.cedula.value.replace(/\D/g, '').slice(0, 10);
   });
 
+  campos.telefono.addEventListener('input', () => {
+    campos.telefono.value = campos.telefono.value.replace(/\D/g, '').slice(0, 10);
+  });
+  campos.telefono.addEventListener('blur', validarTelefono);
+
   // ── Autocompletado: al salir del campo cédula, si tiene 10 dígitos, se
   // consulta el nombre real (mejor esfuerzo — si el servicio no responde,
   // el usuario simplemente escribe su nombre a mano, sin bloquear nada).
@@ -279,12 +309,19 @@
   campos.nombre.addEventListener('input', () => { autocompletado.nombre = false; });
   campos.apellido.addEventListener('input', () => { autocompletado.apellido = false; });
 
+  function liberarNombreApellido() {
+    campos.nombre.removeAttribute('readonly');
+    campos.apellido.removeAttribute('readonly');
+    autocompletado.nombre = false;
+    autocompletado.apellido = false;
+  }
+
   let ultimaCedulaConsultada = null;
   campos.cedula.addEventListener('blur', function () {
     const hint = document.getElementById('hint-cedula');
     hint.style.display = 'none';
 
-    if (!validarCedula()) return;
+    if (!validarCedula()) { liberarNombreApellido(); return; }
 
     const cedulaActual = campos.cedula.value;
     if (cedulaActual === ultimaCedulaConsultada) return;
@@ -304,17 +341,30 @@
       .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => {
         ultimaCedulaConsultada = cedulaActual;
+
+        if (data.duplicado) {
+          marcarError('cedula', true);
+          errores.cedula.textContent = data.mensaje || 'Ya tienes una cuenta registrada con esta cédula.';
+          liberarNombreApellido();
+          return;
+        }
+        errores.cedula.textContent = 'Ingresa una cédula válida de 10 dígitos.';
+
         if (data.encontrado) {
           if (!campos.nombre.value.trim() || autocompletado.nombre) {
             campos.nombre.value = data.nombres;
+            campos.nombre.setAttribute('readonly', true);
             autocompletado.nombre = true;
           }
           if (!campos.apellido.value.trim() || autocompletado.apellido) {
             campos.apellido.value = data.apellidos;
+            campos.apellido.setAttribute('readonly', true);
             autocompletado.apellido = true;
           }
           hint.textContent = 'Nombre autocompletado desde tu cédula.';
           hint.style.display = 'block';
+        } else {
+          liberarNombreApellido();
         }
       })
       .catch(() => { /* silencioso: el usuario completa el nombre manualmente */ })
@@ -363,6 +413,7 @@
       validarNombre('nombre'),
       validarNombre('apellido'),
       validarEmail(),
+      validarTelefono(),
       validarPassword(),
       validarConfirmacion(),
       validarTerminos(),

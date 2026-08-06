@@ -37,7 +37,9 @@ class PedidoPlantillaController extends Controller
         }
 
         $request->validate([
-            'estado' => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'observaciones'   => 'nullable|string|max:1000',
+            'tiempo_estimado' => 'nullable|string|max:255',
         ]);
 
         $pedido->estado = $request->estado;
@@ -50,10 +52,13 @@ class PedidoPlantillaController extends Controller
         $pedido->save();
 
         if ($request->boolean('notificar_email') && $pedido->cliente?->email) {
-            $imagenRelativa = $pedido->items()->with('plantilla')->first()?->plantilla?->imagen_preview;
-            $imagenPath = $imagenRelativa
-                ? \Illuminate\Support\Facades\Storage::disk('public')->path($imagenRelativa)
-                : null;
+            $lineas = $pedido->items()->with('plantilla')->get()->map(fn ($item) => [
+                'nombre' => $item->plantilla->nombre ?? 'Producto',
+                'detalle' => ($item->talla ? 'Talla '.$item->talla.' × ' : '').$item->cantidad,
+                'imagenPath' => $item->plantilla?->imagen_preview
+                    ? \Illuminate\Support\Facades\Storage::disk('public')->path($item->plantilla->imagen_preview)
+                    : null,
+            ])->all();
 
             Mail::to($pedido->cliente->email)->send(new EstadoPedidoMail(
                 $pedido->cliente->nombre,
@@ -61,7 +66,7 @@ class PedidoPlantillaController extends Controller
                 'Ropa',
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
-                $imagenPath,
+                $lineas,
             ));
         }
 
@@ -127,6 +132,8 @@ class PedidoPlantillaController extends Controller
     // ── RECHAZAR COMPROBANTE
     public function rechazarComprobante(Request $request, $id)
     {
+        $request->validate(['nota_admin' => 'nullable|string|max:1000']);
+
         $comprobante = ComprobantePlantilla::with('pedido')->findOrFail($id);
         $comprobante->estado = 'rechazado';
         $comprobante->nota_admin = $request->nota_admin ?? 'Comprobante no válido.';

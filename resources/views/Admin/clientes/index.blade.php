@@ -86,7 +86,7 @@
         </div>
         <div class="search-box-custom">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="searchCliente" placeholder="Buscar por nombre, email o ciudad..." oninput="filtrarClientes()">
+            <input type="text" id="searchCliente" placeholder="Buscar por nombre, email o ciudad...">
         </div>
     </div>
 
@@ -127,7 +127,7 @@
                             @endif
                         </td>
                         <td data-label="Pedidos">
-                            <span class="orders-badge">{{ $cliente->pedidos_count }}</span>
+                            <span class="orders-badge">{{ $cliente->pedidos_count + $cliente->pedidos_maestro_count + $cliente->pedidos_uniforme_count + $cliente->pedidos_chompa_count + $cliente->pedidos_plantilla_count }}</span>
                         </td>
                         <td data-label="Acción" class="cell-actions">
                             <a href="{{ route('admin.clientes.show', $cliente->id) }}">Ver detalles</a>
@@ -137,38 +137,19 @@
             </tbody>
         </table>
         </div>
-        <div id="sinResultados" style="display: none; text-align: center; padding: 2rem; color: var(--text-3);">
-            No se encontraron clientes con esa búsqueda.
-        </div>
     @endif
 </div>
 
+@push('scripts')
 <script>
-    function filtrarClientes() {
-        const input = document.getElementById('searchCliente');
-        const filtro = input.value.toLowerCase();
-        const filas = document.querySelectorAll('.cliente-fila');
-        let visibles = 0;
-
-        filas.forEach(fila => {
-            const nombre = fila.getAttribute('data-nombre') || '';
-            const email = fila.getAttribute('data-email') || '';
-            const ciudad = fila.getAttribute('data-ciudad') || '';
-            const coincide = nombre.includes(filtro) || email.includes(filtro) || ciudad.includes(filtro);
-
-            if (coincide || filtro === '') {
-                fila.style.display = '';
-                visibles++;
-            } else {
-                fila.style.display = 'none';
-            }
+    (function () {
+        const tabla = crearDataTable('#tablaClientes', { layout: { topStart: 'buttons', topEnd: null } });
+        if (!tabla) return;
+        document.getElementById('searchCliente')?.addEventListener('input', function () {
+            tabla.search(this.value).draw();
         });
-
-        const sinResultados = document.getElementById('sinResultados');
-        if (sinResultados) {
-            sinResultados.style.display = visibles === 0 ? 'block' : 'none';
-        }
-    }
+    })();
 </script>
+@endpush
 
 @endsection

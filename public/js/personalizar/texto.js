@@ -57,37 +57,50 @@ function agregarNumero() {
   // Ver nota en agregarTexto(): object:added ya guarda el historial.
 }
 
+// Actualiza la textura 3D correcta según en qué canvas se hizo el cambio
+// (la camiseta grande o la pantaloneta chica) — antes esto siempre llamaba
+// a actualizarTextura3D() de la camiseta sin importar dónde estuviera el
+// objeto activo, así que los cambios en la pantaloneta nunca se veían.
+function actualizarTextura3DSegunCanvas(cv) {
+  if (cv === fabricCanvas) { actualizarTextura3D(); }
+  else if (typeof actualizarTexturaPantaloneta3D === 'function') { actualizarTexturaPantaloneta3D(); }
+}
+
 function actualizarTextoLive() {
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if(!obj || obj.type!=='text') return;
   obj.set('text', document.getElementById('input-texto').value.toUpperCase());
-  fabricCanvas.renderAll();
+  cv.renderAll();
   guardarHistorial();
-  actualizarTextura3D();
+  actualizarTextura3DSegunCanvas(cv);
 }
 function actualizarNumeroLive() {
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if(!obj || obj.type!=='text') return;
   obj.set('text', document.getElementById('input-numero').value);
-  fabricCanvas.renderAll();
+  cv.renderAll();
   guardarHistorial();
-  actualizarTextura3D();
+  actualizarTextura3DSegunCanvas(cv);
 }
 function cambiarTamanoTexto(val) {
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if(!obj || obj.type!=='text') return;
   obj.set('fontSize', parseInt(val));
-  fabricCanvas.renderAll();
+  cv.renderAll();
   guardarHistorial();
-  actualizarTextura3D();
+  actualizarTextura3DSegunCanvas(cv);
 }
 function cambiarFuenteTexto(font) {
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if(!obj || obj.type!=='text') return;
   obj.set('fontFamily', font);
-  fabricCanvas.renderAll();
+  cv.renderAll();
   guardarHistorial();
-  actualizarTextura3D();
+  actualizarTextura3DSegunCanvas(cv);
 }
 
 /* Color personalizado para texto/número (además de los swatches fijos) */
@@ -114,7 +127,8 @@ function actualizarUIColorTexto(color) {
 /* Al seleccionar un texto/número ya existente, reflejar su color actual
    (antes quedaba desincronizado y parecía que el color no se podía cambiar). */
 function sincronizarColorTextoUI() {
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if (!obj || obj.type !== 'text') return;
   actualizarUIColorTexto(obj.fill);
 }
@@ -123,11 +137,12 @@ function aplicarColorTexto(color) {
   const clean = normalizarHex(color);
   estado.colorTexto = clean;
   actualizarUIColorTexto(clean);
-  const obj = fabricCanvas.getActiveObject();
+  const cv = (typeof getCanvasActivo==='function') ? getCanvasActivo() : fabricCanvas;
+  const obj = cv.getActiveObject();
   if(obj && obj.type==='text'){
     obj.set('fill', clean);
-    fabricCanvas.renderAll();
+    cv.renderAll();
     guardarHistorial();
-    actualizarTextura3D();
+    actualizarTextura3DSegunCanvas(cv);
   }
 }

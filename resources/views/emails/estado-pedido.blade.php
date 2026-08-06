@@ -19,10 +19,22 @@
               <p style="margin:0 0 6px; font-size:14px; color:#64748B;">Hola {{ $nombre }},</p>
               <h1 style="margin:0 0 14px; font-size:20px; color:#1E293B; font-weight:800;">Tu pedido tiene una actualización</h1>
               <p style="margin:0 0 4px; font-size:14px; color:#64748B;">Pedido <strong>{{ $codigo }}</strong> ({{ $tipoPedido }})</p>
-              @if($imagenPath && file_exists($imagenPath))
-                <div style="text-align:center; margin:18px 0 4px;">
-                  <img src="{{ $message->embed($imagenPath) }}" alt="Vista previa del pedido"
-                       style="max-width:100%; width:220px; border-radius:10px; border:1px solid #E2E8F0;">
+              @if(count($lineas))
+                <div style="margin:18px 0 4px;">
+                  @foreach($lineas as $linea)
+                    <div style="display:flex; align-items:center; gap:12px; padding:10px 0; @if(!$loop->last) border-bottom:1px solid #E2E8F0; @endif">
+                      @if(!empty($linea['imagenPath']) && file_exists($linea['imagenPath']))
+                        <img src="{{ $message->embed($linea['imagenPath']) }}" alt="{{ $linea['nombre'] }}"
+                             style="width:56px; height:56px; object-fit:cover; border-radius:8px; border:1px solid #E2E8F0; flex-shrink:0;">
+                      @endif
+                      <div>
+                        <p style="margin:0; font-size:14px; font-weight:700; color:#1E293B;">{{ $linea['nombre'] }}</p>
+                        @if(!empty($linea['detalle']))
+                          <p style="margin:2px 0 0; font-size:12.5px; color:#64748B;">{{ $linea['detalle'] }}</p>
+                        @endif
+                      </div>
+                    </div>
+                  @endforeach
                 </div>
               @endif
               <div style="text-align:center; margin:18px 0 22px;">

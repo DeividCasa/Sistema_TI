@@ -69,7 +69,7 @@
         Foto actual
       </label>
       <img src="{{ asset('storage/' . $chompa->imagen) }}" alt="{{ $chompa->nombre }}"
-           style="width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--border);margin-bottom:10px;display:block;">
+           style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:12px;">
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
         Cambiar foto (dejar vacío para mantener la actual)
       </label>

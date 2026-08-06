@@ -79,10 +79,10 @@
                 <!-- Icon header -->
                 <div class="wrap-icon-header flex-w flex-r-m">
                     @if($usuarioLogueado)
-                        <a href="{{ route('cliente.mis-pedidos') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11" style="display:inline-flex;align-items:center;gap:6px;font-size:22px;" title="{{ $nombreUsuario }}">
+                        <span class="icon-header-item cl2 trans-04 p-l-22 p-r-11" style="display:inline-flex;align-items:center;gap:6px;font-size:22px;cursor:default;" title="{{ $nombreUsuario }}">
                             <i class="zmdi zmdi-account"></i>
                             <span class="stext-107 cl2">{{ explode(' ', $nombreUsuario)[0] }}</span>
-                        </a>
+                        </span>
                         <a href="{{ route('cliente.testimonios.create') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11" title="Danos tu opinión">
                             <i class="zmdi zmdi-star"></i>
                         </a>
@@ -109,9 +109,9 @@
         <!-- Icon header -->
         <div class="wrap-icon-header flex-w flex-r-m m-r-15">
             @if($usuarioLogueado)
-                <a href="{{ route('cliente.mis-pedidos') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10" style="display:inline-flex;align-items:center;gap:5px;font-size:20px;" title="{{ $nombreUsuario }}">
+                <span class="icon-header-item cl2 trans-04 p-r-11 p-l-10" style="display:inline-flex;align-items:center;gap:5px;font-size:20px;cursor:default;" title="{{ $nombreUsuario }}">
                     <i class="zmdi zmdi-account"></i>
-                </a>
+                </span>
                 <a href="{{ route('cliente.testimonios.create') }}" class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10" title="Danos tu opinión">
                     <i class="zmdi zmdi-star"></i>
                 </a>

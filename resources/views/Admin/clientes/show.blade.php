@@ -334,14 +334,14 @@
             </div>
         </div>
 
-        {{-- Columna derecha: pedidos del cliente --}}
+        {{-- Columna derecha: pedidos del cliente (cotizaciones + tienda, todo junto) --}}
         <div class="pedidos-card">
             <div class="pedidos-header">
                 <h3><i class="fas fa-shopping-bag"></i> Pedidos realizados</h3>
-                <span class="pedidos-count">{{ $cliente->pedidos->count() }} pedidos</span>
+                <span class="pedidos-count">{{ $pedidos->count() }} pedidos</span>
             </div>
 
-            @if($cliente->pedidos->isEmpty())
+            @if($pedidos->isEmpty())
                 <div class="empty-pedidos">
                     <i class="fas fa-box-open" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
                     <p>Este cliente no tiene pedidos aún.</p>
@@ -351,37 +351,40 @@
                     <thead>
                         <tr>
                             <th>Código</th>
-                            <th>Estado</th>
+                            <th>Tipo</th>
+                            <th>Estado de pago</th>
                             <th>Total</th>
                             <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($cliente->pedidos as $pedido)
+                        @foreach($pedidos as $entrada)
                             @php
-                                $estadoClase = match($pedido->estado) {
-                                    'recibido' => 'state-recibido',
-                                    'en_produccion' => 'state-produccion',
-                                    'listo' => 'state-listo',
-                                    'entregado' => 'state-entregado',
-                                    'cancelado' => 'state-cancelado',
-                                    default => 'state-pendiente'
-                                };
-                                $estadoTexto = match($pedido->estado) {
-                                    'recibido' => 'Recibido',
-                                    'en_produccion' => 'En producción',
-                                    'listo' => 'Listo',
-                                    'entregado' => 'Entregado',
-                                    'cancelado' => 'Cancelado',
-                                    default => $pedido->estado
+                                $pedido = $entrada['pedido'];
+                                $pagos = [
+                                    'pendiente'             => ['state-pendiente', 'Pago pendiente'],
+                                    'adelanto_enviado'      => ['state-produccion', 'Adelanto enviado'],
+                                    'adelanto_verificado'   => ['state-listo', 'Adelanto verificado'],
+                                    'pago_completo_enviado' => ['state-produccion', 'Pago completo enviado'],
+                                    'saldo_enviado'         => ['state-produccion', 'Saldo enviado'],
+                                    'pagado_completo'       => ['state-listo', 'Pagado completo'],
+                                ];
+                                [$estadoClase, $estadoTexto] = $pagos[$pedido->estado_pago] ?? ['state-pendiente', $pedido->estado_pago];
+                                $rutaDetalle = match($entrada['tipo']) {
+                                    'Combinado' => route('admin.pedidos-tienda.show', $pedido->id),
+                                    'Uniforme'  => route('admin.pedidos-uniformes.show', $pedido->id),
+                                    'Chompa'    => route('admin.pedidos-chompas.show', $pedido->id),
+                                    'Ropa'      => route('admin.pedidos-plantillas.show', $pedido->id),
+                                    'Camiseta'  => route('admin.pedidos.show', $pedido->id),
                                 };
                             @endphp
                             <tr>
                                 <td data-label="Código"><span class="codigo-pedido">{{ $pedido->codigo }}</span></td>
-                                <td data-label="Estado"><span class="badge-state {{ $estadoClase }}">{{ $estadoTexto }}</span></td>
+                                <td data-label="Tipo">{{ $entrada['tipo'] }}</td>
+                                <td data-label="Estado de pago"><span class="badge-state {{ $estadoClase }}">{{ $estadoTexto }}</span></td>
                                 <td data-label="Total">${{ number_format($pedido->precio_total, 2) }}</td>
                                 <td data-label="Acción">
-                                    <a href="{{ route('admin.pedidos.show', $pedido->id) }}" class="btn-small">Ver detalles</a>
+                                    <a href="{{ $rutaDetalle }}" class="btn-small">Ver detalles</a>
                                 </td>
                             </tr>
                         @endforeach

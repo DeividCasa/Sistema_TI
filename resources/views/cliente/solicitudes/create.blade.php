@@ -48,7 +48,8 @@
     }
     .form-card { padding: 1.5rem 1.75rem; }
     .talla-fila { display: flex; gap: 0.75rem; margin-bottom: 0.6rem; align-items: center; }
-    .talla-fila input { flex: 1; }
+    .talla-fila select { flex: 1; min-width: 0; }
+    .talla-fila input[type="number"] { flex: 0 0 90px; width: 90px; }
     .campo-label {
         display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-2);
         text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px;
@@ -81,7 +82,10 @@
         border: none; color: #fff; font-size: 2rem; line-height: 1; cursor: pointer;
     }
 </style>
-
+<br />
+<br />
+<br />
+<br />
 <div class="cotizar-container">
     <div class="sec-header">
         <div class="sec-title">Pedir cotización — {{ $disenio->nombre }}</div>
@@ -149,7 +153,12 @@
                     <label class="campo-label">Tallas y cantidades</label>
                     <div id="tallas-filas">
                         <div class="talla-fila">
-                            <input type="text" name="tallas[0][talla]" class="campo-input" placeholder="Talla (ej. M)" required>
+                            <select name="tallas[0][talla]" class="campo-select" required>
+                                <option value="" disabled selected>Talla</option>
+                                @foreach(['XS','S','M','L','XL','XXL'] as $tallaOpcion)
+                                    <option value="{{ $tallaOpcion }}">{{ $tallaOpcion }}</option>
+                                @endforeach
+                            </select>
                             <input type="number" name="tallas[0][cantidad]" class="campo-input" placeholder="Cantidad" min="1" value="1" required>
                         </div>
                     </div>
@@ -174,18 +183,24 @@
     <button type="button" class="lightbox-cerrar" onclick="cerrarLightbox(event)">&times;</button>
     <img id="lightbox-img" src="" alt="Vista ampliada del diseño">
 </div>
-
+<br />
+<br />
 @endsection
 
 @push('scripts')
 <script>
     let contadorTallas = 1;
+    const TALLAS_DISPONIBLES = ['XS','S','M','L','XL','XXL'];
     function agregarFilaTalla() {
         const cont = document.getElementById('tallas-filas');
         const fila = document.createElement('div');
         fila.className = 'talla-fila';
+        const opciones = TALLAS_DISPONIBLES.map(t => `<option value="${t}">${t}</option>`).join('');
         fila.innerHTML = `
-            <input type="text" name="tallas[${contadorTallas}][talla]" class="campo-input" placeholder="Talla (ej. M)" required>
+            <select name="tallas[${contadorTallas}][talla]" class="campo-select" required>
+                <option value="" disabled selected>Talla</option>
+                ${opciones}
+            </select>
             <input type="number" name="tallas[${contadorTallas}][cantidad]" class="campo-input" placeholder="Cantidad" min="1" value="1" required>
             <button type="button" class="btn-quitar-talla" onclick="this.parentElement.remove()">×</button>
         `;

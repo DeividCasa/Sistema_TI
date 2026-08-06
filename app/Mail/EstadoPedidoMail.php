@@ -18,7 +18,7 @@ class EstadoPedidoMail extends Mailable
         public string $tipoPedido,
         public string $estadoLabel,
         public ?string $tiempoEstimado = null,
-        public ?string $imagenPath = null,
+        public array $lineas = [],
     ) {
     }
 

@@ -64,7 +64,7 @@
         Foto actual
       </label>
       <img src="{{ asset('storage/' . $uniforme->imagen) }}" alt="{{ $uniforme->nombre }}"
-           style="width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--border);margin-bottom:10px;display:block;">
+           style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:12px;">
       <label for="imagen-uniforme" id="drop-area-uniforme" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
         gap:8px;padding:22px 16px;border:1.5px dashed var(--border-2);border-radius:12px;
         background:var(--bg-3);cursor:pointer;transition:all var(--tr);text-align:center;">

@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('vendor/cozastore/css/leojoma-overrides.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,12 +33,12 @@
       --text-1:       #16181A;
       --text-2:       #53565B;
       --text-3:       #90928C;
-      --blue:         #16A34A;
-      --blue-h:       #12813B;
-      --blue-soft:    #E7F8ED;
-      --blue-border:  #B8E9C6;
-      --blue-light:   #34C468;
-      --blue-shadow:  rgba(22,163,74,0.22);
+      --blue:         #1F2937;
+      --blue-h:       #111827;
+      --blue-soft:    #F3F4F6;
+      --blue-border:  #D1D5DB;
+      --blue-light:   #6B7280;
+      --blue-shadow:  rgba(31,41,55,0.22);
       --accent:       #FF5A3C;
       --accent-soft:  #FFE9E3;
       --accent-border:#FFC3B2;
@@ -46,7 +47,7 @@
       --sidebar-txt:  rgba(255,255,255,0.62);
       --sidebar-act:  #FFFFFF;
       --sidebar-hover:rgba(255,255,255,0.08);
-      --sidebar-actbg:rgba(22,163,74,0.28);
+      --sidebar-actbg:rgba(255,255,255,0.10);
       --shadow-sm:    0 1px 3px rgba(20,22,26,0.08);
       --shadow-md:    0 8px 24px rgba(20,22,26,0.1);
       --shadow-lg:    0 20px 50px rgba(20,22,26,0.16);
@@ -71,17 +72,17 @@
       --text-1:       #F5F6F3;
       --text-2:       #B8BAB6;
       --text-3:       #85878A;
-      --blue:         #34C468;
-      --blue-h:       #4ADE80;
-      --blue-soft:    rgba(52,196,104,0.14);
-      --blue-border:  rgba(52,196,104,0.32);
-      --blue-shadow:  rgba(52,196,104,0.35);
+      --blue:         #9CA3AF;
+      --blue-h:       #D1D5DB;
+      --blue-soft:    rgba(156,163,175,0.14);
+      --blue-border:  rgba(156,163,175,0.32);
+      --blue-shadow:  rgba(156,163,175,0.35);
       --accent:       #FF7A5C;
       --accent-soft:  rgba(255,90,60,0.16);
       --accent-border:rgba(255,90,60,0.35);
       --ink:          #0B0C0D;
       --sidebar-bg:   #0B0C0D;
-      --sidebar-actbg:rgba(52,196,104,0.22);
+      --sidebar-actbg:rgba(255,255,255,0.10);
       --shadow-sm:    0 1px 3px rgba(0,0,0,0.35);
       --shadow-md:    0 4px 18px rgba(0,0,0,0.45);
       --shadow-lg:    0 14px 44px rgba(0,0,0,0.55);
@@ -217,7 +218,7 @@
     
 
     .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 10px 20px; border-radius: 9px;
       background: var(--blue); color: white; border: none;
       font-family: var(--font-b); font-size: 0.88rem; font-weight: 600;
@@ -228,8 +229,21 @@
     .btn-primary:hover { background: var(--blue-h); transform: translateY(-1px); }
     .btn-primary svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+    /* Botón de aprobar/verificar: verde siempre (acción de éxito), sin
+       importar el color de acento del panel — distinto de btn-primary. */
+    .btn-verificar {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 20px; border-radius: 9px; width: 100%;
+      background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0;
+      font-family: var(--font-b); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: all var(--tr);
+    }
+    .btn-verificar:hover { background: #BBF7D0; }
+    [data-theme="dark"] .btn-verificar { background: rgba(34,197,94,0.16); color: #4ADE80; border-color: rgba(34,197,94,0.35); }
+    [data-theme="dark"] .btn-verificar:hover { background: rgba(34,197,94,0.26); }
+
     .btn-secondary {
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 10px 20px; border-radius: 9px;
       background: var(--bg-3); color: var(--text-2);
       border: 1px solid var(--border);
@@ -382,6 +396,83 @@
     .iziToast-question-actions button { cursor: pointer; }
   </style>
 
+  {{-- DataTables + exportación (Excel/PDF/CSV) para las tablas del panel admin --}}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.dataTables.min.css">
+  <style>
+    .dt-container { color: var(--text-2); font-family: var(--font-b); font-size: 0.85rem; }
+    table.dataTable { border-collapse: collapse !important; }
+
+    /* Barra de herramientas: botones de exportar a la izquierda, buscador a la
+       derecha, en la misma fila; separada de la tabla con un borde. */
+    .dt-layout-table { margin-top: 4px; }
+    .dt-layout-row:has(.dt-buttons, .dt-search) {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+      padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .dt-search { display: flex; align-items: center; gap: 6px; }
+    .dt-search input {
+      background: var(--bg-3); border: 1px solid var(--border); border-radius: 999px;
+      color: var(--text-1); padding: 7px 14px; outline: none; min-width: 220px;
+    }
+    .dt-length select {
+      background: var(--bg-3); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text-1); padding: 5px 10px; outline: none;
+    }
+    /* El CSS base de DataTables trae "div.dt-container .dt-paging .dt-paging-button
+       { color:inherit !important }" — más específico que un simple ".dt-paging
+       .dt-paging-button", así que hay que igualar esa especificidad (mismo
+       "div.dt-container..." al inicio) para que el número de la página actual
+       no quede invisible (texto heredado gris sobre fondo oscuro). */
+    div.dt-container .dt-paging .dt-paging-button {
+      color: var(--text-2) !important; border-radius: 10px !important; border: 1px solid transparent !important;
+    }
+    div.dt-container .dt-paging .dt-paging-button.current,
+    div.dt-container .dt-paging .dt-paging-button.current:hover {
+      background: var(--blue) !important; color: #fff !important; border-color: var(--blue) !important;
+    }
+    div.dt-container .dt-paging .dt-paging-button:hover:not(.disabled):not(.current) {
+      background: var(--bg-3) !important; color: var(--text-1) !important;
+    }
+
+    /* Botones de exportar: píldora suave (fondo tenue + texto/ícono de color,
+       sin relleno sólido) con un color e ícono propio de cada formato
+       (verde=Excel, rojo=PDF, azul=CSV), para reconocerlos de un vistazo
+       sin que se vean duros/fríos. */
+    .dt-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dt-buttons .dt-button {
+      display: inline-flex; align-items: center; gap: 7px;
+      border: 1.5px solid transparent;
+      border-radius: 999px; padding: 8px 18px; font-size: 0.8rem; font-weight: 700;
+      margin-right: 0; cursor: pointer; transition: all 0.15s;
+    }
+    .dt-buttons .dt-button svg { flex-shrink: 0; }
+    .dt-btn-excel { background: #E3F3EA !important; border-color: #A9DABF !important; color: #1F7A4D !important; }
+    .dt-btn-excel:hover { background: #CFEBDB !important; border-color: #7FC79E !important; transform: translateY(-1px); }
+    .dt-btn-pdf { background: #FCE8E6 !important; border-color: #F3B4AE !important; color: #C13A2E !important; }
+    .dt-btn-pdf:hover { background: #FAD6D2 !important; border-color: #EC968D !important; transform: translateY(-1px); }
+    .dt-btn-csv { background: #E4EDFC !important; border-color: #AFC7F2 !important; color: #2E5CB8 !important; }
+    .dt-btn-csv:hover { background: #D1E0FA !important; border-color: #8FADEC !important; transform: translateY(-1px); }
+    [data-theme="dark"] .dt-btn-excel { background: rgba(34,167,101,0.16) !important; border-color: rgba(34,167,101,0.4) !important; color: #6FDCA0 !important; }
+    [data-theme="dark"] .dt-btn-excel:hover { background: rgba(34,167,101,0.26) !important; }
+    [data-theme="dark"] .dt-btn-pdf { background: rgba(224,90,79,0.16) !important; border-color: rgba(224,90,79,0.4) !important; color: #F3948A !important; }
+    [data-theme="dark"] .dt-btn-pdf:hover { background: rgba(224,90,79,0.26) !important; }
+    [data-theme="dark"] .dt-btn-csv { background: rgba(74,124,224,0.16) !important; border-color: rgba(74,124,224,0.4) !important; color: #9CB8F2 !important; }
+    [data-theme="dark"] .dt-btn-csv:hover { background: rgba(74,124,224,0.26) !important; }
+
+    /* Tabla: encabezado, franjas alternas y hover consistentes con el resto del panel */
+    table.dataTable thead th {
+      border-bottom: 1px solid var(--border) !important;
+      background: var(--bg-3); color: var(--text-2);
+    }
+    table.dataTable > tbody > tr > td { border-top: 1px solid var(--border) !important; }
+    table.dataTable > tbody > tr.odd  > td { background: var(--bg-2); }
+    table.dataTable > tbody > tr.even > td { background: var(--bg-3); }
+    table.dataTable > tbody > tr:hover > td { background: var(--blue-soft) !important; }
+    .dt-info { color: var(--text-3); font-size: 0.8rem; }
+  </style>
+
   @stack('estilos')
 </head>
 <body>
@@ -402,7 +493,11 @@
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         <svg class="icon-sun"  viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <div class="nav-avatar">{{ strtoupper(substr(session('usuario_nombre', 'U'), 0, 1)) }}</div>
+      <div class="nav-avatar">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
       <span style="font-size:0.82rem;font-weight:600;color:var(--text-2);">{{ session('usuario_nombre', '') }}</span>
     <a href="{{ route('logout') }}" class="btn-logout">Salir</a>
       @stack('topbar-acciones')
@@ -491,6 +586,49 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+
+{{-- DataTables + exportación (Excel/PDF/CSV) — el build del CDN requiere jQuery global --}}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2.12/build/pdfmake.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2.12/build/vfs_fonts.js"></script>
+<script>
+  // Config compartida para inicializar DataTables en las tablas del panel admin.
+  // Uso: crearDataTable('#miTabla', { ordenarDesde: 0 })
+  const DT_IDIOMA_ES = 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json';
+
+  // Íconos SVG propios (no dependen de una fuente externa como Font Awesome,
+  // así se ven siempre igual sin importar el navegador) — uno distinto por
+  // formato, no solo el color, para que se distingan de un vistazo.
+  const DT_ICONO_EXCEL = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>';
+  const DT_ICONO_PDF = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="18" x2="13" y2="18"/></svg>';
+  const DT_ICONO_CSV = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="21" x2="10" y2="21"/></svg>';
+
+  function crearDataTable(selector, opciones = {}) {
+    const tabla = document.querySelector(selector);
+    if (!tabla || typeof DataTable === 'undefined') return null;
+    return new DataTable(selector, Object.assign({
+      language: { url: DT_IDIOMA_ES },
+      pageLength: 10,
+      // Botones de exportar a la izquierda, buscador a la derecha, misma fila.
+      layout: { topStart: 'buttons', topEnd: 'search' },
+      // Sin esto, DataTables reordena todo por la primera columna (código)
+      // apenas carga, descartando el orden que ya manda el servidor (más
+      // reciente/nuevo primero) — con order:[] se respeta tal cual llega.
+      order: [],
+      buttons: [
+        { extend: 'excelHtml5', text: DT_ICONO_EXCEL + ' Excel', className: 'dt-button dt-btn-excel' },
+        { extend: 'pdfHtml5', text: DT_ICONO_PDF + ' PDF', className: 'dt-button dt-btn-pdf', orientation: 'landscape' },
+        { extend: 'csvHtml5', text: DT_ICONO_CSV + ' CSV', className: 'dt-button dt-btn-csv' },
+      ],
+      columnDefs: [{ orderable: false, targets: -1 }],
+    }, opciones));
+  }
+</script>
 <script>
   // ── Notificaciones flash (éxito / error / validación) vía iziToast
   document.addEventListener('DOMContentLoaded', function () {
@@ -550,6 +688,48 @@
       ],
     });
   });
+</script>
+
+<style>
+  .global-loader-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(255,255,255,.55);
+    display: none; align-items: center; justify-content: center;
+  }
+  .global-loader-overlay.visible { display: flex; }
+  .global-loader-spinner {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 4px solid rgba(0,0,0,.12);
+    border-top-color: var(--accent, #FF5A3C);
+    animation: global-loader-spin .7s linear infinite;
+  }
+  @keyframes global-loader-spin { to { transform: rotate(360deg); } }
+  @media (prefers-color-scheme: dark) {
+    .global-loader-overlay { background: rgba(20,20,20,.55); }
+    .global-loader-spinner { border-color: rgba(255,255,255,.15); border-top-color: var(--accent, #FF7A5C); }
+  }
+</style>
+<div class="global-loader-overlay" id="global-loader"><div class="global-loader-spinner"></div></div>
+<script>
+  (function () {
+    const loader = document.getElementById('global-loader');
+    if (!loader) return;
+    function mostrarLoader() { loader.classList.add('visible'); }
+    document.addEventListener('submit', function (event) {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (form.hasAttribute('data-confirm') && !form.dataset.confirmado) return;
+      mostrarLoader();
+    });
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a[href]');
+      if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript:') || link.target === '_blank' || link.hasAttribute('download')) return;
+      mostrarLoader();
+    });
+    window.addEventListener('pageshow', function () { loader.classList.remove('visible'); });
+  })();
 </script>
 
 @stack('scripts')

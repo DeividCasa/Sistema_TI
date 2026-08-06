@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -30,8 +31,8 @@ class RegistroController extends Controller
                     }
                 },
             ],
-            'email'    => 'required|email:rfc,filter|unique:clientes,email',
-            'telefono' => 'nullable|string|max:20',
+            'email'    => 'required|email:rfc,filter|max:150|unique:clientes,email',
+            'telefono' => ['nullable', 'regex:/^09\d{8}$/'],
             'ciudad'   => 'nullable|string|max:100',
             'password' => ['required', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/'],
             'terminos' => ['accepted'],
@@ -42,26 +43,41 @@ class RegistroController extends Controller
             'apellido.regex'    => 'El apellido solo puede contener letras.',
             'cedula.required'   => 'La cédula es obligatoria.',
             'cedula.digits'     => 'La cédula debe tener 10 dígitos.',
-            'cedula.unique'     => 'Ya existe una cuenta con esa cédula.',
+            'cedula.unique'     => 'Ya tienes una cuenta registrada con esta cédula.',
             'email.required'    => 'El correo es obligatorio.',
             'email.email'       => 'Ingresa un correo válido.',
+            'email.max'         => 'El correo no debe superar 150 caracteres.',
             'email.unique'      => 'Ya existe una cuenta con ese correo.',
+            'telefono.regex'    => 'El teléfono debe empezar con 09 y tener 10 dígitos (ej: 0991234567).',
             'password.required' => 'La contraseña es obligatoria.',
-            'password.regex'    => 'Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Deivid21$).',
+            'password.regex'    => 'Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Ejemplo123$).',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'terminos.accepted' => 'Debes aceptar los términos y condiciones para continuar.',
         ]);
 
-        Cliente::create([
-            'nombre'   => $request->nombre,
-            'apellido' => $request->apellido,
-            'cedula'   => $request->cedula,
-            'email'    => $request->email,
-            'telefono' => $request->telefono,
-            'ciudad'   => $request->ciudad,
-            'password' => Hash::make($request->password),
-            'activo'   => 1,
-        ]);
+        try {
+            Cliente::create([
+                'nombre'   => $request->nombre,
+                'apellido' => $request->apellido,
+                'cedula'   => $request->cedula,
+                'email'    => $request->email,
+                'telefono' => $request->telefono,
+                'ciudad'   => $request->ciudad,
+                'password' => Hash::make($request->password),
+                'activo'   => 1,
+            ]);
+        } catch (QueryException $e) {
+            // Choque de unicidad por una petición simultánea con la misma cédula/correo
+            // (la validación de arriba ya revisó, pero entre esa revisión y este insert
+            // otra petición pudo colarse primero): se informa igual que una duplicada normal
+            // en vez de dejar pasar el error 500 de la base de datos.
+            if ($e->getCode() === '23000') {
+                return back()->withErrors([
+                    'cedula' => 'Ya existe una cuenta con esa cédula o correo.',
+                ])->withInput();
+            }
+            throw $e;
+        }
 
         return redirect()->route('login.paso1')
                          ->with('success', '¡Cuenta creada! Ya puedes iniciar sesión.');
@@ -77,6 +93,14 @@ class RegistroController extends Controller
 
         if (!CedulaEcuador::esValida($request->cedula)) {
             return response()->json(['encontrado' => false]);
+        }
+
+        if (Cliente::where('cedula', $request->cedula)->exists()) {
+            return response()->json([
+                'encontrado' => false,
+                'duplicado'  => true,
+                'mensaje'    => 'Ya tienes una cuenta registrada con esta cédula.',
+            ]);
         }
 
         try {

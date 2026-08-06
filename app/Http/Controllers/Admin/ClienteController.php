@@ -13,7 +13,13 @@ class ClienteController extends Controller
     {
         Notificaciones::marcarVisto('clientes');
 
-        $clientes = Cliente::withCount('pedidos')
+        $clientes = Cliente::withCount([
+                                'pedidos',
+                                'pedidosMaestro',
+                                'pedidosUniforme' => fn ($q) => $q->whereNull('pedido_maestro_id'),
+                                'pedidosChompa' => fn ($q) => $q->whereNull('pedido_maestro_id'),
+                                'pedidosPlantilla' => fn ($q) => $q->whereNull('pedido_maestro_id'),
+                            ])
                            ->orderBy('created_at', 'desc')
                            ->get();
         return view('admin.clientes.index', compact('clientes'));
@@ -24,6 +30,9 @@ class ClienteController extends Controller
     {
         $cliente = Cliente::with(['pedidos.disenio'])
                           ->findOrFail($id);
-        return view('admin.clientes.show', compact('cliente'));
+        // Unificado: cotizaciones (camisetas personalizadas) + pedidos de tienda
+        // (uniforme/chompa/ropa/combinado), todo bajo el mismo "Pedidos realizados".
+        $pedidos = PedidoTiendaController::pedidosUnificados($cliente->id);
+        return view('admin.clientes.show', compact('cliente', 'pedidos'));
     }
 }

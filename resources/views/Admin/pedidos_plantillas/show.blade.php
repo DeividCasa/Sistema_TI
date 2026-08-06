@@ -74,7 +74,7 @@
             <div style="display:flex;flex-direction:column;gap:8px;">
               <form action="{{ route('admin.comprobantes-plantillas.verificar', $comprobante->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn-primary" style="padding:9px 20px;width:100%;">Verificar</button>
+                <button type="submit" class="btn-verificar">Verificar</button>
               </form>
               <form action="{{ route('admin.comprobantes-plantillas.rechazar', $comprobante->id) }}" method="POST"
                     data-confirm="¿Rechazar este comprobante?">

@@ -59,7 +59,7 @@
       @error('password')
         <div class="field-error">{{ $message }}</div>
       @enderror
-      <div class="field-error" id="err-password" style="display:none;">Debe tener mayúscula, minúscula, número y símbolo (ej: Deivid21$).</div>
+      <div class="field-error" id="err-password" style="display:none;">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Ejemplo123$).</div>
     </div>
 
     <div class="field">
