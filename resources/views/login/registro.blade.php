@@ -155,13 +155,17 @@
 @section('modales')
   <div class="modal-overlay-terminos" id="modal-terminos">
     <div class="modal-terminos-caja">
-      <div class="modal-terminos-titulo">Términos y condiciones</div>
+      <div class="modal-terminos-titulo">Términos y condiciones de tratamiento de datos personales</div>
       <div class="modal-terminos-cuerpo">
-        <p><strong>1. Datos que recopilamos.</strong> Al registrarte en Leo José solicitamos tu cédula, nombre, apellido, correo, teléfono y ciudad, con el único fin de identificarte, gestionar tus pedidos y darte soporte.</p>
-        <p><strong>2. Uso de tu información.</strong> Tus datos se usan exclusivamente para procesar pedidos, contactarte sobre el estado de tus compras/diseños y mejorar nuestro servicio. No vendemos ni compartimos tu información con terceros ajenos al negocio.</p>
-        <p><strong>3. Consentimiento.</strong> De acuerdo con la Ley Orgánica de Protección de Datos Personales del Ecuador, necesitamos tu autorización expresa para almacenar y tratar tus datos personales. Sin tu aceptación no podemos crear tu cuenta.</p>
-        <p><strong>4. Tus derechos.</strong> Puedes solicitar en cualquier momento la actualización o eliminación de tus datos escribiéndonos a través de los canales de contacto del local.</p>
-        <p><strong>5. Seguridad.</strong> Tu contraseña se almacena cifrada y no tenemos acceso a ella en texto plano.</p>
+        <p><strong>Primero. Responsable del tratamiento.</strong> Leo José, con domicilio en la provincia de Cotopaxi, es responsable del tratamiento de los datos personales que usted proporciona al crear una cuenta en este sitio.</p>
+        <p><strong>Segundo. Datos objeto de tratamiento.</strong> Se recopilan los siguientes datos: número de cédula, nombres, apellidos, correo electrónico, número de teléfono y ciudad de residencia.</p>
+        <p><strong>Tercero. Finalidad.</strong> Los datos señalados serán utilizados únicamente para: (i) validar su identidad y crear su cuenta de usuario; (ii) gestionar y dar seguimiento a sus pedidos y diseños; (iii) contactarlo por correo electrónico o teléfono sobre el estado de sus compras; y (iv) atender reclamos o solicitudes de soporte. No se utilizarán para fines distintos a los aquí descritos.</p>
+        <p><strong>Cuarto. Base legal y consentimiento.</strong> El tratamiento de sus datos se realiza con su consentimiento expreso, libre e informado, en cumplimiento de la Ley Orgánica de Protección de Datos Personales (Registro Oficial Suplemento No. 459, del 26 de mayo de 2021) y del artículo 66, numeral 19, de la Constitución de la República del Ecuador, que reconoce el derecho a la protección de datos de carácter personal. Al marcar la casilla de aceptación, usted otorga dicho consentimiento; sin él, no es posible crear su cuenta.</p>
+        <p><strong>Quinto. Confidencialidad y no cesión a terceros.</strong> Sus datos no serán vendidos, cedidos ni compartidos con terceros ajenos a la operación del negocio, salvo requerimiento de autoridad competente conforme a la ley.</p>
+        <p><strong>Sexto. Conservación.</strong> Los datos se conservarán mientras su cuenta permanezca activa y durante el tiempo adicional necesario para atender obligaciones legales o reclamos derivados de sus pedidos.</p>
+        <p><strong>Séptimo. Derechos del titular.</strong> Usted puede ejercer en cualquier momento sus derechos de acceso, rectificación, actualización, eliminación, oposición y portabilidad sobre sus datos personales, dirigiendo su solicitud a los canales de contacto publicados en este sitio.</p>
+        <p><strong>Octavo. Seguridad.</strong> Su contraseña se almacena cifrada mediante mecanismos de hash y no es accesible en texto plano por el personal de Leo José.</p>
+        <p><strong>Noveno. Aceptación.</strong> Al marcar la casilla correspondiente y crear su cuenta, usted declara haber leído y aceptado el presente documento en su totalidad.</p>
       </div>
       <div class="modal-terminos-acciones">
         <button type="button" class="btn-terminos-cancelar" id="btn-terminos-cancelar">Cancelar</button>

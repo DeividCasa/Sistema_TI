@@ -1,6 +1,6 @@
 @php
     $waInfo = \App\Models\InformacionLocal::actual();
-    $waNumero = $waInfo->whatsapp_numero ?: '593992502749';
+    $waNumero = $waInfo->whatsapp_numero ?: '593998340888';
     $waMensaje = rawurlencode($waInfo->whatsapp_mensaje ?: 'Hola, quisiera más información sobre sus productos.');
     $waDireccion = $waInfo->whatsapp_direccion ?: 'UTC San Felipe';
     $waHorario = $waInfo->whatsapp_horario ?: 'Todos los días: 7:00 AM - 6:00 PM';

@@ -156,14 +156,27 @@ class CarritoChompaController extends Controller
     {
         $pedido = PedidoChompa::where('cliente_id', session('usuario_id'))->findOrFail($id);
 
-        $request->validate([
+        $reglas = [
             'tipo'       => 'required|in:adelanto,pago_completo,saldo_final',
             'archivo'    => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'referencia' => 'nullable|string|max:100',
-        ], [
-            'archivo.required' => 'Debes adjuntar el comprobante de pago.',
-            'archivo.mimes'    => 'El archivo debe ser imagen o PDF.',
+        ];
+        if (!$pedido->tipo_entrega) {
+            $reglas['tipo_entrega']      = 'required|in:retiro,domicilio';
+            $reglas['direccion_entrega'] = 'required_if:tipo_entrega,domicilio|nullable|string|max:255';
+        }
+
+        $request->validate($reglas, [
+            'archivo.required'              => 'Debes adjuntar el comprobante de pago.',
+            'archivo.mimes'                 => 'El archivo debe ser imagen o PDF.',
+            'tipo_entrega.required'         => 'Selecciona cómo quieres recibir tu pedido.',
+            'direccion_entrega.required_if' => 'Ingresa la dirección donde quieres recibir tu pedido.',
         ]);
+
+        if (!$pedido->tipo_entrega) {
+            $pedido->tipo_entrega = $request->tipo_entrega;
+            $pedido->direccion_entrega = $request->tipo_entrega === 'domicilio' ? $request->direccion_entrega : null;
+        }
 
         $monto = match ($request->tipo) {
             'adelanto'      => $pedido->precio_adelanto,

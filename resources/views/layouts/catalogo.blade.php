@@ -206,12 +206,12 @@
         <h4 class="stext-301 cl0 p-b-30">Visítanos</h4>
         <p class="stext-107 cl7 size-201">
           {{ $infoFooter->direccion ?: 'Salcedo, Ecuador' }} ·
-          {{ $infoFooter->telefono ?: '+593 99 250 2749' }}
+          {{ $infoFooter->telefono ?: '+593 99 834 0888' }}
         </p>
         <div class="p-t-27">
           <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16"><i class="fa fa-facebook"></i></a>
           <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16"><i class="fa fa-instagram"></i></a>
-          <a href="https://wa.me/{{ $infoFooter->whatsapp_numero ?: '593992502749' }}" target="_blank" rel="noopener" class="fs-18 cl7 hov-cl1 trans-04 m-r-16"><i class="fa fa-whatsapp"></i></a>
+          <a href="https://wa.me/{{ $infoFooter->whatsapp_numero ?: '593998340888' }}" target="_blank" rel="noopener" class="fs-18 cl7 hov-cl1 trans-04 m-r-16"><i class="fa fa-whatsapp"></i></a>
         </div>
       </div>
 
@@ -456,7 +456,15 @@
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
       if (form.hasAttribute('data-confirm') && !form.dataset.confirmado) return;
-      mostrarLoader();
+      // El chequeo de defaultPrevented se difiere con setTimeout para que corra
+      // DESPUÉS de cualquier otro listener 'submit' registrado en la página (sin
+      // importar el orden en que se hayan registrado) — así, si algún validador
+      // o un envío por fetch() cancela el submit, el loader nunca llega a
+      // mostrarse. Mostrarlo antes de saberlo lo dejaría girando para siempre,
+      // porque solo se oculta con el evento 'pageshow' de una navegación real.
+      setTimeout(function () {
+        if (!event.defaultPrevented) mostrarLoader();
+      }, 0);
     });
     document.addEventListener('click', function (event) {
       const link = event.target.closest('a[href]');

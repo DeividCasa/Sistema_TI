@@ -69,7 +69,12 @@ function aplicarResultadoIA(data) {
     guardarHistorial();
   }
 
-  const pasos = [];
+  // Se limpia SIEMPRE lo que haya dejado una generación anterior (rayas y
+  // figuras), independientemente de si este nuevo resultado trae o no
+  // rayas/figuras propias: si no se hiciera incondicionalmente, un diseño
+  // nuevo sin rayas (o con rayas solo en una zona) dejaría "pegado" lo del
+  // diseño anterior en la(s) zona(s) que esta vez no se tocan.
+  const pasos = [limpiarDisenioIAAnterior];
   if (data.rayas && data.rayas.activo && data.rayas.color) {
     pasos.push(() => agregarRayasIA(data.rayas.color, data.rayas.zonas, data.rayas.cantidad, data.rayas.direccion));
   }
@@ -89,6 +94,34 @@ function aplicarResultadoIA(data) {
   });
 }
 
+/* Quita cualquier raya o figura dejada por una generación IA previa, en
+   TODAS las zonas donde la IA puede dibujar (frente/atrás), sin importar si
+   el nuevo resultado vuelve a usar esas zonas o no. Debe correr siempre
+   antes de aplicar un nuevo resultado: si solo se limpiara cuando el nuevo
+   resultado también trae rayas/figuras para esa zona, un diseño que esta
+   vez no las incluye (o las incluye solo en una de las dos zonas) dejaría
+   pegado lo del diseño anterior. */
+async function limpiarDisenioIAAnterior() {
+  const vistaOriginal = vistaActual;
+
+  for (const zona of ['frente', 'atras']) {
+    if (!VISTAS[zona] || !vistaPermiteDiseno(zona)) continue;
+
+    await new Promise(resolve => cambiarVista(zona, null, resolve));
+
+    const previos = fabricCanvas.getObjects()
+      .filter(o => typeof o.id === 'string' && (o.id.startsWith('figura-rayas-') || o.id.startsWith('figura-ia-')));
+    if (previos.length) {
+      previos.forEach(o => fabricCanvas.remove(o));
+      fabricCanvas.renderAll();
+      guardarCanvasActual();
+    }
+  }
+
+  await new Promise(resolve => cambiarVista(vistaOriginal, null, resolve));
+  actualizarTodasTexturas3D();
+}
+
 /* Dibuja rayas del color, cantidad y dirección indicados en cada una de las
    zonas dadas (típicamente frente/atrás), cambiando de vista temporalmente
    para poder escribir en el canvas 2D de cada una y luego sincronizando el
@@ -103,12 +136,6 @@ async function agregarRayasIA(color, zonas, cantidad, direccion) {
     if (!VISTAS[zona] || !vistaPermiteDiseno(zona)) continue;
 
     await new Promise(resolve => cambiarVista(zona, null, resolve));
-
-    // Si ya se generó un diseño IA antes en esta zona, se quitan sus rayas
-    // previas para no apilarlas encima de las nuevas.
-    fabricCanvas.getObjects()
-      .filter(o => typeof o.id === 'string' && o.id.startsWith('figura-rayas-'))
-      .forEach(o => fabricCanvas.remove(o));
 
     const rectZona = ZONAS_DISENO_2D[zona];
     if (!rectZona) continue;

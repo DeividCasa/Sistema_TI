@@ -89,6 +89,67 @@
         <strong style="color:var(--text-1);">${{ number_format($pedido->precio_saldo, 2) }}</strong>
       </div>
     </div>
+
+    <div style="margin-top:20px;padding:14px 16px;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:10px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:6px;">
+        Datos para la transferencia
+      </div>
+      @if($info->cuenta_banco || $info->cuenta_numero)
+        <div class="t-text" style="font-size:0.85rem;line-height:1.7;">
+          @if($info->cuenta_banco)Banco: {{ $info->cuenta_banco }}<br>@endif
+          @if($info->cuenta_tipo || $info->cuenta_numero)Cuenta {{ $info->cuenta_tipo ?: '' }}: {{ $info->cuenta_numero }}<br>@endif
+          @if($info->cuenta_titular)A nombre de: {{ $info->cuenta_titular }}<br>@endif
+          @if($info->cuenta_identificacion)Cédula / RUC: {{ $info->cuenta_identificacion }}@endif
+        </div>
+      @else
+        <div class="t-muted" style="font-size:0.85rem;line-height:1.6;">
+          Aún no se han configurado los datos de la cuenta. Ve a Admin → Información del local para agregarlos.
+        </div>
+      @endif
+    </div>
+
+    {{-- ENTREGA --}}
+    <div style="margin-top:20px;">
+      @if($pedido->tipo_entrega)
+        <div style="padding:14px 16px;background:var(--bg-3);border:1px solid var(--border);border-radius:10px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:4px;">Entrega</div>
+          <div class="t-text" style="font-size:0.9rem;font-weight:700;">{{ \App\Support\PedidoEstados::etiquetaEntrega($pedido->tipo_entrega) }}</div>
+          @if($pedido->tipo_entrega === 'domicilio' && $pedido->direccion_entrega)
+            <div class="t-muted" style="font-size:0.82rem;margin-top:2px;">{{ $pedido->direccion_entrega }}</div>
+          @endif
+        </div>
+      @else
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:10px;">
+          ¿Cómo quieres recibir tu pedido?
+        </label>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+          <label style="cursor:pointer;">
+            <input type="radio" name="tipo_entrega" value="retiro" form="form-pago" style="display:none;" onchange="marcarEntrega(this)" required>
+            <div class="opcion-entrega" style="border:2px solid var(--border);border-radius:10px;padding:14px 16px;">
+              <div style="font-weight:700;color:var(--text-1);font-size:0.9rem;">Retiro en tienda</div>
+              <div style="font-size:0.82rem;color:var(--text-2);">Pasas a recoger tu pedido cuando esté listo.</div>
+            </div>
+          </label>
+          <label style="cursor:pointer;">
+            <input type="radio" name="tipo_entrega" value="domicilio" form="form-pago" style="display:none;" onchange="marcarEntrega(this)" required>
+            <div class="opcion-entrega" style="border:2px solid var(--border);border-radius:10px;padding:14px 16px;">
+              <div style="font-weight:700;color:var(--text-1);font-size:0.9rem;">Envío a domicilio</div>
+              <div style="font-size:0.82rem;color:var(--text-2);">Te lo enviamos a la dirección que nos indiques.</div>
+            </div>
+          </label>
+        </div>
+        <div id="campo-direccion-entrega" style="display:none;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:7px;">
+            Dirección de entrega
+          </label>
+          <input type="text" name="direccion_entrega" id="input-direccion-entrega" form="form-pago" maxlength="255"
+            placeholder="Calle, número, referencia, ciudad..."
+            style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.9rem;
+            background:var(--bg-2);color:var(--text-1);outline:none;">
+          <div id="error-direccion-entrega" style="display:none;color:#EF4444;font-size:0.78rem;margin-top:6px;">Ingresa la dirección donde quieres recibir tu pedido.</div>
+        </div>
+      @endif
+    </div>
   </div>
 
   {{-- FORMULARIO DE PAGO --}}
@@ -115,7 +176,7 @@
         Puedes pagar el <strong>50% para iniciar</strong> el pedido, o cancelar el <strong>pago completo</strong> de una vez.
       </div>
 
-      <form action="{{ $rutaComprobante }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ $rutaComprobante }}" method="POST" enctype="multipart/form-data" id="form-pago">
         @csrf
 
         <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:10px;">
@@ -214,6 +275,44 @@ function marcarOpcion(radio) {
   caja.style.borderColor = 'var(--blue)';
   caja.style.background = 'var(--blue-soft)';
 }
+
+function marcarEntrega(radio) {
+  document.querySelectorAll('.opcion-entrega').forEach(el => {
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'transparent';
+  });
+  const caja = radio.nextElementSibling;
+  caja.style.borderColor = 'var(--blue)';
+  caja.style.background = 'var(--blue-soft)';
+
+  const campoDireccion = document.getElementById('campo-direccion-entrega');
+  if (campoDireccion) {
+    campoDireccion.style.display = radio.value === 'domicilio' ? 'block' : 'none';
+    document.getElementById('error-direccion-entrega').style.display = 'none';
+  }
+}
+
+document.getElementById('form-pago')?.addEventListener('submit', function (e) {
+  const tipoEntregaElegido = document.querySelector('input[name="tipo_entrega"]:checked');
+  const bloqueTipoEntrega = document.querySelector('input[name="tipo_entrega"]');
+  // Si el radio existe en el formulario es porque aún no se ha fijado el tipo de
+  // entrega del pedido (el servidor decide si mostrar el formulario o no).
+  if (bloqueTipoEntrega) {
+    if (!tipoEntregaElegido) {
+      e.preventDefault();
+      alert('Selecciona cómo quieres recibir tu pedido (retiro en tienda o envío a domicilio).');
+      return;
+    }
+    if (tipoEntregaElegido.value === 'domicilio') {
+      const direccion = document.getElementById('input-direccion-entrega');
+      if (!direccion.value.trim()) {
+        e.preventDefault();
+        document.getElementById('error-direccion-entrega').style.display = 'block';
+        direccion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }
+});
 </script>
 </div>
 

@@ -29,6 +29,11 @@ class InformacionLocal extends Model
         'whatsapp_horario',
         'visitanos_titulo',
         'visitanos_texto',
+        'cuenta_banco',
+        'cuenta_tipo',
+        'cuenta_numero',
+        'cuenta_titular',
+        'cuenta_identificacion',
     ];
 
     public static function actual(): self

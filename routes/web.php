@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\PedidoTiendaController;
 use App\Http\Controllers\Admin\PedidoPlantillaController;
 use App\Http\Controllers\Admin\InformacionLocalController;
 use App\Http\Controllers\Admin\TestimonioController;
+use App\Http\Controllers\Admin\CuentaAdminController;
 use App\Http\Controllers\Admin\NotificacionesController;
 
 use App\Models\Pedido;
@@ -326,6 +327,8 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
 
     // ── PEDIDOS DE TIENDA: lista unificada de uniformes + chompas (sueltos o combinados)
     Route::get('/pedidos-tienda', [PedidoTiendaController::class, 'index'])->name('pedidos-tienda.index');
+    Route::get('/pedidos-tienda/crear', [PedidoTiendaController::class, 'create'])->name('pedidos-tienda.create');
+    Route::post('/pedidos-tienda', [PedidoTiendaController::class, 'store'])->name('pedidos-tienda.store');
     Route::get('/pedidos-tienda/{id}', [PedidoTiendaController::class, 'show'])->name('pedidos-tienda.show');
     Route::post('/pedidos-tienda/{id}/pago-completo', [PedidoTiendaController::class, 'marcarPagoCompleto'])
         ->name('pedidos-tienda.pago-completo');
@@ -339,6 +342,10 @@ Route::middleware('sesion:admin')->prefix('admin')->name('admin.')->group(functi
     // ── INFORMACIÓN DEL LOCAL (página de inicio del cliente)
     Route::get('/informacion-local', [InformacionLocalController::class, 'edit'])->name('informacion-local.edit');
     Route::put('/informacion-local', [InformacionLocalController::class, 'update'])->name('informacion-local.update');
+
+    // ── CAMBIAR CONTRASEÑA DEL ADMIN (desde el menú del icono de usuario)
+    Route::put('/mi-cuenta/password', [CuentaAdminController::class, 'actualizarPassword'])
+        ->name('cuenta.password.update');
 });
 
 Route::get('/admin_ini', function () {

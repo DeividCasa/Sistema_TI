@@ -493,17 +493,79 @@
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         <svg class="icon-sun"  viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <div class="nav-avatar">
-        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-        </svg>
+      <div class="nav-user-menu" style="position:relative;">
+        <button type="button" onclick="toggleMenuUsuario(event)" style="display:flex;align-items:center;gap:8px;background:none;border:none;padding:0;cursor:pointer;">
+          <div class="nav-avatar">
+            <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text-2);">{{ session('usuario_nombre', '') }}</span>
+        </button>
+        <div id="menu-usuario" style="display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:200px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.14);z-index:500;overflow:hidden;">
+          <button type="button" onclick="abrirModalPassword()" style="display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;background:none;border:none;text-align:left;font-family:var(--font-b);font-size:0.85rem;color:var(--text-1);cursor:pointer;">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            Cambiar contraseña
+          </button>
+        </div>
       </div>
-      <span style="font-size:0.82rem;font-weight:600;color:var(--text-2);">{{ session('usuario_nombre', '') }}</span>
     <a href="{{ route('logout') }}" class="btn-logout">Salir</a>
       @stack('topbar-acciones')
     </div>
   </header>
   @show
+
+  {{-- ── MODAL: cambiar contraseña del admin ── --}}
+  <div id="modal-password-overlay" style="display:{{ $errors->has('password_actual') || $errors->has('password_nuevo') ? 'flex' : 'none' }};position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this) cerrarModalPassword()">
+    <div style="background:var(--bg-2);border-radius:14px;max-width:400px;width:100%;padding:24px;">
+      <div style="font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:18px;">Cambiar contraseña</div>
+      <form action="{{ route('admin.cuenta.password.update') }}" method="POST" id="form-cambiar-password">
+        @csrf
+        @method('PUT')
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:0.76rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:6px;">Contraseña actual</label>
+          <div style="position:relative;">
+            <input type="password" id="pw-actual" name="password_actual" style="width:100%;padding:10px 42px 10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-3);color:var(--text-1);outline:none;">
+            <button type="button" onclick="toggleModalPass('pw-actual', this)" title="Ver contraseña" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--text-3);display:flex;align-items:center;">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          @error('password_actual')<div style="color:#EF4444;font-size:0.76rem;margin-top:5px;">{{ $message }}</div>@enderror
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:0.76rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:6px;">Nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="pw-nuevo" name="password_nuevo" minlength="8" style="width:100%;padding:10px 42px 10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-3);color:var(--text-1);outline:none;">
+            <button type="button" onclick="toggleModalPass('pw-nuevo', this)" title="Ver contraseña" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--text-3);display:flex;align-items:center;">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          @error('password_nuevo')<div style="color:#EF4444;font-size:0.76rem;margin-top:5px;">{{ $message }}</div>@enderror
+          <div id="pw-nuevo-hint" style="font-size:0.74rem;color:var(--text-3);margin-top:5px;">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej: Ejemplo123$).</div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:0.76rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:6px;">Confirmar nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="pw-confirmar" name="password_nuevo_confirmation" minlength="8" style="width:100%;padding:10px 42px 10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-3);color:var(--text-1);outline:none;">
+            <button type="button" onclick="toggleModalPass('pw-confirmar', this)" title="Ver contraseña" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--text-3);display:flex;align-items:center;">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div id="pw-confirmar-error" style="display:none;color:#EF4444;font-size:0.76rem;margin-top:5px;">Las contraseñas no coinciden.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button type="button" onclick="cerrarModalPassword()" class="btn-secondary" style="flex:1;justify-content:center;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="flex:1;justify-content:center;">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 <aside class="sidebar" style="@yield('sidebar-display', 'display:none')">
     @stack('sidebar-menu')
@@ -641,6 +703,68 @@
     @if($errors->any())
       iziToast.error({ title: 'Revisa lo siguiente', message: @json(implode(' · ', $errors->all())), position: 'topRight', timeout: 7000, close: true });
     @endif
+  });
+
+  function toggleMenuUsuario(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('menu-usuario');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+  document.addEventListener('click', function (e) {
+    const menu = document.getElementById('menu-usuario');
+    if (menu && menu.style.display === 'block' && !e.target.closest('.nav-user-menu')) {
+      menu.style.display = 'none';
+    }
+  });
+
+  function abrirModalPassword() {
+    document.getElementById('menu-usuario').style.display = 'none';
+    document.getElementById('modal-password-overlay').style.display = 'flex';
+  }
+  function cerrarModalPassword() {
+    document.getElementById('modal-password-overlay').style.display = 'none';
+  }
+  function toggleModalPass(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    const mostrar = inp.type === 'password';
+    inp.type = mostrar ? 'text' : 'password';
+    btn.querySelector('svg').innerHTML = mostrar
+      ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+
+  document.getElementById('form-cambiar-password')?.addEventListener('submit', function (e) {
+    const nuevo = document.getElementById('pw-nuevo');
+    const confirmar = document.getElementById('pw-confirmar');
+    const hint = document.getElementById('pw-nuevo-hint');
+    const errorConfirmar = document.getElementById('pw-confirmar-error');
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/;
+
+    let valido = true;
+
+    if (!passwordRegex.test(nuevo.value)) {
+      hint.style.color = '#EF4444';
+      valido = false;
+    } else {
+      hint.style.color = 'var(--text-3)';
+    }
+
+    if (confirmar.value !== nuevo.value) {
+      errorConfirmar.style.display = 'block';
+      valido = false;
+    } else {
+      errorConfirmar.style.display = 'none';
+    }
+
+    if (!valido) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarModalPassword();
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
     @if(session('whatsapp_url'))
       iziToast.success({
         title: 'WhatsApp listo',
@@ -719,7 +843,15 @@
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
       if (form.hasAttribute('data-confirm') && !form.dataset.confirmado) return;
-      mostrarLoader();
+      // El chequeo de defaultPrevented se difiere con setTimeout para que corra
+      // DESPUÉS de cualquier otro listener 'submit' registrado en la página (sin
+      // importar el orden en que se hayan registrado) — así, si algún validador
+      // o un envío por fetch() cancela el submit, el loader nunca llega a
+      // mostrarse. Mostrarlo antes de saberlo lo dejaría girando para siempre,
+      // porque solo se oculta con el evento 'pageshow' de una navegación real.
+      setTimeout(function () {
+        if (!event.defaultPrevented) mostrarLoader();
+      }, 0);
     });
     document.addEventListener('click', function (event) {
       const link = event.target.closest('a[href]');
@@ -765,7 +897,13 @@
   <!-- Lightbox: ver en grande fotos de productos y comprobantes de pago -->
   <div class="lightbox-overlay" id="lightbox-overlay" onclick="cerrarLightbox()">
     <button type="button" class="lightbox-cerrar" onclick="cerrarLightbox()" aria-label="Cerrar">&times;</button>
-    <img id="lightbox-img" src="" alt="Vista ampliada" onclick="event.stopPropagation()">
+    <div class="lightbox-contenido" onclick="event.stopPropagation()">
+      <img id="lightbox-img" src="" alt="Vista ampliada">
+      <div class="lightbox-zoom-controles">
+        <button type="button" onclick="alejarLightbox()" aria-label="Alejar">&minus;</button>
+        <button type="button" onclick="acercarLightbox()" aria-label="Acercar">&plus;</button>
+      </div>
+    </div>
   </div>
   <style>
     .lightbox-overlay {
@@ -773,12 +911,18 @@
       background: rgba(0,0,0,0.85);
       align-items: center; justify-content: center;
       padding: 40px; cursor: zoom-out;
+      overflow: auto;
     }
     .lightbox-overlay.open { display: flex; }
+    .lightbox-contenido {
+      display: flex; flex-direction: row; align-items: center; gap: 120px;
+      max-width: 92vw; max-height: 92vh;
+    }
     .lightbox-overlay img {
-      max-width: 92vw; max-height: 92vh; border-radius: 12px;
+      max-width: 80vw; max-height: 92vh; border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
       cursor: default;
+      transition: transform 0.15s;
     }
     .lightbox-cerrar {
       position: absolute; top: 20px; right: 28px;
@@ -788,16 +932,38 @@
       transition: background 0.15s;
     }
     .lightbox-cerrar:hover { background: rgba(255,255,255,0.25); }
+    .lightbox-zoom-controles {
+      display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+    }
+    .lightbox-zoom-controles button {
+      background: rgba(255,255,255,0.12); border: none; color: white;
+      width: 40px; height: 40px; border-radius: 50%; font-size: 1.4rem; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .lightbox-zoom-controles button:hover { background: rgba(255,255,255,0.25); }
   </style>
   <script>
+    let lightboxEscala = 1;
     function abrirLightbox(src) {
       if (!src) return;
-      document.getElementById('lightbox-img').src = src;
+      lightboxEscala = 1;
+      const img = document.getElementById('lightbox-img');
+      img.src = src;
+      img.style.transform = 'scale(1)';
       document.getElementById('lightbox-overlay').classList.add('open');
     }
     function cerrarLightbox() {
       document.getElementById('lightbox-overlay').classList.remove('open');
       document.getElementById('lightbox-img').src = '';
+    }
+    function acercarLightbox() {
+      lightboxEscala = Math.min(lightboxEscala + 0.5, 4);
+      document.getElementById('lightbox-img').style.transform = `scale(${lightboxEscala})`;
+    }
+    function alejarLightbox() {
+      lightboxEscala = Math.max(lightboxEscala - 0.5, 1);
+      document.getElementById('lightbox-img').style.transform = `scale(${lightboxEscala})`;
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
   </script>

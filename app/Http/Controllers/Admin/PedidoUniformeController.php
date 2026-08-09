@@ -37,7 +37,7 @@ class PedidoUniformeController extends Controller
         }
 
         $request->validate([
-            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'estado'          => 'required|in:' . implode(',', PedidoEstados::estadosDisponibles($pedido->tipo_entrega)),
             'observaciones'   => 'nullable|string|max:1000',
             'tiempo_estimado' => 'nullable|string|max:255',
         ]);
@@ -67,6 +67,7 @@ class PedidoUniformeController extends Controller
                 PedidoEstados::label($pedido->estado),
                 $pedido->tiempo_estimado,
                 $lineas,
+                PedidoEstados::mensajeParaCliente($pedido->estado, $pedido->tipo_entrega),
             ));
         }
 
@@ -84,12 +85,7 @@ class PedidoUniformeController extends Controller
 
     private function mensajeEstado(PedidoUniforme $pedido): string
     {
-        $mensaje = PedidoEstados::label($pedido->estado) . '.';
-        if ($pedido->tiempo_estimado) {
-            $mensaje .= " Tiempo estimado de entrega: {$pedido->tiempo_estimado}.";
-        }
-
-        return $mensaje;
+        return PedidoEstados::mensajeParaCliente($pedido->estado, $pedido->tipo_entrega, $pedido->tiempo_estimado);
     }
 
     // ── MARCAR PAGO COMO COMPLETADO (override manual del admin)

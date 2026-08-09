@@ -125,6 +125,13 @@
 
                 $enRevision = in_array($pedido->estado_pago, ['adelanto_enviado', 'pago_completo_enviado', 'saldo_enviado']);
 
+                // Si no se ha hecho ningún adelanto, el pedido se elimina solo a los 7 días.
+                // Carbon 3 devuelve diffInDays() con decimales (precisión de microsegundos),
+                // así que se redondea hacia abajo para mostrar un número de días entero.
+                $diasRestantes = $pedido->estado_pago === 'pendiente'
+                    ? (int) floor(7 - $pedido->created_at->diffInDays(now()))
+                    : null;
+
                 $rutaPago = $tipo === 'camiseta'
                     ? route('cliente.pedidos.comprobante', $pedido->id)
                     : route('cliente.mis-pedidos.pago', [$tipo, $pedido->id]);
@@ -143,6 +150,12 @@
                             {{ $etiquetaTipo }}
                         </span>
 
+                        @if($pedido->tipo_entrega)
+                            <span style="background:#F3E8FF;border:1px solid #E9D5FF;color:#7E22CE;padding:4px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;">
+                                {{ $pedido->tipo_entrega === 'retiro' ? '🏬 Retiro en tienda' : '🚚 Envío a domicilio' }}
+                            </span>
+                        @endif
+
                         @foreach($estadosProduccion as $etiquetaHijo => $estado)
                             <span style="background:var(--bg-2);border:1px solid var(--border);color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;">
                                 @if($etiquetaHijo){{ $etiquetaHijo }}: @endif{{ $estadoMap[$estado] ?? ucfirst($estado) }}
@@ -158,6 +171,16 @@
                         <span style="background:{{ $pagoBg }};color:{{ $pagoColor }};padding:4px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;">
                             {{ $pagoTexto }}
                         </span>
+
+                        @if(!is_null($diasRestantes))
+                            <span style="background:#FEE2E2;color:#B91C1C;padding:4px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;">
+                                @if($diasRestantes > 0)
+                                    Se elimina en {{ $diasRestantes }} día{{ $diasRestantes === 1 ? '' : 's' }} si no subes tu comprobante
+                                @else
+                                    Se elimina hoy si no subes tu comprobante
+                                @endif
+                            </span>
+                        @endif
                     </div>
                 </div>
 

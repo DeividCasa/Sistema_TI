@@ -124,16 +124,18 @@
     {{-- Cotizar --}}
     <div class="card card-pad reveal">
       <div class="sec-title" style="margin-bottom:16px;">Enviar precio y mensaje</div>
-      <form action="{{ route('admin.disenios3d.cotizar', $solicitud->id) }}" method="POST">
+      <form action="{{ route('admin.disenios3d.cotizar', $solicitud->id) }}" method="POST" data-confirm="¿Enviar esta cotización al cliente?">
         @csrf
         <div style="margin-bottom:14px;">
           <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);
             text-transform:uppercase;letter-spacing:0.03em;margin-bottom:7px;">
             Precio total
           </label>
-          <input type="number" step="0.01" min="0" name="precio" value="{{ $solicitud->precio }}" required
+          <input type="number" step="0.01" min="0" max="250" name="precio" value="{{ old('precio', $solicitud->precio) }}" required
+            oninput="if (this.value.length > 6) this.value = this.value.slice(0, 6); if (parseFloat(this.value) > 250) this.value = 250;"
             style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
             font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
+          @error('precio')<div style="color:#EF4444;font-size:0.78rem;margin-top:6px;">{{ $message }}</div>@enderror
         </div>
         <div style="margin-bottom:14px;">
           <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);

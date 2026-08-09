@@ -140,17 +140,15 @@
       const fila = tabla.row(index).node();
       if (!fila) return true;
 
-      const tipoFiltro = document.getElementById('filtroTipo')?.value ?? 'todos';
       const estadoFiltro = document.getElementById('filtroEstado')?.value ?? 'todos';
       const pagoFiltro = document.getElementById('filtroPago')?.value ?? 'todos';
 
-      if (tipoFiltro !== 'todos' && fila.getAttribute('data-tipo') !== tipoFiltro) return false;
       if (estadoFiltro !== 'todos' && fila.getAttribute('data-estado') !== estadoFiltro) return false;
       if (pagoFiltro !== 'todos' && fila.getAttribute('data-pago') !== pagoFiltro) return false;
       return true;
     });
 
-    ['filtroTipo', 'filtroEstado', 'filtroPago'].forEach(id => {
+    ['filtroEstado', 'filtroPago'].forEach(id => {
       document.getElementById(id)?.addEventListener('change', () => tabla.draw());
     });
     document.getElementById('buscarPedido')?.addEventListener('input', function () {

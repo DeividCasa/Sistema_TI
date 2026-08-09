@@ -16,19 +16,28 @@ class ComprobanteController extends Controller
         $comprobante->save();
 
         $pedido = Pedido::findOrFail($comprobante->pedido_id);
-        $pedido->estado_pago = 'adelanto_verificado';
-        $pedido->estado      = 'en_produccion';
+
+        $pedido->estado_pago = $comprobante->tipo === 'adelanto'
+            ? 'adelanto_verificado'
+            : 'pagado_completo';
+
+        $estadoAnterior = $pedido->estado;
+        if ($pedido->estado === 'recibido') {
+            $pedido->estado = 'en_produccion';
+        }
         $pedido->save();
 
-        \App\Models\HistorialEstado::create([
-            'pedido_id'       => $pedido->id,
-            'admin_id'        => session('usuario_id'),
-            'estado_anterior' => 'recibido',
-            'estado_nuevo'    => 'en_produccion',
-            'nota'            => 'Comprobante de adelanto verificado.',
-        ]);
+        if ($estadoAnterior !== $pedido->estado) {
+            \App\Models\HistorialEstado::create([
+                'pedido_id'       => $pedido->id,
+                'admin_id'        => session('usuario_id'),
+                'estado_anterior' => $estadoAnterior,
+                'estado_nuevo'    => $pedido->estado,
+                'nota'            => 'Comprobante de '.str_replace('_', ' ', $comprobante->tipo).' verificado.',
+            ]);
+        }
 
-        return back()->with('success', 'Comprobante verificado. Pedido en producción.');
+        return back()->with('success', 'Comprobante verificado correctamente.');
     }
 
     public function rechazar(Request $request, $id)
@@ -43,9 +52,13 @@ class ComprobanteController extends Controller
         $comprobante->save();
 
         $pedido = Pedido::findOrFail($comprobante->pedido_id);
-        $pedido->estado_pago = 'pendiente';
+        // Si rechazan el comprobante del saldo final, el adelanto ya verificado
+        // se mantiene — solo se regresa al estado anterior a ESE pago.
+        $pedido->estado_pago = $comprobante->tipo === 'saldo_final'
+            ? 'adelanto_verificado'
+            : 'pendiente';
         $pedido->save();
 
-        return back()->with('error', 'Comprobante rechazado.');
+        return back()->with('success', 'Comprobante rechazado.');
     }
 }

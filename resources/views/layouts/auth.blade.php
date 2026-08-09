@@ -130,15 +130,26 @@
 
     .field { margin-bottom: 16px; }
     .field label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-2); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 6px; }
-    .field input {
+    .field input, .field select {
       width: 100%; padding: 11px 14px;
       border: 1.5px solid var(--border); border-radius: 10px;
       font-family: var(--font-b); font-size: 0.9rem; color: var(--text-1);
       background: var(--bg-2); outline: none;
       transition: border-color 0.18s, box-shadow 0.18s;
     }
-    .field input:focus { border-color: var(--border-2); box-shadow: 0 0 0 3px rgba(20,22,26,0.05); }
-    .field input.is-error { border-color: var(--red-400); background: var(--red-50); }
+    .field input:focus, .field select:focus { border-color: var(--border-2); box-shadow: 0 0 0 3px rgba(20,22,26,0.05); }
+    .field input.is-error, .field select.is-error { border-color: var(--red-400); background: var(--red-50); }
+    .field select {
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
+      cursor: pointer;
+      padding-right: 38px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2353565B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+    .field select:invalid { color: var(--text-3); }
+    .field option { color: var(--text-1); }
     .field-error { font-size: 0.76rem; color: var(--red-500); margin-top: 5px; font-weight: 500; }
     .field-hint { font-size: 0.76rem; color: var(--text-3); margin-top: 5px; }
 
@@ -345,7 +356,12 @@
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
       if (form.hasAttribute('data-confirm') && !form.dataset.confirmado) return;
-      mostrarLoader();
+      // Diferido con setTimeout para que corra DESPUÉS de cualquier otro
+      // listener 'submit' de la página, sin importar el orden de registro —
+      // así nunca se muestra el loader si algo más ya canceló el envío.
+      setTimeout(function () {
+        if (!event.defaultPrevented) mostrarLoader();
+      }, 0);
     });
     document.addEventListener('click', function (event) {
       const link = event.target.closest('a[href]');

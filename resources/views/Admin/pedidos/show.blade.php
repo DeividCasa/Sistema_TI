@@ -58,6 +58,27 @@
       </div>
     </div>
 
+    {{-- Entrega --}}
+    <div class="card card-pad reveal">
+      <div class="sec-title" style="margin-bottom:16px;">Entrega</div>
+      @if($pedido->tipo_entrega)
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;">
+            <span class="t-muted">Tipo</span>
+            <span class="t-text">{{ \App\Support\PedidoEstados::etiquetaEntrega($pedido->tipo_entrega) }}</span>
+          </div>
+          @if($pedido->tipo_entrega === 'domicilio')
+            <div style="display:flex;justify-content:space-between;gap:10px;">
+              <span class="t-muted">Dirección</span>
+              <span class="t-text" style="text-align:right;">{{ $pedido->direccion_entrega ?? 'No especificada' }}</span>
+            </div>
+          @endif
+        </div>
+      @else
+        <p class="t-muted">El cliente aún no eligió el tipo de entrega (lo hace al subir su comprobante de pago).</p>
+      @endif
+    </div>
+
     {{-- Tallas --}}
     <div class="card card-pad reveal">
       <div class="sec-title" style="margin-bottom:16px;">Tallas del pedido</div>
@@ -95,7 +116,11 @@
         <div style="flex:1;min-width:180px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
             <div>
-              <div class="t-text" style="text-transform:capitalize;">{{ $comp->tipo }}</div>
+              <div class="t-text">
+                @if($comp->tipo === 'adelanto') Adelanto del 50%
+                @elseif($comp->tipo === 'pago_completo') Pago completo (100%)
+                @else Saldo final (50% restante) @endif
+              </div>
               <div class="t-muted">Ref: {{ $comp->referencia ?? '—' }} · ${{ number_format($comp->monto, 2) }}</div>
             </div>
             @if($comp->estado == 'verificado')
@@ -233,12 +258,9 @@
           <select name="estado"
             style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
             font-family:var(--font-b);font-size:0.93rem;color:var(--text-1);background:var(--bg-2);outline:none;">
-            <option value="recibido"      {{ $pedido->estado == 'recibido'      ? 'selected' : '' }}>Recibido</option>
-            <option value="en_produccion" {{ $pedido->estado == 'en_produccion' ? 'selected' : '' }}>En producción</option>
-            <option value="listo"         {{ $pedido->estado == 'listo'         ? 'selected' : '' }}>Listo</option>
-            <option value="enviado"       {{ $pedido->estado == 'enviado'       ? 'selected' : '' }}>Enviado</option>
-            <option value="entregado"     {{ $pedido->estado == 'entregado'     ? 'selected' : '' }}>Entregado</option>
-            <option value="cancelado"     {{ $pedido->estado == 'cancelado'     ? 'selected' : '' }}>Cancelado</option>
+            @foreach(\App\Support\PedidoEstados::estadosDisponibles($pedido->tipo_entrega) as $estado)
+              <option value="{{ $estado }}" {{ $pedido->estado === $estado ? 'selected' : '' }}>{{ \App\Support\PedidoEstados::label($estado) }}</option>
+            @endforeach
           </select>
         </div>
         <div style="margin-bottom:14px;">

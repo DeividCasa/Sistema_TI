@@ -110,6 +110,41 @@
     </div>
   </div>
 
+  {{-- ── DATOS PARA TRANSFERENCIA ────────────────────────────────── --}}
+  <div class="card card-pad reveal">
+    <div style="font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:6px;">Datos para la transferencia</div>
+    <p style="font-size:0.82rem;color:var(--text-3);margin-bottom:16px;">Cuenta bancaria que se muestra al cliente cuando sube su comprobante de pago.</p>
+
+    <div class="info-local-2col" style="margin-bottom:14px;">
+      <div>
+        <label class="info-local-label">Banco</label>
+        <input type="text" name="cuenta_banco" value="{{ old('cuenta_banco', $info->cuenta_banco) }}"
+          placeholder="Ej: Banco Pichincha" class="info-local-input">
+      </div>
+      <div>
+        <label class="info-local-label">Tipo de cuenta</label>
+        <input type="text" name="cuenta_tipo" value="{{ old('cuenta_tipo', $info->cuenta_tipo) }}"
+          placeholder="Ej: Ahorros" class="info-local-input">
+      </div>
+    </div>
+
+    <div class="info-local-2col" style="margin-bottom:14px;">
+      <div>
+        <label class="info-local-label">Número de cuenta</label>
+        <input type="text" name="cuenta_numero" value="{{ old('cuenta_numero', $info->cuenta_numero) }}" class="info-local-input">
+      </div>
+      <div>
+        <label class="info-local-label">Cédula / RUC del titular</label>
+        <input type="text" name="cuenta_identificacion" value="{{ old('cuenta_identificacion', $info->cuenta_identificacion) }}" class="info-local-input">
+      </div>
+    </div>
+
+    <div>
+      <label class="info-local-label">A nombre de</label>
+      <input type="text" name="cuenta_titular" value="{{ old('cuenta_titular', $info->cuenta_titular) }}" class="info-local-input">
+    </div>
+  </div>
+
   {{-- ── INFORMACIÓN DEL LOCAL ───────────────────────────────────── --}}
   <div class="card card-pad reveal">
     <div style="font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:16px;">Datos del local</div>

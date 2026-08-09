@@ -102,14 +102,6 @@
       <span class="stats-label">pedidos totales</span>
     </div>
     <div class="filter-group">
-      <select id="filtroTipo" class="filter-select">
-        <option value="todos">Todos los tipos</option>
-        <option value="combinado">Combinado</option>
-        <option value="uniforme">Uniforme</option>
-        <option value="chompa">Chompa</option>
-        <option value="ropa">Ropa</option>
-        <option value="camiseta">Camiseta</option>
-      </select>
       <select id="filtroEstado" class="filter-select">
         <option value="todos">Todos los estados</option>
         <option value="recibido">Recibido</option>
@@ -121,8 +113,11 @@
       </select>
       <select id="filtroPago" class="filter-select">
         <option value="todos">Todos los pagos</option>
-        <option value="pendiente">Pendiente</option>
+        <option value="pendiente">Pago pendiente</option>
+        <option value="adelanto_enviado">Adelanto enviado</option>
         <option value="adelanto_verificado">Adelanto verificado</option>
+        <option value="pago_completo_enviado">Pago completo enviado</option>
+        <option value="saldo_enviado">Saldo enviado</option>
         <option value="pagado_completo">Pagado completo</option>
       </select>
       <div class="search-input">

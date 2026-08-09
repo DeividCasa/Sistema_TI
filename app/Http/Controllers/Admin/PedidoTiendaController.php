@@ -4,17 +4,28 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\EstadoPedidoMail;
+use App\Models\Chompa;
+use App\Models\ChompaTalla;
+use App\Models\Cliente;
 use App\Models\ComprobanteMaestro;
 use App\Models\Pedido;
 use App\Models\PedidoChompa;
 use App\Models\PedidoMaestro;
 use App\Models\PedidoPlantilla;
 use App\Models\PedidoUniforme;
+use App\Models\Plantilla;
+use App\Models\PlantillaTalla;
+use App\Models\Uniforme;
+use App\Models\UniformeTalla;
+use App\Services\CheckoutService;
 use App\Support\PedidoEstados;
 use App\Support\WhatsappHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PedidoTiendaController extends Controller
 {
@@ -119,7 +130,7 @@ class PedidoTiendaController extends Controller
         }
 
         $request->validate([
-            'estado'          => 'required|in:recibido,en_produccion,listo,enviado,entregado,cancelado',
+            'estado'          => 'required|in:' . implode(',', PedidoEstados::estadosDisponibles($pedido->tipo_entrega)),
             'tiempo_estimado' => 'nullable|string|max:255',
         ]);
 
@@ -182,15 +193,14 @@ class PedidoTiendaController extends Controller
                 $estadoLabel,
                 $pedido->tiempo_estimado,
                 $lineas,
+                PedidoEstados::mensajeParaCliente($request->estado, $pedido->tipo_entrega),
             ));
         }
 
         $whatsappUrl = null;
         if ($request->boolean('notificar_whatsapp')) {
-            $mensaje = "Hola {$pedido->cliente->nombre}, tu pedido {$pedido->codigo} ahora está: {$estadoLabel}.";
-            if ($pedido->tiempo_estimado) {
-                $mensaje .= " Tiempo estimado de entrega: {$pedido->tiempo_estimado}.";
-            }
+            $mensaje = "Hola {$pedido->cliente->nombre}, tu pedido {$pedido->codigo} ahora está: "
+                . PedidoEstados::mensajeParaCliente($request->estado, $pedido->tipo_entrega, $pedido->tiempo_estimado);
             $whatsappUrl = WhatsappHelper::link($pedido->cliente?->telefono, $mensaje);
         }
 
@@ -265,5 +275,195 @@ class PedidoTiendaController extends Controller
         }
 
         return back()->with('success', 'Comprobante rechazado.');
+    }
+
+    // ── FORMULARIO: pedido de tienda tomado por el admin (cliente presencial
+    //    que no quiere usar el aplicativo). Cliente existente o walk-in.
+    public function create()
+    {
+        $clientes = Cliente::select('id', 'nombre', 'apellido', 'cedula', 'telefono')
+            ->orderBy('nombre')
+            ->get();
+
+        $uniformes = Uniforme::with(['tallas' => fn ($q) => $q->where('disponible', 1)])
+            ->where('activo', 1)->orderBy('nombre')->get();
+        $chompas = Chompa::with(['tallas' => fn ($q) => $q->where('disponible', 1)])
+            ->where('activo', 1)->orderBy('nombre')->get();
+        $plantillas = Plantilla::with(['tallas' => fn ($q) => $q->where('disponible', 1)])
+            ->where('activa', 1)->orderBy('nombre')->get();
+
+        return view('Admin.pedidos_tienda.create', compact('clientes', 'uniformes', 'chompas', 'plantillas'));
+    }
+
+    // ── GUARDAR: crea (o reutiliza) el cliente y arma el pedido reusando
+    //    CheckoutService, el mismo servicio que usa el checkout del cliente.
+    public function store(Request $request, CheckoutService $checkoutService)
+    {
+        $esNuevo = $request->boolean('cliente_nuevo');
+
+        $reglas = [
+            'items'                  => 'required|array|min:1',
+            'items.*.tipo'           => 'required|in:uniforme,chompa,plantilla',
+            'items.*.producto_id'    => 'required|integer',
+            'items.*.talla_id'       => 'required|integer',
+            'items.*.cantidad'       => 'required|integer|min:1|max:100',
+            'estado_pago_registro'   => 'required|in:adelanto,completo',
+        ];
+
+        if ($esNuevo) {
+            $reglas += [
+                'nombre'   => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
+                'apellido' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
+                'email'    => 'required|email:rfc,filter|max:150|unique:clientes,email',
+                'cedula'   => 'required|digits:10|unique:clientes,cedula',
+                'telefono' => ['required', 'regex:/^09\d{8}$/', $this->reglaTelefonoReal()],
+                'ciudad'   => 'nullable|string|max:100',
+            ];
+        } else {
+            $reglas['cliente_id'] = 'required|exists:clientes,id';
+        }
+
+        $validado = $request->validate($reglas, [
+            'items.required'      => 'Agrega al menos un producto al pedido.',
+            'items.*.talla_id.required' => 'Selecciona una talla para cada producto.',
+            'estado_pago_registro.required' => 'Selecciona cómo se registra el pago de este pedido.',
+            'nombre.regex'        => 'El nombre solo puede contener letras.',
+            'apellido.regex'      => 'El apellido solo puede contener letras.',
+            'email.required'      => 'El correo es obligatorio (la cuenta del cliente lo necesita).',
+            'email.unique'        => 'Ya existe un cliente con ese correo.',
+            'cedula.required'     => 'La cédula es obligatoria.',
+            'cedula.digits'       => 'La cédula debe tener 10 dígitos.',
+            'cedula.unique'       => 'Ya existe un cliente con esa cédula.',
+            'telefono.required'   => 'El teléfono es obligatorio.',
+            'telefono.regex'      => 'El teléfono debe empezar con 09 y tener 10 dígitos (ej: 0991234567).',
+            'cliente_id.required' => 'Selecciona un cliente.',
+        ]);
+
+        $tablaTalla = [
+            'uniforme'  => UniformeTalla::class,
+            'chompa'    => ChompaTalla::class,
+            'plantilla' => PlantillaTalla::class,
+        ];
+        $columnaProducto = ['uniforme' => 'uniforme_id', 'chompa' => 'chompa_id', 'plantilla' => 'plantilla_id'];
+        $claveCarrito = ['uniforme' => 'uniformes', 'chompa' => 'chompas', 'plantilla' => 'plantillas'];
+
+        $resultado = DB::transaction(function () use ($validado, $esNuevo, $checkoutService, $tablaTalla, $columnaProducto, $claveCarrito, $request) {
+            if ($esNuevo) {
+                $cliente = Cliente::create([
+                    'nombre'   => $validado['nombre'],
+                    'apellido' => $validado['apellido'],
+                    'email'    => $validado['email'],
+                    'cedula'   => $validado['cedula'] ?? null,
+                    'telefono' => $validado['telefono'] ?? null,
+                    'ciudad'   => $validado['ciudad'] ?? null,
+                    'password' => Hash::make(Str::random(24)),
+                    'activo'   => 1,
+                ]);
+                $clienteId = $cliente->id;
+            } else {
+                $clienteId = (int) $validado['cliente_id'];
+            }
+
+            $carritos = ['plantillas' => [], 'uniformes' => [], 'chompas' => []];
+
+            foreach ($validado['items'] as $item) {
+                $tipo = $item['tipo'];
+
+                // El precio SIEMPRE se toma de la BD, nunca del formulario.
+                $talla = $tablaTalla[$tipo]::where('id', $item['talla_id'])
+                    ->where($columnaProducto[$tipo], $item['producto_id'])
+                    ->where('disponible', 1)
+                    ->firstOrFail();
+
+                $bucket = $claveCarrito[$tipo];
+                $clave = $item['producto_id'] . '-' . $talla->id;
+
+                if (isset($carritos[$bucket][$clave])) {
+                    $carritos[$bucket][$clave]['cantidad'] += (int) $item['cantidad'];
+                } else {
+                    $carritos[$bucket][$clave] = [
+                        $columnaProducto[$tipo] => (int) $item['producto_id'],
+                        'talla_id'              => $talla->id,
+                        'talla'                 => $talla->talla,
+                        'precio'                => $talla->precio,
+                        'cantidad'              => (int) $item['cantidad'],
+                    ];
+                }
+            }
+
+            $creado = $checkoutService->confirmar($clienteId, $carritos);
+
+            $nuevoEstadoPago = match ($validado['estado_pago_registro']) {
+                'completo' => 'pagado_completo',
+                'adelanto' => 'adelanto_verificado',
+                default    => null,
+            };
+
+            if ($nuevoEstadoPago) {
+                foreach (array_filter($creado) as $pedido) {
+                    $pedido->estado_pago = $nuevoEstadoPago;
+                    $pedido->save();
+                }
+            }
+
+            return $creado;
+        });
+
+        if ($resultado['maestro']) {
+            return redirect()->route('admin.pedidos-tienda.show', $resultado['maestro']->id)
+                ->with('success', 'Pedido creado correctamente.');
+        }
+
+        $rutaPorTipo = [
+            'pedidoPlantilla' => 'admin.pedidos-plantillas.show',
+            'pedidoUniforme'  => 'admin.pedidos-uniformes.show',
+            'pedidoChompa'    => 'admin.pedidos-chompas.show',
+        ];
+
+        foreach ($rutaPorTipo as $clave => $ruta) {
+            if ($resultado[$clave]) {
+                return redirect()->route($ruta, $resultado[$clave]->id)
+                    ->with('success', 'Pedido creado correctamente.');
+            }
+        }
+
+        return redirect()->route('admin.pedidos-tienda.index')
+            ->with('success', 'Pedido creado correctamente.');
+    }
+
+    // ── Rechaza teléfonos "de relleno" que sí cumplen el formato 09XXXXXXXX
+    //    pero son evidentemente falsos: todos los dígitos iguales o una
+    //    secuencia consecutiva ascendente/descendente (ej: 0987654321).
+    private function reglaTelefonoReal(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) {
+            if (!preg_match('/^09\d{8}$/', (string) $value)) {
+                return;
+            }
+
+            $resto = substr($value, 2);
+
+            if (preg_match('/^(\d)\1+$/', $resto)) {
+                $fail('Ese número de teléfono no parece real (dígitos repetidos).');
+                return;
+            }
+
+            $ascendente = true;
+            $descendente = true;
+            for ($i = 1; $i < strlen($resto); $i++) {
+                $prev = (int) $resto[$i - 1];
+                $curr = (int) $resto[$i];
+                if ($curr !== $prev + 1) {
+                    $ascendente = false;
+                }
+                if ($curr !== $prev - 1) {
+                    $descendente = false;
+                }
+            }
+
+            if ($ascendente || $descendente) {
+                $fail('Ese número de teléfono no parece real (dígitos en secuencia).');
+            }
+        };
     }
 }

@@ -19,7 +19,7 @@
                 </div>
 
                 <div class="right-top-bar flex-w h-full">
-                    <a href="https://wa.me/{{ \App\Models\InformacionLocal::actual()->whatsapp_numero ?: '593992502749' }}" target="_blank" rel="noopener" class="flex-c-m trans-04 p-lr-25">
+                    <a href="https://wa.me/{{ \App\Models\InformacionLocal::actual()->whatsapp_numero ?: '593998340888' }}" target="_blank" rel="noopener" class="flex-c-m trans-04 p-lr-25">
                         Ayuda
                     </a>
 

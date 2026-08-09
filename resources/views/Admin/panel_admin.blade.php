@@ -100,6 +100,13 @@
         @endif
     </a>
 
+    <a href="{{ route('admin.pedidos-tienda.create') }}" class="nav-item">
+        <svg viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nuevo pedido
+    </a>
+
     <a href="{{ route('admin.disenios3d.index') }}" class="nav-item" data-badge-key="disenios3d">
         <svg viewBox="0 0 24 24"><path d="M12 2l9 4.9v10.2L12 22l-9-4.9V6.9L12 2z"/><path d="M12 22V12M21 6.9L12 12 3 6.9"/></svg>
         Diseños 3D

@@ -81,11 +81,13 @@ class PedidoController extends Controller
     // ── MOSTRAR FORMULARIO DE COMPROBANTE
     public function comprobante($id)
     {
-        $pedido = Pedido::with(['disenio.plantilla', 'tallas'])
+        $pedido = Pedido::with(['disenio.plantilla', 'tallas', 'comprobantes'])
                         ->where('cliente_id', session('usuario_id'))
                         ->findOrFail($id);
 
-        return view('cliente.comprobante', compact('pedido'));
+        $info = \App\Models\InformacionLocal::actual();
+
+        return view('cliente.comprobante', compact('pedido', 'info'));
     }
 
     // ── GUARDAR COMPROBANTE
@@ -93,27 +95,58 @@ class PedidoController extends Controller
     {
         $pedido = Pedido::where('cliente_id', session('usuario_id'))->findOrFail($id);
 
-        $request->validate([
+        // Bloquea reenvíos mientras un comprobante ya está pendiente de revisión
+        // o el pedido ya quedó pagado por completo. "adelanto_verificado" SÍ debe
+        // dejar pasar: ahí es cuando corresponde subir el comprobante del saldo.
+        if (in_array($pedido->estado_pago, ['adelanto_enviado', 'pago_completo_enviado', 'saldo_enviado', 'pagado_completo'])) {
+            return redirect()->route('cliente.pedidos.comprobante', $pedido->id);
+        }
+
+        $reglas = [
+            'tipo'       => 'required|in:adelanto,pago_completo,saldo_final',
             'archivo'    => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'referencia' => 'nullable|string|max:100',
-        ], [
-            'archivo.required' => 'Debes subir el comprobante.',
-            'archivo.mimes'    => 'Solo se aceptan imágenes o PDF.',
-            'archivo.max'      => 'El archivo no debe superar 5MB.',
+        ];
+        if (!$pedido->tipo_entrega) {
+            $reglas['tipo_entrega']      = 'required|in:retiro,domicilio';
+            $reglas['direccion_entrega'] = 'required_if:tipo_entrega,domicilio|nullable|string|max:255';
+        }
+
+        $request->validate($reglas, [
+            'archivo.required'              => 'Debes subir el comprobante.',
+            'archivo.mimes'                 => 'Solo se aceptan imágenes o PDF.',
+            'archivo.max'                    => 'El archivo no debe superar 5MB.',
+            'tipo_entrega.required'         => 'Selecciona cómo quieres recibir tu pedido.',
+            'direccion_entrega.required_if' => 'Ingresa la dirección donde quieres recibir tu pedido.',
         ]);
+
+        if (!$pedido->tipo_entrega) {
+            $pedido->tipo_entrega = $request->tipo_entrega;
+            $pedido->direccion_entrega = $request->tipo_entrega === 'domicilio' ? $request->direccion_entrega : null;
+        }
+
+        $monto = match ($request->tipo) {
+            'adelanto'      => $pedido->precio_adelanto,
+            'pago_completo' => $pedido->precio_total,
+            'saldo_final'   => $pedido->precio_saldo,
+        };
 
         $rutaArchivo = $request->file('archivo')->store('comprobantes', 'public');
 
         ComprobantePago::create([
             'pedido_id'  => $pedido->id,
-            'tipo'       => 'adelanto',
+            'tipo'       => $request->tipo,
             'archivo'    => $rutaArchivo,
             'referencia' => $request->referencia,
-            'monto'      => $pedido->precio_adelanto,
+            'monto'      => $monto,
             'estado'     => 'pendiente',
         ]);
 
-        $pedido->estado_pago = 'adelanto_enviado';
+        $pedido->estado_pago = match ($request->tipo) {
+            'adelanto'      => 'adelanto_enviado',
+            'pago_completo' => 'pago_completo_enviado',
+            'saldo_final'   => 'saldo_enviado',
+        };
         $pedido->save();
 
         return redirect()->route('cliente.mis-pedidos')

@@ -13,15 +13,22 @@ use App\Models\PedidoUniformeItem;
 class CheckoutService
 {
     /**
-     * Confirma los carritos de sesión (ropa/uniformes/chompas) del cliente.
+     * Confirma los carritos (ropa/uniformes/chompas) del cliente.
      * Si hay 2 o más tipos con items, los agrupa bajo un PedidoMaestro
      * con un solo código/total/adelanto/saldo combinados.
+     *
+     * Por defecto lee los carritos de la sesión (flujo normal del cliente).
+     * Si se pasa $carritos (claves 'plantillas'/'uniformes'/'chompas'), se usan esos
+     * en su lugar y no se toca la sesión — así el admin puede armar un pedido a
+     * nombre de un cliente sin depender del carrito de sesión de nadie.
      */
-    public function confirmar(int $clienteId): array
+    public function confirmar(int $clienteId, ?array $carritos = null): array
     {
-        $carritoPlantillas = session('carrito_plantillas', []);
-        $carritoUniformes  = session('carrito_uniformes', []);
-        $carritoChompas    = session('carrito_chompas', []);
+        $usaSesion = $carritos === null;
+
+        $carritoPlantillas = $carritos['plantillas'] ?? session('carrito_plantillas', []);
+        $carritoUniformes  = $carritos['uniformes']  ?? session('carrito_uniformes', []);
+        $carritoChompas    = $carritos['chompas']    ?? session('carrito_chompas', []);
 
         $pedidoPlantilla = empty($carritoPlantillas) ? null : $this->crearPedidoPlantilla($clienteId, $carritoPlantillas);
         $pedidoUniforme  = empty($carritoUniformes)  ? null : $this->crearPedidoUniforme($clienteId, $carritoUniformes);
@@ -45,14 +52,16 @@ class CheckoutService
             }
         }
 
-        if ($pedidoPlantilla) {
-            session()->forget('carrito_plantillas');
-        }
-        if ($pedidoUniforme) {
-            session()->forget('carrito_uniformes');
-        }
-        if ($pedidoChompa) {
-            session()->forget('carrito_chompas');
+        if ($usaSesion) {
+            if ($pedidoPlantilla) {
+                session()->forget('carrito_plantillas');
+            }
+            if ($pedidoUniforme) {
+                session()->forget('carrito_uniformes');
+            }
+            if ($pedidoChompa) {
+                session()->forget('carrito_chompas');
+            }
         }
 
         return compact('maestro', 'pedidoPlantilla', 'pedidoUniforme', 'pedidoChompa');

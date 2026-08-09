@@ -28,6 +28,21 @@
       </div>
     </div>
 
+    {{-- ENTREGA --}}
+    <div class="card card-pad reveal">
+      <div style="font-size:1rem;font-weight:700;color:var(--text-1);margin-bottom:14px;">Entrega</div>
+      @if($pedido->tipo_entrega)
+        <div style="font-size:0.88rem;color:var(--text-2);line-height:2;">
+          <div><strong style="color:var(--text-1);">Tipo:</strong> {{ \App\Support\PedidoEstados::etiquetaEntrega($pedido->tipo_entrega) }}</div>
+          @if($pedido->tipo_entrega === 'domicilio')
+            <div><strong style="color:var(--text-1);">Dirección:</strong> {{ $pedido->direccion_entrega ?? 'No especificada' }}</div>
+          @endif
+        </div>
+      @else
+        <div class="t-muted" style="font-size:0.85rem;">El cliente aún no eligió el tipo de entrega (lo hace al subir su comprobante de pago).</div>
+      @endif
+    </div>
+
     {{-- COMPROBANTES DE PAGO --}}
     <div class="card reveal" style="overflow:hidden;">
       <div style="padding:16px 20px;font-size:1rem;font-weight:700;color:var(--text-1);border-bottom:1px solid var(--border);">
@@ -119,7 +134,7 @@
       <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;margin-bottom:7px;">Estado del pedido</label>
       <select name="estado"
         style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:0.9rem;background:var(--bg-2);color:var(--text-1);">
-        @foreach(['recibido','en_produccion','listo','enviado','entregado','cancelado'] as $estado)
+        @foreach(\App\Support\PedidoEstados::estadosDisponibles($pedido->tipo_entrega) as $estado)
           <option value="{{ $estado }}" {{ $pedido->estado === $estado ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$estado)) }}</option>
         @endforeach
       </select>

@@ -37,6 +37,11 @@ class InformacionLocalController extends Controller
             'whatsapp_horario'          => 'nullable|string|max:255',
             'visitanos_titulo'          => 'nullable|string|max:255',
             'visitanos_texto'           => 'nullable|string|max:500',
+            'cuenta_banco'              => 'nullable|string|max:100',
+            'cuenta_tipo'               => 'nullable|string|max:50',
+            'cuenta_numero'             => 'nullable|string|max:50',
+            'cuenta_titular'            => 'nullable|string|max:150',
+            'cuenta_identificacion'     => 'nullable|string|max:50',
         ]);
 
         $info = InformacionLocal::actual();
@@ -45,6 +50,7 @@ class InformacionLocalController extends Controller
             'banner_titulo', 'banner_subtitulo',
             'whatsapp_numero', 'whatsapp_mensaje', 'whatsapp_direccion', 'whatsapp_horario',
             'visitanos_titulo', 'visitanos_texto',
+            'cuenta_banco', 'cuenta_tipo', 'cuenta_numero', 'cuenta_titular', 'cuenta_identificacion',
         ]));
 
         if ($request->hasFile('imagen')) {
