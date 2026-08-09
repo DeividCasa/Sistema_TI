@@ -9,6 +9,7 @@ use App\Models\PedidoPlantilla;
 use App\Models\PedidoPlantillaItem;
 use App\Models\PedidoUniforme;
 use App\Models\PedidoUniformeItem;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutService
 {
@@ -30,41 +31,52 @@ class CheckoutService
         $carritoUniformes  = $carritos['uniformes']  ?? session('carrito_uniformes', []);
         $carritoChompas    = $carritos['chompas']    ?? session('carrito_chompas', []);
 
-        $pedidoPlantilla = empty($carritoPlantillas) ? null : $this->crearPedidoPlantilla($clienteId, $carritoPlantillas);
-        $pedidoUniforme  = empty($carritoUniformes)  ? null : $this->crearPedidoUniforme($clienteId, $carritoUniformes);
-        $pedidoChompa    = empty($carritoChompas)    ? null : $this->crearPedidoChompa($clienteId, $carritoChompas);
+        // Todo el checkout corre en una sola transacción: si algo falla a
+        // mitad de camino (ej. un carrito con datos corruptos truena en el
+        // segundo tipo de prenda), no deben quedar pedidos huérfanos a medio
+        // crear ni un PedidoMaestro apuntando a hijos que no se guardaron.
+        $resultado = DB::transaction(function () use ($clienteId, $carritoPlantillas, $carritoUniformes, $carritoChompas) {
+            $pedidoPlantilla = empty($carritoPlantillas) ? null : $this->crearPedidoPlantilla($clienteId, $carritoPlantillas);
+            $pedidoUniforme  = empty($carritoUniformes)  ? null : $this->crearPedidoUniforme($clienteId, $carritoUniformes);
+            $pedidoChompa    = empty($carritoChompas)    ? null : $this->crearPedidoChompa($clienteId, $carritoChompas);
 
-        $hijos = array_filter([$pedidoPlantilla, $pedidoUniforme, $pedidoChompa]);
-        $maestro = null;
+            $hijos = array_filter([$pedidoPlantilla, $pedidoUniforme, $pedidoChompa]);
+            $maestro = null;
 
-        if (count($hijos) > 1) {
-            $maestro = PedidoMaestro::create([
-                'cliente_id'      => $clienteId,
-                'codigo'          => $this->generarCodigoMaestro(),
-                'precio_total'    => array_sum(array_map(fn ($h) => $h->precio_total, $hijos)),
-                'precio_adelanto' => array_sum(array_map(fn ($h) => $h->precio_adelanto, $hijos)),
-                'precio_saldo'    => array_sum(array_map(fn ($h) => $h->precio_saldo, $hijos)),
-                'estado_pago'     => 'pendiente',
-            ]);
+            if (count($hijos) > 1) {
+                $maestro = PedidoMaestro::create([
+                    'cliente_id'      => $clienteId,
+                    'codigo'          => $this->generarCodigoMaestro(),
+                    'precio_total'    => array_sum(array_map(fn ($h) => $h->precio_total, $hijos)),
+                    'precio_adelanto' => array_sum(array_map(fn ($h) => $h->precio_adelanto, $hijos)),
+                    'precio_saldo'    => array_sum(array_map(fn ($h) => $h->precio_saldo, $hijos)),
+                    'estado_pago'     => 'pendiente',
+                ]);
 
-            foreach ($hijos as $hijo) {
-                $hijo->update(['pedido_maestro_id' => $maestro->id]);
+                foreach ($hijos as $hijo) {
+                    $hijo->update(['pedido_maestro_id' => $maestro->id]);
+                }
             }
-        }
 
+            return compact('maestro', 'pedidoPlantilla', 'pedidoUniforme', 'pedidoChompa');
+        });
+
+        // Solo se limpia la sesión después de que la transacción confirmó
+        // sin errores; si hubiera fallado, el carrito sigue intacto para
+        // que el cliente pueda reintentar sin perder lo que tenía.
         if ($usaSesion) {
-            if ($pedidoPlantilla) {
+            if ($resultado['pedidoPlantilla']) {
                 session()->forget('carrito_plantillas');
             }
-            if ($pedidoUniforme) {
+            if ($resultado['pedidoUniforme']) {
                 session()->forget('carrito_uniformes');
             }
-            if ($pedidoChompa) {
+            if ($resultado['pedidoChompa']) {
                 session()->forget('carrito_chompas');
             }
         }
 
-        return compact('maestro', 'pedidoPlantilla', 'pedidoUniforme', 'pedidoChompa');
+        return $resultado;
     }
 
     private function crearPedidoPlantilla(int $clienteId, array $carrito): PedidoPlantilla
@@ -79,7 +91,7 @@ class CheckoutService
         $adelanto = round($total / 2, 2);
         $saldo    = $total - $adelanto;
 
-        $codigo = 'ROP-' . date('Y') . '-' . str_pad(PedidoPlantilla::count() + 1, 3, '0', STR_PAD_LEFT);
+        $codigo = $this->generarCodigoSecuencial('ROP-' . date('Y') . '-', PedidoPlantilla::class);
 
         $pedido = PedidoPlantilla::create([
             'cliente_id'      => $clienteId,
@@ -119,7 +131,7 @@ class CheckoutService
         $adelanto = round($total / 2, 2);
         $saldo    = $total - $adelanto;
 
-        $codigo = 'UE-' . date('Y') . '-' . str_pad(PedidoUniforme::count() + 1, 3, '0', STR_PAD_LEFT);
+        $codigo = $this->generarCodigoSecuencial('UE-' . date('Y') . '-', PedidoUniforme::class);
 
         $pedido = PedidoUniforme::create([
             'cliente_id'      => $clienteId,
@@ -187,6 +199,27 @@ class CheckoutService
         }
 
         return $pedido;
+    }
+
+    /**
+     * Genera un código correlativo tipo "PREFIJO001" verificando que no
+     * exista ya, incrementando en cada colisión. Antes se usaba
+     * `Modelo::count() + 1` directo, que puede repetirse si dos checkouts
+     * concurrentes leen el mismo count() antes de que el primero confirme
+     * su insert, o si hay huecos por pedidos borrados — eso truena con un
+     * QueryException por el índice único de "codigo" y da un 500 al cliente.
+     */
+    private function generarCodigoSecuencial(string $prefijo, string $modelClass): string
+    {
+        $siguiente = $modelClass::count() + 1;
+
+        do {
+            $codigo = $prefijo . str_pad($siguiente, 3, '0', STR_PAD_LEFT);
+            $existe = $modelClass::where('codigo', $codigo)->exists();
+            $siguiente++;
+        } while ($existe);
+
+        return $codigo;
     }
 
     private function generarCodigoMaestro(): string

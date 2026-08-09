@@ -48,8 +48,16 @@ class PedidoController extends Controller
             $precioAdelanto = round($precioTotal / 2, 2);
             $precioSaldo    = $precioTotal - $precioAdelanto;
 
-            // 3. Generar código único
-            $codigo = 'LJ-' . date('Y') . '-' . str_pad(Pedido::count() + 1, 3, '0', STR_PAD_LEFT);
+            // 3. Generar código único: se reintenta si ya existe (dos
+            // checkouts simultáneos podrían leer el mismo count() antes de
+            // que el primero confirme su insert y chocar contra el índice
+            // único de "codigo").
+            $siguiente = Pedido::count() + 1;
+            do {
+                $codigo = 'LJ-' . date('Y') . '-' . str_pad($siguiente, 3, '0', STR_PAD_LEFT);
+                $existe = Pedido::where('codigo', $codigo)->exists();
+                $siguiente++;
+            } while ($existe);
 
             // 4. Crear el pedido
             $pedido = Pedido::create([

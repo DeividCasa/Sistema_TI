@@ -231,6 +231,13 @@ function actualizarColumnaAcc() {
   columna.style.display = Object.values(ACCESORIOS).some(a => a.activo) ? 'flex' : 'none';
 }
 
+// Tope de reintentos esperando a que modelo3D esté listo (300ms * 40 = 12s).
+// Sin esto, si el GLB principal nunca termina de cargar (red lenta, CDN
+// bloqueado, error silencioso), el setTimeout se reprograma solo para
+// siempre: un timer en background que nunca termina y el accesorio pedido
+// nunca aparece sin que el cliente sepa por qué.
+const MAX_REINTENTOS_MODELO3D = 40;
+
 /* ── Cargar accesorio en el scene3d principal ── */
 /* ── Usar modelo3D principal (ya en escena) para mostrar accesorios ── */
 function cargarAccesorioEnScene3D(id) {
@@ -240,10 +247,18 @@ function cargarAccesorioEnScene3D(id) {
   // modelo3D ya tiene todos los meshes del GLB completo
   // Solo hay que asignar materiales y hacerlos visibles
   if (!modelo3D) {
+    acc._reintentosModelo3D = (acc._reintentosModelo3D || 0) + 1;
+    if (acc._reintentosModelo3D > MAX_REINTENTOS_MODELO3D) {
+      acc._reintentosModelo3D = 0;
+      console.error('[Accesorio ' + id + '] El modelo 3D nunca terminó de cargar, se cancela el reintento.');
+      if (typeof toast === 'function') toast('No se pudo mostrar ' + (acc.label || id) + ': el modelo 3D no cargó.', 'error');
+      return;
+    }
     // Si el modelo aún no cargó, reintentar en 300ms
     setTimeout(() => cargarAccesorioEnScene3D(id), 300);
     return;
   }
+  acc._reintentosModelo3D = 0;
   aplicarMaterialesAccesorio(id);
   reencuadrarUniforme();
 }
@@ -266,6 +281,7 @@ function cargarAccesorioIndependiente(id) {
   if (!acc.activo) return;
 
   if (acc.grupo) {
+    acc._reintentosModelo3D = 0;
     acc.grupo.visible = true;
     posicionarAccesorioIndependiente(id);
     reencuadrarUniforme();
@@ -273,12 +289,20 @@ function cargarAccesorioIndependiente(id) {
   }
   if (acc.cargando) return;
   if (!modelo3D) {
+    acc._reintentosModelo3D = (acc._reintentosModelo3D || 0) + 1;
+    if (acc._reintentosModelo3D > MAX_REINTENTOS_MODELO3D) {
+      acc._reintentosModelo3D = 0;
+      console.error('[Accesorio ' + id + '] El modelo 3D nunca terminó de cargar, se cancela el reintento.');
+      if (typeof toast === 'function') toast('No se pudo mostrar ' + (acc.label || id) + ': el modelo 3D no cargó.', 'error');
+      return;
+    }
     // Esperar a que la prenda (chompa) ya esté cargada, para poder
     // posicionar el pantalón relativo a su bounding box.
     setTimeout(() => cargarAccesorioIndependiente(id), 300);
     return;
   }
 
+  acc._reintentosModelo3D = 0;
   acc.cargando = true;
   const loaderAcc = new THREE.GLTFLoader();
   loaderAcc.load(

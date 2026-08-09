@@ -192,17 +192,29 @@ async function abrirVisor3D(disenioId, nombreDiseno, imagenFallback) {
     return;
   }
 
-  aplicarDatosAlEstado(payload);
+  // Todo lo que sigue puede tronar de forma síncrona (ej. init3D() al
+  // crear el WebGLRenderer si el navegador/máquina no tiene WebGL
+  // disponible — VMs, sesiones RDP, hardware sin aceleración). Si eso pasa
+  // antes de esperarModeloCargadoVisor3D(), el temporizador que muestra el
+  // error a los 15s nunca llega a armarse y el overlay de "Cargando..."
+  // se queda pegado para siempre sin avisar nada al cliente.
+  try {
+    aplicarDatosAlEstado(payload);
 
-  if (!visor3DInicializado) {
-    init3D();
-    initAccesorios();
-    visor3DInicializado = true;
-  } else {
-    cargarModelo3D();
+    if (!visor3DInicializado) {
+      init3D();
+      initAccesorios();
+      visor3DInicializado = true;
+    } else {
+      cargarModelo3D();
+    }
+
+    aplicarAccesorios(payload);
+  } catch (e) {
+    console.error('Error abriendo el visor 3D:', e);
+    mostrarErrorVisor3D();
+    return;
   }
-
-  aplicarAccesorios(payload);
 
   esperarModeloCargadoVisor3D();
 }

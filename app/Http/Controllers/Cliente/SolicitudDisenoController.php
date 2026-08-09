@@ -91,9 +91,18 @@ class SolicitudDisenoController extends Controller
         $precioTotal    = $solicitud->precio;
         $precioAdelanto = round($precioTotal / 2, 2);
         $precioSaldo    = $precioTotal - $precioAdelanto;
-        $codigo         = 'LJ-' . date('Y') . '-' . str_pad(Pedido::count() + 1, 3, '0', STR_PAD_LEFT);
 
-        $pedido = DB::transaction(function () use ($solicitud, $codigo, $cantidadTotal, $precioTotal, $precioAdelanto, $precioSaldo) {
+        $pedido = DB::transaction(function () use ($solicitud, $cantidadTotal, $precioTotal, $precioAdelanto, $precioSaldo) {
+            // Código único: se reintenta si ya existe (dos aceptaciones
+            // simultáneas podrían leer el mismo count() antes de que la
+            // primera confirme su insert y chocar contra el índice único).
+            $siguiente = Pedido::count() + 1;
+            do {
+                $codigo = 'LJ-' . date('Y') . '-' . str_pad($siguiente, 3, '0', STR_PAD_LEFT);
+                $existe = Pedido::where('codigo', $codigo)->exists();
+                $siguiente++;
+            } while ($existe);
+
             $pedido = Pedido::create([
                 'cliente_id'      => $solicitud->cliente_id,
                 'disenio_id'      => $solicitud->disenio_id,
